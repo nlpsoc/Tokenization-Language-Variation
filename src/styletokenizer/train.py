@@ -14,12 +14,12 @@ def main(train_path, dev_path):
     train_data = load_pickle_file(train_path)
 
     # Extract the texts and labels from the training data
-    train_texts1 = tokenizer.tokenize([item['u1'] for item in train_data])
-    train_texts2 = tokenizer.tokenize([item['u2'] for item in train_data])
+    train_texts1 = [item['u1'] for item in train_data]
+    train_texts2 = [item['u2'] for item in train_data]
     train_labels = [item['label'] for item in train_data]
 
     # Initialize the TextClassifier
-    classifier = TextClassifier()
+    classifier = TextClassifier(tokenizer=tokenizer.tokenize)
 
     # Fit the TextClassifier model on the training data
     classifier.fit(train_texts1, train_texts2, train_labels)
@@ -28,8 +28,8 @@ def main(train_path, dev_path):
     dev_data = load_pickle_file(dev_path)
 
     # Extract the texts and labels from the development data
-    dev_texts1 = tokenizer.tokenize([item['u1'] for item in dev_data])
-    dev_texts2 = tokenizer.tokenize([item['u2'] for item in dev_data])
+    dev_texts1 = [item['u1'] for item in dev_data]
+    dev_texts2 = [item['u2'] for item in dev_data]
     dev_labels = [item['label'] for item in dev_data]
 
     # Evaluate the model on the development data
