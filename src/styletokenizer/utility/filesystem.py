@@ -14,3 +14,11 @@ def get_dir_to_src():
         return os.path.dirname(dir_path)
     else:
         return dir_path
+
+
+def get_data_dir():
+    # test if on local machine
+    if "anna" in get_dir_to_src():
+        return "/shared/3/projects/hiatus/TOKENIZER_wegmann"
+    else:
+        return get_dir_to_src() + "/.."

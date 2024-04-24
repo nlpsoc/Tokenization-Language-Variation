@@ -26,7 +26,7 @@ from torch.nn.utils import clip_grad_norm_
 from torch.optim import lr_scheduler
 
 from styletokenizer.utility.env_variables import set_torch_device, set_logging
-from styletokenizer.utility.filesystem import get_dir_to_src
+from styletokenizer.utility.filesystem import get_dir_to_src, get_data_dir
 import logging
 
 set_logging()
@@ -202,8 +202,8 @@ def compute_metric(logits, targets, threshold=0.5):
     accuracy = (np.array(targets) == np.array(scores))
     accuracy = sum(accuracy) / len(accuracy)
     f1 = f1_score(targets, scores)
-    print(accuracy)
-    print(f1_score(targets, scores))
+    logging.info(f"Accuracy: {accuracy}")
+    logging.info(f"F1 Score: {f1_score(targets, scores)}")
     return accuracy, f1
 
 
@@ -227,7 +227,7 @@ if __name__ == "__main__":
                                                                   '-Amazon_test_contrastive', type=str)
     parser.add_argument("--train", default=True, type=bool)
     parser.add_argument("--test", default=True, type=bool)
-    parser.add_argument("--save_model", default=get_dir_to_src() + '/../models', type=str)
+    parser.add_argument("--save_model", default=get_data_dir() + '/models', type=str)
     parser.add_argument("--load_model", default=None, type=str)
     parser.add_argument("--distance", default='cosine', type=str)
     parser.add_argument("--tau_low", default=0.2, type=float)
