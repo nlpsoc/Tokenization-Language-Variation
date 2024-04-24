@@ -25,6 +25,10 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.nn.utils import clip_grad_norm_
 from torch.optim import lr_scheduler
 
+from styletokenizer.utility.env_variables import set_torch_device, set_logging
+from styletokenizer.utility.filesystem import get_dir_to_src
+import logging
+set_logging()
 
 # preprocess the texts
 def loads(path):
@@ -93,7 +97,7 @@ def tokenize_word(textA, textB, seq_len=100):
 def batchify(text_a, text_b, lengths_a, lengths_b, labels, size=16, shuffling=False):
     length = len(text_a)
 
-    if shuffling == True:
+    if shuffling:
         text_a, text_b, labels = shuffle(text_a, text_b, labels)
 
     for i in range(0, length, size):
@@ -164,7 +168,7 @@ def train(args, model, train_a, train_b, tr_attn_a, tr_attn_b, label_tr):
         if i % args.grad_acc == 0:
             optimizer.step()
             optimizer.zero_grad()
-            print("The loss is: %s" % loss.item())
+            logging.info("The loss is: %s" % loss.item())
 
 
 def evaluate(args, test_a, test_b, te_attn_a, te_attn_b, label_te):
@@ -204,15 +208,18 @@ def compute_metric(logits, targets, threshold=0.5):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tokenization", default='words', type=str)
+    parser.add_argument("--tokenization", default='bert-base-uncased', type=str)   #  "words"
     parser.add_argument('--hidden_dim', default=300, type=int)
     parser.add_argument('--out_dim', default=300, type=int)
-    parser.add_argument("--training_data", default='Data/tr-samples_contrastive', type=str)
-    parser.add_argument("--develop_data", default='Data/de-samples_contrastive', type=str)
-    parser.add_argument("--test_data", default='Data/te-samples_contrastive', type=str)
+    # parser.add_argument("--training_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
+    #                                                                   '/Amazon_train_contrastive', type=str)
+    # parser.add_argument("--develop_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
+    #                                                                  '/Amazon_dev_contrastive', type=str)
+    # parser.add_argument("--test_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
+    #                                                               '/Amazon_test_contrastive', type=str)
     parser.add_argument("--train", default=True, type=bool)
     parser.add_argument("--test", default=True, type=bool)
-    parser.add_argument("--save_model", default='./model', type=str)
+    parser.add_argument("--save_model", default=get_dir_to_src() + '/../models', type=str)
     parser.add_argument("--load_model", default=None, type=str)
     parser.add_argument("--distance", default='cosine', type=str)
     parser.add_argument("--tau_low", default=0.2, type=float)
@@ -225,7 +232,8 @@ if __name__ == "__main__":
     parser.add_argument('--save_epochs', default=2, type=int)
     args = parser.parse_args()
 
-    device = "cuda"
+    device = set_torch_device()
+    device = device
     # initiate the tokenizer
     if args.tokenization == 'bert-base-uncased':
         tokenizer = BertTokenizerFast.from_pretrained('bert-base-uncased')
@@ -274,6 +282,7 @@ if __name__ == "__main__":
         trainA, trainB = preprocess(text_tr)
         testA, testB = preprocess(text_te)
 
+        logging.info("Tokenizing data")
         # tokenize the data
         if args.tokenization != 'words':
             train_a, train_b, tr_attn_a, tr_attn_b = tokenize(trainA, trainB)
@@ -282,6 +291,7 @@ if __name__ == "__main__":
             train_a, train_b, tr_attn_a, tr_attn_b = tokenize_word(trainA, trainB)
             test_a, test_b, te_attn_a, te_attn_b = tokenize_word(testA, testB)
 
+        logging.info("Training the model")
         for k in range(1, args.epochs + 1):
             with open(os.path.join(args.save_model, model_name, 'results'), 'a+') as out:
                 train(args, model, train_a, train_b, tr_attn_a, tr_attn_b, label_tr)
