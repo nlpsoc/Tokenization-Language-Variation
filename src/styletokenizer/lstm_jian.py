@@ -28,7 +28,9 @@ from torch.optim import lr_scheduler
 from styletokenizer.utility.env_variables import set_torch_device, set_logging
 from styletokenizer.utility.filesystem import get_dir_to_src
 import logging
+
 set_logging()
+
 
 # preprocess the texts
 def loads(path):
@@ -208,7 +210,7 @@ def compute_metric(logits, targets, threshold=0.5):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tokenization", default='bert-base-uncased', type=str)   #  "words"
+    parser.add_argument("--tokenization", default='bert-base-uncased', type=str)  # "words"
     parser.add_argument('--hidden_dim', default=300, type=int)
     parser.add_argument('--out_dim', default=300, type=int)
     # parser.add_argument("--training_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
@@ -217,6 +219,12 @@ if __name__ == "__main__":
     #                                                                  '/Amazon_dev_contrastive', type=str)
     # parser.add_argument("--test_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
     #                                                               '/Amazon_test_contrastive', type=str)
+    parser.add_argument("--training_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+                                                                      '-Amazon_train_contrastive', type=str)
+    parser.add_argument("--develop_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+                                                                     '-Amazon_dev_contrastive', type=str)
+    parser.add_argument("--test_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+                                                                  '-Amazon_test_contrastive', type=str)
     parser.add_argument("--train", default=True, type=bool)
     parser.add_argument("--test", default=True, type=bool)
     parser.add_argument("--save_model", default=get_dir_to_src() + '/../models', type=str)
