@@ -21,5 +21,5 @@ def get_data_dir():
     if "git projects.nosync" in get_dir_to_src():
         return get_dir_to_src() + "/.."
     else:
-        return "/shared/3/projects/hiatus/TOKENIZER_wegmann"
+        return "/shared/3/projects/hiatus/TOKENIZER_wegmann/jian"
 
