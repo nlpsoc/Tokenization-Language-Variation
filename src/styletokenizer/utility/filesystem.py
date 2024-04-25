@@ -19,6 +19,7 @@ def get_dir_to_src():
 def get_data_dir():
     # test if on local machine
     if "anna" in get_dir_to_src():
-        return "/shared/3/projects/hiatus/TOKENIZER_wegmann"
-    else:
         return get_dir_to_src() + "/.."
+    else:
+        return "/shared/3/projects/hiatus/TOKENIZER_wegmann"
+
