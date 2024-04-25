@@ -213,18 +213,15 @@ if __name__ == "__main__":
     parser.add_argument("--tokenization", default='bert-base-uncased', type=str)  # "words"
     parser.add_argument('--hidden_dim', default=300, type=int)
     parser.add_argument('--out_dim', default=300, type=int)
-    # parser.add_argument("--training_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
-    #                                                                   '/Amazon_train_contrastive', type=str)
-    # parser.add_argument("--develop_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
-    #                                                                  '/Amazon_dev_contrastive', type=str)
-    # parser.add_argument("--test_data", default=get_dir_to_src() + '/../data/2021_jian_idiolect/Amazon'
-    #                                                               '/Amazon_test_contrastive', type=str)
-    parser.add_argument("--training_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
-                                                                      '-Amazon_train_contrastive', type=str)
-    parser.add_argument("--develop_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
-                                                                     '-Amazon_dev_contrastive', type=str)
-    parser.add_argument("--test_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
-                                                                  '-Amazon_test_contrastive', type=str)
+    parser.add_argument("--training_data", default=get_data_dir() + '/Amazon_train_contrastive', type=str)
+    parser.add_argument("--develop_data", default=get_data_dir() + '/Amazon_dev_contrastive', type=str)
+    parser.add_argument("--test_data", default=get_data_dir() + '/Amazon_test_contrastive', type=str)
+    # parser.add_argument("--training_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+    #                                                                   '-Amazon_train_contrastive', type=str)
+    # parser.add_argument("--develop_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+    #                                                                  '-Amazon_dev_contrastive', type=str)
+    # parser.add_argument("--test_data", default=get_dir_to_src() + '/test/fixtures/FIXTURE-10'
+    #                                                               '-Amazon_test_contrastive', type=str)
     parser.add_argument("--train", default=True, type=bool)
     parser.add_argument("--test", default=True, type=bool)
     parser.add_argument("--save_model", default=get_data_dir() + '/models', type=str)
