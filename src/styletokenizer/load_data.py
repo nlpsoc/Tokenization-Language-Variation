@@ -1,11 +1,14 @@
-
 import pickle
 import html
+
+"""
+    FILE LOADING UTILITY
+"""
 
 
 def load_pickle_file(file_path):
     """
-        load data
+        load small reddit data sample (from Anna's Style Embedding paper)
         unescapes html entites (especially the quoting on reddit with > or &gt;)
         function generated with CoPilot, April 22nd 2024
     :param file_path:
