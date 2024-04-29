@@ -1,6 +1,10 @@
 import pandas as pd
+import os
 
 GYAFC_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/GYAFC/GYAFC_Corpus/"
+GYAFC_PATH_LOCAL = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/GYAFC/GYAFC_Corpus/"
+if "anna" in os.getcwd():
+    GYAFC_PATH = GYAFC_PATH_LOCAL
 ENTERTAINMENT = "Entertainment_Music/"
 FAMILY = "Family_Relationships/"
 

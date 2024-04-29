@@ -6,7 +6,7 @@ from styletokenizer.tokenizer import Tokenizer
 from styletokenizer.utility import gyafc
 import random
 from utility.gyafc import to_classification_data
-
+from styletokenizer import POS
 
 def shuffle_lists_in_unison(list1, list2):
     """ generated CoPilot, April 29 2024
@@ -22,7 +22,7 @@ def shuffle_lists_in_unison(list1, list2):
     return list1, list2
 
 
-def main(tokenizer_name="bert-base-uncased"):
+def main(tokenizer_name=None):
     # Load the training data
     train_data = gyafc.load_train_data()
     train_labels, train_texts = to_classification_data(train_data)
@@ -31,8 +31,14 @@ def main(tokenizer_name="bert-base-uncased"):
 
     # Set the Tokenizer
     print(f"Setting tokenizer to {tokenizer_name}")
-    tokenizer = Tokenizer(tokenizer_name)
-    classifier = TextClassifier(tokenizer=tokenizer.tokenize)
+    if not tokenizer_name:
+        classifier = TextClassifier()
+    elif tokenizer_name == "POS":
+        classifier = TextClassifier(tokenizer=POS.tag)
+    elif tokenizer_name:
+        tokenizer = Tokenizer(tokenizer_name)
+        classifier = TextClassifier(tokenizer=tokenizer.tokenize)
+
     classifier.fit_vectorizer(train_texts)
 
     # Fit the TextClassifier model on the training data
@@ -45,11 +51,11 @@ def main(tokenizer_name="bert-base-uncased"):
     # Evaluate the model on the development data
     score = classifier.score(dev_texts, dev_labels)
 
-    # Print the performance
+    # Print the performance of the model
     print(f'Model performance on development set: {score}')
     print(f'Number of features: {len(classifier.get_coefficients())}')
     print(f'Formal set to 1 in classification')
     classifier.print_extreme_coefficients()
 
 
-main(tokenizer_name="roberta-base")
+main(tokenizer_name="POS")

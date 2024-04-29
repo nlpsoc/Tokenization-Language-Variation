@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 class TextClassifier:
     def __init__(self, tokenizer=None):
         self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True)  # deterministic
-        self.model = LogisticRegression(random_state=123, max_iter=1000, penalty='l1', solver='saga', C=1.0)
+        self.model = LogisticRegression(random_state=123, max_iter=1000)  # , penalty='l1', solver='saga', C=1.0
 
     def fit_vectorizer(self, texts):
         print("Fitting vectorizer...")
@@ -52,7 +52,7 @@ class TextClassifier:
         # Return a dictionary mapping feature names to coefficients
         return dict(zip(feature_names, coefficients))
 
-    def print_extreme_coefficients(self, n=5):
+    def print_extreme_coefficients(self, n=100):
         # Get the coefficients
         coefficients = self.get_coefficients()
 

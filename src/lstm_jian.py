@@ -298,7 +298,7 @@ if __name__ == "__main__":
 
         logging.info("Training the model")
         for k in range(1, args.epochs + 1):
-            with open(os.path.join(args.save_model, model_name, 'results'), 'a+') as out:
+            with open(os.path.join(args.save_model, model_name, '../results'), 'a+') as out:
                 train(args, model, train_a, train_b, tr_attn_a, tr_attn_b, label_tr)
                 logits, targets = evaluate(args, test_a, test_b, te_attn_a, te_attn_b, label_te)
                 accuracy, f1 = compute_metric(logits, targets, threshold=threshold)
