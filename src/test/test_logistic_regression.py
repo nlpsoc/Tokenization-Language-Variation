@@ -1,10 +1,10 @@
 from unittest import TestCase
-from styletokenizer.logistic_regression import TextClassifier
+from styletokenizer.logistic_regression import TextsClassifier
 
 
 class TestTextClassifier(TestCase):
     def setUp(self):
-        self.classifier = TextClassifier()
+        self.classifier = TextsClassifier()
 
     def test_fit_and_predict(self):
         # Define some simple training data

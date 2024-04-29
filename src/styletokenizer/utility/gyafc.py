@@ -46,3 +46,10 @@ def _read_txt_lines(document_path):
     with open(document_path, 'r') as file:
         document_lines = file.readlines()
     return document_lines
+
+
+def to_classification_data(train_data):
+    # create classification data
+    train_texts = train_data["formal"].tolist() + train_data["informal"].tolist()
+    train_labels = [1 for _ in range(len(train_data))] + [0 for _ in range(len(train_data))]
+    return train_labels, train_texts

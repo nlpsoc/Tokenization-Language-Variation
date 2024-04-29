@@ -3,7 +3,7 @@
 """
 import argparse
 from styletokenizer.load_data import load_pickle_file
-from styletokenizer.logistic_regression import TextClassifier
+from styletokenizer.logistic_regression import TextsClassifier
 from styletokenizer.utility.filesystem import get_dir_to_src
 from styletokenizer.tokenizer import Tokenizer
 
@@ -19,7 +19,7 @@ def main(train_path, dev_path):
     train_labels = [item['label'] for item in train_data]
 
     # Initialize the TextClassifier
-    classifier = TextClassifier(tokenizer=tokenizer.tokenize)
+    classifier = TextsClassifier(tokenizer=tokenizer.tokenize)
 
     # Fit the TextClassifier model on the training data
     classifier.fit(train_texts1, train_texts2, train_labels)
