@@ -8,8 +8,11 @@ from sklearn.metrics import accuracy_score
 
 
 class TextClassifier:
-    def __init__(self, tokenizer=None):
-        self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True)  # deterministic
+    def __init__(self, tokenizer=None, ngram=None):
+        if ngram:
+            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, ngram_range=(ngram, ngram))
+        else:
+            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True)  # deterministic
         self.model = LogisticRegression(random_state=123, max_iter=1000)  # , penalty='l1', solver='saga', C=1.0
 
     def fit_vectorizer(self, texts):

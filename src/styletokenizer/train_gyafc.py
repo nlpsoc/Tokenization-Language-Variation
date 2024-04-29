@@ -22,7 +22,7 @@ def shuffle_lists_in_unison(list1, list2):
     return list1, list2
 
 
-def main(tokenizer_name=None):
+def main(tokenizer_name=None, ngram=None):
     # Load the training data
     train_data = gyafc.load_train_data()
     train_labels, train_texts = to_classification_data(train_data)
@@ -32,12 +32,12 @@ def main(tokenizer_name=None):
     # Set the Tokenizer
     print(f"Setting tokenizer to {tokenizer_name}")
     if not tokenizer_name:
-        classifier = TextClassifier()
+        classifier = TextClassifier(ngram=ngram)
     elif tokenizer_name == "POS":
-        classifier = TextClassifier(tokenizer=POS.tag)
+        classifier = TextClassifier(tokenizer=POS.tag, ngram=ngram)
     elif tokenizer_name:
         tokenizer = Tokenizer(tokenizer_name)
-        classifier = TextClassifier(tokenizer=tokenizer.tokenize)
+        classifier = TextClassifier(tokenizer=tokenizer.tokenize, ngram=ngram)
 
     classifier.fit_vectorizer(train_texts)
 
@@ -58,4 +58,4 @@ def main(tokenizer_name=None):
     classifier.print_extreme_coefficients()
 
 
-main(tokenizer_name="POS")
+main(tokenizer_name="POS", ngram=3)
