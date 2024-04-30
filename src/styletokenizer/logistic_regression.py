@@ -10,15 +10,52 @@ from sklearn.metrics import accuracy_score
 class TextClassifier:
     def __init__(self, tokenizer=None, ngram=None):
         if ngram:
-            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, ngram_range=(ngram, ngram))
+            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, ngram_range=(ngram, ngram),
+                                              lowercase=False)
         else:
-            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True)  # deterministic
+            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, lowercase=False)  # deterministic
         self.model = LogisticRegression(random_state=123, max_iter=1000)  # , penalty='l1', solver='saga', C=1.0
 
     def fit_vectorizer(self, texts):
         print("Fitting vectorizer...")
         self.vectorizer.fit(texts)
         print("Vocabulary size:", len(self.vectorizer.vocabulary_))
+
+    def get_most_frequent_tokens(self, texts, n=100):
+        # Assume `texts` is your list of texts and `vectorizer` is your fitted CountVectorizer
+        X = self.vectorizer.transform(texts)
+        # Get the feature names (tokens)
+        feature_names = self.vectorizer.get_feature_names_out()
+        # Sum the counts of each token across all documents
+        token_counts = X.sum(axis=0).A1
+
+        # Create a dictionary mapping tokens to their counts
+        token_count_dict = dict(zip(feature_names, token_counts))
+
+        # Sort tokens by counts in descending order
+        sorted_tokens = sorted(token_count_dict.items(), key=lambda x: x[1], reverse=True)
+
+        # Print the most frequent tokens with counts
+        for i, (token, count) in enumerate(sorted_tokens):
+            if i < 200:
+                print(f"{token}: {count}")
+
+        # Print the most frequent tokens with counts
+        print("\\begin{table}[h]")
+        print("\\centering")
+        print("\\begin{tabular}{|c|c|}")
+        print("\\hline")
+        print("Token & Count \\\\")
+        print("\\hline")
+        for i, (token, count) in enumerate(sorted_tokens[:20]):
+            print(f"{token} & {count} \\\\")
+            if i < 19:
+                print("\\hline")
+        print("\\hline")
+        print("\\end{tabular}")
+        print("\\caption{Top 20 Tokens and Counts}")
+        print("\\label{tab:top_tokens}")
+        print("\\end{table}")
 
     def fit(self, texts, labels):
         from utility import seed

@@ -1,6 +1,6 @@
-/Users/anna/anaconda3/envs/StyleTokenizer/bin/python /Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer/train_gyafc.py 
+/Users/anna/anaconda3/envs/StyleTokenizer/bin/python /Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer/train_gyafc.py
 Setting global seed to 123
-Setting tokenizer to roberta-base
+Setting tokenizer to microsoft/deberta-base
 Fitting vectorizer...
 /Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
   warnings.warn(

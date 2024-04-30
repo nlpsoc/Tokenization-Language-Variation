@@ -3,7 +3,18 @@ from transformers import AutoTokenizer
 
 class Tokenizer:
     def __init__(self, model_name_or_path):
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
+        if "deberta" in model_name_or_path:
+            from transformers import DebertaTokenizer
+
+            # Load the tokenizer
+            self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
+        elif "roberta" in model_name_or_path:
+            from transformers import RobertaTokenizer
+
+            # Load the tokenizer
+            self.tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 
     def tokenize(self, text):
         """

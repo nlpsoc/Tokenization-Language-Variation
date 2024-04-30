@@ -1,4 +1,5 @@
 from utility import seed
+
 seed.set_global()
 
 from styletokenizer.logistic_regression import TextClassifier
@@ -7,6 +8,7 @@ from styletokenizer.utility import gyafc
 import random
 from utility.gyafc import to_classification_data
 from styletokenizer import POS
+
 
 def shuffle_lists_in_unison(list1, list2):
     """ generated CoPilot, April 29 2024
@@ -40,6 +42,7 @@ def main(tokenizer_name=None, ngram=None):
         classifier = TextClassifier(tokenizer=tokenizer.tokenize, ngram=ngram)
 
     classifier.fit_vectorizer(train_texts)
+    classifier.get_most_frequent_tokens(train_texts)
 
     # Fit the TextClassifier model on the training data
     classifier.fit(train_texts, train_labels)
@@ -58,4 +61,7 @@ def main(tokenizer_name=None, ngram=None):
     classifier.print_extreme_coefficients()
 
 
-main(tokenizer_name="POS", ngram=3)
+# main(tokenizer_name=None)  # , ngram=3
+# main(tokenizer_name="FacebookAI/roberta-base")  # , ngram=3
+main(tokenizer_name="roberta-base")  # , ngram=3
+

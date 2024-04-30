@@ -1,10 +1,261 @@
+/Users/anna/anaconda3/envs/StyleTokenizer/bin/python /Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer/train_gyafc.py 
 Setting global seed to 123
 Setting tokenizer to bert-base-uncased
+Fitting vectorizer...
 /Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
   warnings.warn(
-Fitting vectorizer...
 Token indices sequence length is longer than the specified maximum sequence length for this model (3973 > 512). Running this sequence through the model will result in indexing errors
 Vocabulary size: 18758
+.: 149948
+i: 65851
+,: 63635
+you: 56975
+the: 51634
+to: 49673
+it: 43302
+a: 42571
+and: 42022
+is: 40889
+': 36554
+that: 33600
+not: 27750
+!: 24132
+of: 23150
+if: 22198
+in: 20140
+?: 19317
+are: 19077
+do: 18645
+have: 18312
+he: 17732
+but: 17718
+t: 17601
+be: 17132
+with: 16219
+like: 16149
+for: 15646
+on: 14764
+your: 13978
+my: 13236
+don: 12926
+s: 12806
+they: 12279
+just: 11972
+her: 11606
+what: 11417
+can: 11394
+him: 11384
+she: 11382
+me: 11201
+know: 10225
+or: 10005
+so: 9552
+love: 9481
+will: 9459
+would: 9450
+was: 9377
+think: 9344
+##s: 8942
+this: 8941
+no: 8651
+one: 8470
+get: 8444
+##t: 7827
+out: 7735
+about: 7710
+there: 7669
+good: 7623
+all: 7602
+then: 7390
+am: 7269
+go: 7188
+-: 7041
+at: 6882
+as: 6536
+because: 6524
+should: 6444
+want: 6423
+u: 6335
+them: 6008
+when: 5789
+): 5659
+up: 5579
+who: 5392
+really: 5173
+how: 4948
+his: 4923
+some: 4839
+time: 4687
+say: 4504
+from: 4421
+an: 4360
+too: 4322
+find: 4294
+ask: 4288
+has: 4278
+well: 4183
+tell: 4177
+more: 4166
+(: 4112
+why: 4078
+": 4073
+man: 4073
+by: 4057
+guy: 4040
+:: 4030
+people: 3945
+yes: 3923
+song: 3855
+best: 3750
+we: 3737
+way: 3728
+make: 3726
+only: 3700
+try: 3666
+girl: 3659
+very: 3630
+did: 3624
+its: 3600
+other: 3556
+m: 3547
+see: 3537
+does: 3532
+now: 3341
+men: 3321
+first: 3206
+movie: 3106
+need: 3037
+com: 3023
+much: 2999
+never: 2964
+even: 2954
+someone: 2950
+look: 2876
+could: 2870
+any: 2855
+sure: 2844
+believe: 2775
+their: 2755
+person: 2735
+right: 2704
+always: 2699
+life: 2698
+guys: 2679
+women: 2657
+friends: 2653
+had: 2640
+friend: 2631
+something: 2622
+still: 2604
+re: 2591
+than: 2553
+music: 2484
+sex: 2468
+going: 2456
+question: 2437
+give: 2426
+great: 2416
+answer: 2371
+most: 2356
+girls: 2354
+back: 2349
+things: 2345
+got: 2332
+let: 2288
+better: 2274
+##l: 2272
+##y: 2270
+feel: 2255
+show: 2225
+;: 2217
+take: 2152
+thing: 2149
+old: 2140
+were: 2134
+2: 2124
+ever: 2105
+mean: 2105
+also: 2095
+both: 2087
+bad: 2051
+yourself: 2040
+may: 2033
+day: 2017
+maybe: 2004
+over: 1998
+been: 1958
+please: 1925
+im: 1923
+said: 1890
+many: 1847
+lot: 1837
+two: 1815
+married: 1801
+nice: 1795
+same: 1795
+woman: 1793
+##e: 1784
+doesn: 1773
+name: 1767
+yahoo: 1756
+big: 1754
+talk: 1740
+off: 1735
+where: 1730
+though: 1728
+looking: 1721
+enjoy: 1710
+fun: 1709
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Token & Count \\
+\hline
+. & 149948 \\
+\hline
+i & 65851 \\
+\hline
+, & 63635 \\
+\hline
+you & 56975 \\
+\hline
+the & 51634 \\
+\hline
+to & 49673 \\
+\hline
+it & 43302 \\
+\hline
+a & 42571 \\
+\hline
+and & 42022 \\
+\hline
+is & 40889 \\
+\hline
+' & 36554 \\
+\hline
+that & 33600 \\
+\hline
+not & 27750 \\
+\hline
+! & 24132 \\
+\hline
+of & 23150 \\
+\hline
+if & 22198 \\
+\hline
+in & 20140 \\
+\hline
+? & 19317 \\
+\hline
+are & 19077 \\
+\hline
+do & 18645 \\
+\hline
+\end{tabular}
+\caption{Top 20 Tokens and Counts}
+\label{tab:top_tokens}
+\end{table}
 Setting global seed to 123
 Transforming texts to feature matrix...
 Feature matrix shape: (209124, 18758)
@@ -317,3 +568,5 @@ solar: 0.0002902015078291618
 coupe: 0.00032798735773556455
 logs: 0.00034815841973410657
 reich: 0.0003523592599147411
+
+Process finished with exit code 0

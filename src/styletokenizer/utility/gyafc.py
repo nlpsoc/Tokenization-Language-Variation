@@ -48,7 +48,7 @@ def _get_theme_data(theme_dir, split="train"):
 
 def _read_txt_lines(document_path):
     with open(document_path, 'r') as file:
-        document_lines = file.readlines()
+        document_lines = [line.rstrip('\n') for line in file.readlines()]
     return document_lines
 
 
