@@ -1,13 +1,14 @@
-from utility import seed
+from styletokenizer.utility import bpe
+
+from utility import seed, POS
 
 seed.set_global()
 
 from styletokenizer.logistic_regression import TextClassifier
-from styletokenizer.tokenizer import Tokenizer
+from styletokenizer.tokenizer import TorchTokenizer
 from styletokenizer.utility import gyafc
 import random
 from utility.gyafc import to_classification_data
-from styletokenizer import POS
 
 
 def shuffle_lists_in_unison(list1, list2):
@@ -24,7 +25,7 @@ def shuffle_lists_in_unison(list1, list2):
     return list1, list2
 
 
-def main(tokenizer_name=None, ngram=None):
+def main(tok=None, ngram=None):
     # Load the training data
     train_data = gyafc.load_train_data()
     train_labels, train_texts = to_classification_data(train_data)
@@ -32,14 +33,20 @@ def main(tokenizer_name=None, ngram=None):
     train_texts, train_labels = shuffle_lists_in_unison(train_texts, train_labels)
 
     # Set the Tokenizer
-    print(f"Setting tokenizer to {tokenizer_name}")
-    if not tokenizer_name:
+    print(f"Setting tokenizer to {tok}")
+    if not tok:
         classifier = TextClassifier(ngram=ngram)
-    elif tokenizer_name == "POS":
-        classifier = TextClassifier(tokenizer=POS.tag, ngram=ngram)
-    elif tokenizer_name:
-        tokenizer = Tokenizer(tokenizer_name)
+    elif tok == "POS":
+        classifier = TextClassifier(tokenizer=POS.tokenize, ngram=ngram)
+    elif tok == "bpe":
+        bpe_tokenizer = bpe.TrainTokenizer()
+        bpe_tokenizer.train(train_texts, vocab_size=30000)
+        classifier = TextClassifier(tokenizer=bpe_tokenizer.tokenize, ngram=ngram)
+    elif type(tok) == str:
+        tokenizer = TorchTokenizer(tok)
         classifier = TextClassifier(tokenizer=tokenizer.tokenize, ngram=ngram)
+    else:
+        raise ValueError(f"Invalid tokenizer: {tok}")
 
     classifier.fit_vectorizer(train_texts)
     classifier.get_most_frequent_tokens(train_texts)
@@ -63,5 +70,7 @@ def main(tokenizer_name=None, ngram=None):
 
 # main(tokenizer_name=None)  # , ngram=3
 # main(tokenizer_name="FacebookAI/roberta-base")  # , ngram=3
-main(tokenizer_name="roberta-base")  # , ngram=3
+
+
+main(tok="bpe")  # , ngram=3
 

@@ -1,34 +1,20 @@
-from transformers import AutoTokenizer
+from utility.torchtokenizer import TorchTokenizer
+from utility import whitespace, POS
 
 
-class Tokenizer:
-    def __init__(self, model_name_or_path):
-        if "deberta" in model_name_or_path:
-            from transformers import DebertaTokenizer
+def get(tokenizer_name):
+    print(f"Setting tokenizer to {tokenizer_name}")
+    if tokenizer_name == "whitespace":
+        return whitespace.tokenize
+    elif tokenizer_name == "POS":
+        return POS.tokenize
+    elif tokenizer_name:
+        return TorchTokenizer(tokenizer_name).tokenize
 
-            # Load the tokenizer
-            self.tokenizer = DebertaTokenizer.from_pretrained('microsoft/deberta-base')
-        elif "roberta" in model_name_or_path:
-            from transformers import RobertaTokenizer
-
-            # Load the tokenizer
-            self.tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-        else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
-
-    def tokenize(self, text):
-        """
-            currently doing this with the actual tokens for interpretability,
-                eventually prob better to use the IDs for efficiency
-            unfortunately, no support for batch tokenization as far as I see for huggingface
-                --> no sense doing batch tokenization and then re-substitution IDs with tokens
-                    cause that means looping over everything anyway
-        :param text:
-        :return:
-        """
-        if type(text) == list:
-            return [self.tokenizer.tokenize(t) for t in text]
-        return self.tokenizer.tokenize(text)
-
-    def encode(self, text):
-        return self.tokenizer.encode(text)
+# def get_vocab(tokenizer):
+#     if tokenizer_name == "whitespace":
+#         return whitespace.vocab
+#     elif tokenizer_name == "POS":
+#         return POS.vocab
+#     elif tokenizer_name:
+#         return TorchTokenizer(tokenizer_name).vocab

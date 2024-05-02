@@ -1,11 +1,11 @@
 from unittest import TestCase
-from styletokenizer.tokenizer import Tokenizer
+from styletokenizer.tokenizer import TorchTokenizer
 
 
 class TestTokenizer(TestCase):
 
     def test_tokenizer(self):
-        tokenizer = Tokenizer("bert-base-uncased")
+        tokenizer = TorchTokenizer("bert-base-uncased")
         tokens = tokenizer.tokenize("Hello, my dog is cute")
         print(tokens)
 

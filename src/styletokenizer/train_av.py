@@ -5,11 +5,11 @@ import argparse
 from styletokenizer.load_data import load_pickle_file
 from styletokenizer.logistic_regression import TextsClassifier
 from styletokenizer.utility.filesystem import get_dir_to_src
-from styletokenizer.tokenizer import Tokenizer
+from styletokenizer.tokenizer import TorchTokenizer
 
 
 def main(train_path, dev_path):
-    tokenizer = Tokenizer("bert-base-uncased")
+    tokenizer = TorchTokenizer("bert-base-uncased")
     # Load the training data
     train_data = load_pickle_file(train_path)
 
