@@ -45,5 +45,6 @@ t5="google-t5/t5-base"
 xlmroberta = "xlm-roberta-base"
 llama27b = "meta-llama/Llama-2-7b-hf"
 mixtreal = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+llama38b = "meta-llama/Meta-Llama-3-8B"
 
-eval_tokenizer(tok=tokenizer.get(llama27b))  # "FacebookAI/xlm-roberta-base"
+eval_tokenizer(tok=tokenizer.get(llama38b))  # "FacebookAI/xlm-roberta-base"
