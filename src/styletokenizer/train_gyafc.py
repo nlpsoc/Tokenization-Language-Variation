@@ -1,6 +1,6 @@
 from styletokenizer.utility import bpe
 
-from utility import seed, POS
+from styletokenizer.utility import seed, POS, wordpiece
 
 seed.set_global()
 
@@ -25,7 +25,7 @@ def shuffle_lists_in_unison(list1, list2):
     return list1, list2
 
 
-def main(tok=None, ngram=None):
+def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000):
     # Load the training data
     train_data = gyafc.load_train_data()
     train_labels, train_texts = to_classification_data(train_data)
@@ -39,9 +39,13 @@ def main(tok=None, ngram=None):
     elif tok == "POS":
         classifier = TextClassifier(tokenizer=POS.tokenize, ngram=ngram)
     elif tok == "bpe":
-        bpe_tokenizer = bpe.TrainTokenizer()
-        bpe_tokenizer.train(train_texts, vocab_size=30000)
+        bpe_tokenizer = bpe.BPETokenizer(vocab_size=vocab_size, pre_tokenizer=pre_tokenizer)
+        bpe_tokenizer.train(train_texts)
         classifier = TextClassifier(tokenizer=bpe_tokenizer.tokenize, ngram=ngram)
+    elif tok == "wordpiece":
+        wordpiece_tokenizer = wordpiece.WordpieceTokenizer(vocab_size=vocab_size, pre_tokenizer=pre_tokenizer)
+        wordpiece_tokenizer.train(train_texts)
+        classifier = TextClassifier(tokenizer=wordpiece_tokenizer.tokenize, ngram=ngram)
     elif type(tok) == str:
         tokenizer = TorchTokenizer(tok)
         classifier = TextClassifier(tokenizer=tokenizer.tokenize, ngram=ngram)
@@ -67,10 +71,19 @@ def main(tok=None, ngram=None):
     print(f'Formal set to 1 in classification')
     classifier.print_extreme_coefficients()
 
+roberta = "roberta-base"
+t5="google-t5/t5-base"
+xlmroberta = "xlm-roberta-base"
+llama27b = "meta-llama/Llama-2-7b-hf"
+mixtreal = "mistralai/Mixtral-8x7B-Instruct-v0.1"
+llama3 = "meta-llama/Meta-Llama-3-70B"
+llama2 = "meta-llama/Llama-2-70b-hf"
+anna = "AnnaWegmann/Style-Embedding"
+gpt2 = "openai-community/gpt2"
 
 # main(tokenizer_name=None)  # , ngram=3
-# main(tokenizer_name="FacebookAI/roberta-base")  # , ngram=3
+main(tok=gpt2)  # , ngram=3
 
 
-main(tok="bpe")  # , ngram=3
+# main(tok="wordpiece", pre_tokenizer="byte", vocab_size=20000)  # , ngram=3
 

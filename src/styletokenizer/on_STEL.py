@@ -3,7 +3,7 @@ import sys
 import numpy as np
 
 from src.styletokenizer import tokenizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 # add STEL folder to path
 sys.path.append('../STEL/src/')
@@ -28,6 +28,7 @@ class TokenizerSimilarity(Similarity):
         s1 = one_hot_encode(s1, vocabulary)
         s2 = one_hot_encode(s2, vocabulary)
         return cosine_similarity([s1], [s2])[0][0]
+        # return euclidean_distances([s1], [s2])[0][0]
 
 
 def one_hot_encode(words, vocabulary):

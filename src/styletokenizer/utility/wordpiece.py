@@ -1,11 +1,11 @@
 from tokenizers import Tokenizer
-from tokenizers.models import BPE
-from tokenizers.trainers import BpeTrainer
+from tokenizers.models import WordPiece
+from tokenizers.trainers import WordPieceTrainer
 from tokenizers.pre_tokenizers import Whitespace
 import styletokenizer.utility.basetokenizer as basetokenizer
 
 
-class BPETokenizer(basetokenizer.Trainer):
+class WordpieceTokenizer(basetokenizer.Trainer):
     """
         see https://huggingface.co/docs/tokenizers/quicktour
     """
@@ -14,8 +14,7 @@ class BPETokenizer(basetokenizer.Trainer):
                  pre_tokenizer="ws"):
         super().__init__(vocab_size, special_tokens)
         # Create a BPE tokenizer
-        self.tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
+        self.tokenizer = Tokenizer(WordPiece(unk_token="[UNK]"))
         # Initialize the trainer, specify the vocabulary size and special tokens
-        self.trainer = BpeTrainer(vocab_size=vocab_size, special_tokens=special_tokens)
+        self.trainer = WordPieceTrainer(vocab_size=vocab_size, special_tokens=special_tokens)
         self.set_pre_tokenizer(pre_tokenizer=pre_tokenizer)
-
