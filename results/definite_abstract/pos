@@ -1,0 +1,122 @@
+/Users/anna/anaconda3/envs/StyleTokenizer/bin/python /Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer/train_gyafc.py 
+Setting global seed to 123
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Setting tokenizer to POS
+Fitting vectorizer...
+Vocabulary size: 18
+NOUN: 41887
+DET: 40813
+ADP: 40614
+VERB: 36326
+PUNCT: 36148
+AUX: 35899
+ADJ: 33678
+CCONJ: 27031
+PROPN: 25752
+PRON: 16874
+ADV: 14766
+PART: 11723
+NUM: 10917
+SCONJ: 6034
+SPACE: 1912
+SYM: 778
+X: 492
+INTJ: 115
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|}
+\hline
+Token & Count \\
+\hline
+NOUN & 41887 \\
+\hline
+DET & 40813 \\
+\hline
+ADP & 40614 \\
+\hline
+VERB & 36326 \\
+\hline
+PUNCT & 36148 \\
+\hline
+AUX & 35899 \\
+\hline
+ADJ & 33678 \\
+\hline
+CCONJ & 27031 \\
+\hline
+PROPN & 25752 \\
+\hline
+PRON & 16874 \\
+\hline
+ADV & 14766 \\
+\hline
+PART & 11723 \\
+\hline
+NUM & 10917 \\
+\hline
+SCONJ & 6034 \\
+\hline
+SPACE & 1912 \\
+\hline
+SYM & 778 \\
+\hline
+X & 492 \\
+\hline
+INTJ & 115 \\
+\hline
+\hline
+\end{tabular}
+\caption{Top 20 Tokens and Counts}
+\label{tab:top_tokens}
+\end{table}
+Setting global seed to 123
+Transforming texts to feature matrix...
+Feature matrix shape: (42000, 18)
+Model converged after [41] iterations.
+Model performance on development set: 0.5326666666666666
+Number of features: 18
+Formal set to 1 in classification
+Smallest coefficients:
+NOUN: -0.43070592427939935
+ADP: -0.20847244147746918
+ADJ: -0.1590677618929857
+AUX: -0.11424375984570666
+NUM: -0.04071471837075222
+VERB: -0.03748242129803702
+SPACE: -0.01850250612882919
+SYM: -0.016671379339090315
+PART: -0.006873960661717438
+SCONJ: 0.0015710781416776044
+CCONJ: 0.01750878255394205
+PUNCT: 0.020494329793024457
+ADV: 0.02277696393227767
+X: 0.0235567890473895
+PRON: 0.04017199299529114
+PROPN: 0.09465393176792757
+INTJ: 0.19080300341588002
+DET: 5.262998769253218
+
+Largest coefficients:
+NOUN: -0.43070592427939935
+ADP: -0.20847244147746918
+ADJ: -0.1590677618929857
+AUX: -0.11424375984570666
+NUM: -0.04071471837075222
+VERB: -0.03748242129803702
+SPACE: -0.01850250612882919
+SYM: -0.016671379339090315
+PART: -0.006873960661717438
+SCONJ: 0.0015710781416776044
+CCONJ: 0.01750878255394205
+PUNCT: 0.020494329793024457
+ADV: 0.02277696393227767
+X: 0.0235567890473895
+PRON: 0.04017199299529114
+PROPN: 0.09465393176792757
+INTJ: 0.19080300341588002
+DET: 5.262998769253218
+
+Coefficients close to 0:
+
+Process finished with exit code 0

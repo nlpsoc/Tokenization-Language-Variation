@@ -30,7 +30,7 @@ class Trainer:
             self.tokenizer.pre_tokenizer = Sequence([split, byte])
 
             print("Setting pre-tokenizer to ByteLevel")
-        elif pre_tokenizer == "meta":
+        elif pre_tokenizer == "meta":  # sentencepiece with BPE
             self.tokenizer.pre_tokenizer = Metaspace(replacement="▁",  prepend_scheme="never")
         elif pre_tokenizer is not None:
             raise ValueError(f"Invalid pre_tokenizer: {pre_tokenizer}")

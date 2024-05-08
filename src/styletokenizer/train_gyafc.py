@@ -25,10 +25,22 @@ def shuffle_lists_in_unison(list1, list2):
     return list1, list2
 
 
-def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000):
-    # Load the training data
-    train_data = gyafc.load_train_data()
-    train_labels, train_texts = to_classification_data(train_data)
+def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000, data="gyafc"):
+    if data == "gyafc":
+        # Load the training data
+        train_data = gyafc.load_train_data()
+        train_labels, train_texts = to_classification_data(train_data)
+    elif data == "UAAVE":
+        # load in UAAVE_org-wiki_30000.txt
+        train_data_0 = "../../data/multivalue/UAAVE_org-wiki_30000_train.txt"
+        train_data_1 = "../../data/multivalue/UAAVE_transformed-wiki_30000_train.txt"
+        train_labels, train_texts = load_parallel_data(train_data_0, train_data_1)
+    elif data == "definite_abstract":
+        train_data_0 = "../../data/multivalue/definite_abstract_org-wiki_30000_train.txt"
+        train_data_1 = "../../data/multivalue/definite_abstract_transformed-wiki_30000_train.txt"
+        train_labels, train_texts = load_parallel_data(train_data_0, train_data_1)
+    else:
+        raise ValueError(f"Invalid data: {data}")
     #   shuffle both lists the same way
     train_texts, train_labels = shuffle_lists_in_unison(train_texts, train_labels)
 
@@ -59,8 +71,19 @@ def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000):
     classifier.fit(train_texts, train_labels)
 
     # Load the development data
-    dev_data = gyafc.load_dev_data()
-    dev_labels, dev_texts = to_classification_data(dev_data)
+    if data == "gyafc":
+        dev_data = gyafc.load_dev_data()
+        dev_labels, dev_texts = to_classification_data(dev_data)
+    elif data == "UAAVE":
+        dev_data_0 = "../../data/multivalue/UAAVE_org-wiki_30000_dev.txt"
+        dev_data_1 = "../../data/multivalue/UAAVE_transformed-wiki_30000_dev.txt"
+        dev_labels, dev_texts = load_parallel_data(dev_data_0, dev_data_1)
+    elif data == "definite_abstract":
+        dev_data_0 = "../../data/multivalue/definite_abstract_org-wiki_30000_dev.txt"
+        dev_data_1 = "../../data/multivalue/definite_abstract_transformed-wiki_30000_dev.txt"
+        dev_labels, dev_texts = load_parallel_data(dev_data_0, dev_data_1)
+    else:
+        raise ValueError(f"Invalid data: {data}")
 
     # Evaluate the model on the development data
     score = classifier.score(dev_texts, dev_labels)
@@ -71,6 +94,21 @@ def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000):
     print(f'Formal set to 1 in classification')
     classifier.print_extreme_coefficients()
 
+
+def load_parallel_data(train_data_0, train_data_1):
+    with open(train_data_0, 'r') as file:
+        # Read each line, strip the newline character, and store it in a list
+        lines_0 = [line.strip() for line in file.readlines()]
+        labels_0 = [0 for _ in range(len(lines_0))]
+    with open(train_data_1, 'r') as file:
+        # Read each line, strip the newline character, and store it in a list
+        lines_1 = [line.strip() for line in file.readlines()]
+        labels_1 = [1 for _ in range(len(lines_1))]
+    train_texts = lines_0 + lines_1
+    train_labels = labels_0 + labels_1
+    return train_labels, train_texts
+
+
 roberta = "roberta-base"
 t5="google-t5/t5-base"
 xlmroberta = "xlm-roberta-base"
@@ -80,9 +118,16 @@ llama3 = "meta-llama/Meta-Llama-3-70B"
 llama2 = "meta-llama/Llama-2-70b-hf"
 anna = "AnnaWegmann/Style-Embedding"
 gpt2 = "openai-community/gpt2"
+bertcased = "bert-base-cased"
+ws = None
+pos = "POS"
+
 
 # main(tokenizer_name=None)  # , ngram=3
-main(tok=gpt2)  # , ngram=3
+main(tok=mixtreal, data="UAAVE")  # , ngram=3
+# main(tok="bpe", pre_tokenizer="meta", data="UAAVE")  # , ngram=3
+# main(tok=llama2, data="definite_abstract")  # , ngram=3
+# main(tok="bpe", pre_tokenizer="meta", data="definite_abstract")  # , ngram=3
 
 
 # main(tok="wordpiece", pre_tokenizer="byte", vocab_size=20000)  # , ngram=3
