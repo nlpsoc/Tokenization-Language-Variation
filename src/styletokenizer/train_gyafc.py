@@ -131,7 +131,7 @@ ws = None
 pos = "POS"
 
 
-main(tok=xlmroberta)  # , ngram=3
+main(tok="bpe", vocab_size=1000, pre_tokenizer=None)  # , ngram=3
 
 # main(tok="bpe", vocab_size=10000, pre_tokenizer="byte", data="definite_abstract", ngram=2)  # , ngram=3
 # main(tok="bpe", pre_tokenizer="meta", data="UAAVE")  # , ngram=3
