@@ -29,6 +29,21 @@ def load_tokenizer(tokenizer_name):
     return tokenizer
 
 
+def train_tokenizer(tokenizer_name, dataset):
+    # train a tokenizer
+    from tokenizers import Tokenizer
+    from tokenizers.pre_tokenizers import Whitespace
+    from tokenizers.models import BPE
+    from tokenizers.trainers import BpeTrainer
+    tokenizer = Tokenizer(
+        BPE(unk_token="[UNK]", sep_token="[SEP]", pad_token="[PAD]", cls_token="[CLS]", mask_token="[MASK]"))
+    trainer = BpeTrainer(vocab_size=30000, special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"])
+    tokenizer.pre_tokenizer = Whitespace()
+    tokenizer.train_from_iterator(dataset["train"]["text"], trainer=trainer)
+    from transformers import PreTrainedTokenizerFast
+    tokenizer = PreTrainedTokenizerFast(tokenizer_object=tokenizer)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]', 'mask_token': '[MASK]'})
+
 def load_model(tokenizer):
     from transformers import BertForMaskedLM
     model = BertForMaskedLM.from_pretrained('prajjwal1/bert-tiny')  # sequence len still 512
@@ -49,6 +64,7 @@ def main(tokenizer_name):
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     dataset = load_dataset()
+    print("Using tokenizer: ", tokenizer_name)
     tokenizer = load_tokenizer(tokenizer_name)
     model = load_model(tokenizer)
     # Apply tokenization and encoding
