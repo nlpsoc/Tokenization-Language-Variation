@@ -1,3 +1,5 @@
+import pandas as pd
+
 from styletokenizer.utility import bpe
 
 from styletokenizer.utility import seed, POS, wordpiece
@@ -85,14 +87,20 @@ def main(tok=None, ngram=None, pre_tokenizer=None, vocab_size=30000, data="gyafc
     else:
         raise ValueError(f"Invalid data: {data}")
 
+
+
     # Evaluate the model on the development data
-    score = classifier.score(dev_texts, dev_labels)
+    score, predicted = classifier.score(dev_texts, dev_labels)
 
     # Print the performance of the model
     print(f'Model performance on development set: {score}')
     print(f'Number of features: {len(classifier.get_coefficients())}')
     print(f'Formal set to 1 in classification')
     classifier.print_extreme_coefficients()
+
+    # save predictions and text in tsv file using pandas
+    df = pd.DataFrame(list(zip(dev_texts, dev_labels, predicted)), columns=["text", "GT", "predicted"])
+    df.to_csv(f"dev_texts_{tok}-{pre_tokenizer}-{vocab_size}_{data}_{score}.tsv", sep="\t", index=False)
 
 
 def load_parallel_data(train_data_0, train_data_1):
@@ -123,8 +131,9 @@ ws = None
 pos = "POS"
 
 
-# main(tokenizer_name=None)  # , ngram=3
-main(tok=mixtreal, data="UAAVE")  # , ngram=3
+main(tok=xlmroberta)  # , ngram=3
+
+# main(tok="bpe", vocab_size=10000, pre_tokenizer="byte", data="definite_abstract", ngram=2)  # , ngram=3
 # main(tok="bpe", pre_tokenizer="meta", data="UAAVE")  # , ngram=3
 # main(tok=llama2, data="definite_abstract")  # , ngram=3
 # main(tok="bpe", pre_tokenizer="meta", data="definite_abstract")  # , ngram=3

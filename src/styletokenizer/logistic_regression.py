@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 class TextClassifier:
     def __init__(self, tokenizer=None, ngram=None):
         if ngram:
-            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, ngram_range=(ngram, ngram),
+            self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, ngram_range=(1, ngram),
                                               lowercase=False)
         else:
             self.vectorizer = CountVectorizer(tokenizer=tokenizer, binary=True, lowercase=False)  # deterministic
@@ -82,7 +82,7 @@ class TextClassifier:
         # Use the Logistic Regression model to make predictions
         predicted_labels = self.model.predict(X)
         # Return the mean accuracy of the predictions
-        return accuracy_score(true_labels, predicted_labels)
+        return accuracy_score(true_labels, predicted_labels), predicted_labels
 
     def get_coefficients(self):
         # Get the feature names from the CountVectorizer
