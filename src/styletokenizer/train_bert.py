@@ -9,7 +9,7 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 output_folder = "/shared/3/projects/hiatus/EVAL_wegmann/tiny-BERT/"
 
 
-def load_dataset():
+def load_dataset(test=False):
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
     from datasets import concatenate_datasets, load_dataset
 
@@ -19,8 +19,12 @@ def load_dataset():
 
     assert bookcorpus.features.type == wiki.features.type
     raw_datasets = concatenate_datasets([bookcorpus, wiki])
-    return raw_datasets
 
+    if test:
+        tiny_dataset = raw_datasets.select(range(512))
+        return tiny_dataset
+    else:
+        return raw_datasets
 
 def load_tokenizer(tokenizer_name):
     from transformers import AutoTokenizer
@@ -56,14 +60,14 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_name):
+def main(tokenizer_name, test=False):
     # print time
     import datetime
     now = datetime.datetime.now()
     print("Current date and time : ")
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-    dataset = load_dataset()
+    dataset = load_dataset(test=test)
     print("Using tokenizer: ", tokenizer_name)
     tokenizer = load_tokenizer(tokenizer_name)
     model = load_model(tokenizer)
@@ -80,24 +84,31 @@ def main(tokenizer_name):
     print("Current date and time : ")
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
+    max_steps = 100000
+    if test:
+        max_steps = 100
+
     # Training arguments
     training_args = TrainingArguments(
         output_dir=output_folder + "bert-tiny-pretrained",
         overwrite_output_dir=True,
-        max_steps=100000,
+        max_steps=max_steps,
         per_device_train_batch_size=32,
         save_steps=10_000,
         save_total_limit=2,
         logging_dir=output_folder + 'logs',
         logging_steps=500,
         report_to="wandb",  # Enables WandB integration
+        warmup_steps=1000,
+        weight_decay=0.01,
+        learning_rate=4e-4,
     )
 
     # Initialize the trainer
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=tokenized_datasets["train"],
+        train_dataset=tokenized_datasets,
         data_collator=data_collator,
     )
 
@@ -115,7 +126,7 @@ def main(tokenizer_name):
 
     import sys
     # add STEL folder to path
-    sys.path.append('../../STEL/src/')
+    sys.path.append('../../../STEL/src/')
     import torch
 
     from STEL import STEL
@@ -141,6 +152,8 @@ if __name__ == '__main__':
     # get cuda from command line
     parser = argparse.ArgumentParser(description="pre-train bert with specified tokenizer")
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
+    parser.add_argument("--test", action="store_true", help="use a tiny dataset for testing purposes")
+
 
     # Login to WandB account (this might prompt for an API key if not logged in already)
     wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
@@ -148,4 +161,4 @@ if __name__ == '__main__':
     wandb.init(project="bert-tiny-pretraining", entity="annawegmann")
 
     args = parser.parse_args()
-    main(tokenizer_name=args.tokenizer)
+    main(tokenizer_name=args.tokenizer, test=args.test)
