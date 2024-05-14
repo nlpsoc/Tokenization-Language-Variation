@@ -68,6 +68,10 @@ def main(tokenizer_name, test=False):
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     dataset = load_dataset(test=test)
+    dataset = dataset.shuffle(seed=42)  # wont use complete dataset, so shuffle
+    # print dataset size
+    print("Dataset size: ", len(dataset))
+
     print("Using tokenizer: ", tokenizer_name)
     tokenizer = load_tokenizer(tokenizer_name)
     model = load_model(tokenizer)
@@ -84,13 +88,13 @@ def main(tokenizer_name, test=False):
     print("Current date and time : ")
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
-    max_steps = 100000
+    max_steps = 250000
     if test:
         max_steps = 100
 
     # Training arguments
     training_args = TrainingArguments(
-        output_dir=output_folder + "bert-tiny-pretrained",
+        output_dir=output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps,
         overwrite_output_dir=True,
         max_steps=max_steps,
         per_device_train_batch_size=32,
@@ -121,8 +125,8 @@ def main(tokenizer_name, test=False):
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     # Save the trained model
-    trainer.save_model(output_folder + "bert-tiny-pretrained/" + tokenizer_name)
-    tokenizer.save_pretrained(output_folder + "bert-tiny-pretrained" + tokenizer_name)
+    trainer.save_model(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps)
+    tokenizer.save_pretrained(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps)
 
     import sys
     # add STEL folder to path
