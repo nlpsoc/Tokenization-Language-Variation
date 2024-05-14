@@ -1,4 +1,8 @@
+import logging
 import os
+import sys
+import random
+import numpy
 
 
 def get_dir_to_src():
@@ -23,3 +27,27 @@ def get_data_dir():
     else:
         return "/shared/3/projects/hiatus/TOKENIZER_wegmann/jian"
 
+
+def set_global_seed(seed=42, w_torch=True):
+    """
+    Make calculations reproducible by setting RANDOM seeds
+    :param seed:
+    :param w_torch:
+    :return:
+    """
+    # set the global variable to the new var throughout
+    global SEED
+    SEED = seed
+    if 'torch' not in sys.modules:
+        w_torch = False
+    if w_torch:
+        import torch
+        logging.info(f"Running in deterministic mode with seed {seed}")
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        # torch.backends.cudnn.deterministic = True
+        # torch.backends.cudnn.benchmark = False
+    numpy.random.seed(seed)
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
