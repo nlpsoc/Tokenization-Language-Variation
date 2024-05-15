@@ -16,6 +16,9 @@ class TorchTokenizer:
         # else:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 
+    def get_vocab(self):
+        return self.tokenizer.get_vocab()
+
     def tokenize(self, text):
         """
             currently doing this with the actual tokens for interpretability,
