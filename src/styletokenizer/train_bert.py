@@ -125,8 +125,8 @@ def main(tokenizer_name, test=False):
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     # Save the trained model
-    trainer.save_model(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps)
-    tokenizer.save_pretrained(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps)
+    trainer.save_model(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps))
+    tokenizer.save_pretrained(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps))
 
     import sys
     # add STEL folder to path
