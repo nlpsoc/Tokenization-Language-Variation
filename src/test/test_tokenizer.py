@@ -17,16 +17,29 @@ class TestTokenizer(TestCase):
         self.assertEqual(tokens, [['hello', ',', 'my', 'dog', 'is', 'cute'], ['i', 'like', 'to', 'eat', 'ice', 'cream']])
 
     def test_robrta_tokenizer(self):
-        tokenizer = TorchTokenizer("roberta-base")
-        tokens = tokenizer.tokenize("tut-tut")
+        test_str = "well... I aready can`t say i don'T or can't love, emojis!!! 😊 :) :D :(("
+        print(test_str)
+
+        rob_tokenizer = TorchTokenizer("roberta-base")
+        tokens = rob_tokenizer.tokenize(test_str)
         print(tokens)
-        tokens = tokenizer.tokenize("toot-toot")
+
+        bert_tokenizer = TorchTokenizer("bert-base-cased")
+        tokens = bert_tokenizer.tokenize(test_str)
         print(tokens)
-        tokens = tokenizer.tokenize("punktuation")
+
+        lama38b_tokenizer = TorchTokenizer("meta-llama/Meta-Llama-3-8B")
+        tokens = lama38b_tokenizer.tokenize(test_str)
         print(tokens)
-        tokens = tokenizer.tokenize("Good job - well done!")
+
+
+        tokens = rob_tokenizer.tokenize("toot-toot")
         print(tokens)
-        tokens = tokenizer.tokenize("'tis'")
+        tokens = rob_tokenizer.tokenize("punktuation")
+        print(tokens)
+        tokens = rob_tokenizer.tokenize("Good job - well done!")
+        print(tokens)
+        tokens = rob_tokenizer.tokenize("'tis'")
         print(tokens)
 
         xlmroberta_tokenizer = TorchTokenizer("xlm-roberta-base")
