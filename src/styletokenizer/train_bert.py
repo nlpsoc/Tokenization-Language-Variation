@@ -69,6 +69,9 @@ def main(tokenizer_name, test=False):
 
     dataset = load_dataset(test=test)
     dataset = dataset.shuffle(seed=42)  # wont use complete dataset, so shuffle
+    # take 10% of data
+    dataset = dataset.select(range(int(len(dataset) * 0.1)))
+    
     # print dataset size
     print("Dataset size: ", len(dataset))
 
