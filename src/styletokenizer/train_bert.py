@@ -2,6 +2,7 @@ import argparse
 import wandb
 import os
 from transformers import DataCollatorForLanguageModeling
+from datasets import concatenate_datasets, load_dataset, load_from_disk
 
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
@@ -9,9 +10,8 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 output_base_folder = "/shared/3/projects/hiatus/EVAL_wegmann/tiny-BERT/"
 
 
-def load_dataset(test=False):
+def load_train_dataset(test=False):
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
-    from datasets import concatenate_datasets, load_dataset
 
     bookcorpus = load_dataset("bookcorpus", split="train")
     wiki = load_dataset("wikipedia", "20220301.en", split="train")
@@ -66,21 +66,31 @@ def main(tokenizer_name, test=False):
     now = datetime.datetime.now()
     print("Current date and time : ")
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
-
-    dataset = load_dataset(test=test)
-    dataset = dataset.shuffle(seed=42)  # wont use complete dataset, so shuffle
-    # take 10% of data
-    dataset = dataset.select(range(int(len(dataset) * 0.1)))
-    
-    # print dataset size
-    print("Dataset size: ", len(dataset))
-
     print("Using tokenizer: ", tokenizer_name)
     tokenizer = load_tokenizer(tokenizer_name)
+
+    percentage = 10
+    tokenized_data_path = f"{output_base_folder}tokenized_data/{tokenizer_name}-{percentage}.json"
+    if os.path.exists(tokenized_data_path):
+        tokenized_datasets = load_from_disk(tokenized_data_path)
+    else:
+
+        dataset = load_train_dataset(test=test)
+        dataset = dataset.shuffle(seed=42)  # wont use complete dataset, so shuffle
+        # take 10% of data
+        dataset = dataset.select(range(int(len(dataset) * 0.01 * percentage)))
+
+        # print dataset size
+        print("Dataset size: ", len(dataset))
+        # Apply tokenization and encoding
+        tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
+                                         batched=True, remove_columns=["text"])
+
+        # Save the tokenized dataset to disk
+        dataset.save_to_disk(tokenized_data_path)
+
     model = load_model(tokenizer)
-    # Apply tokenization and encoding
-    tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
-                                     batched=True, remove_columns=["text"])
+
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=True, mlm_probability=0.15
     )
