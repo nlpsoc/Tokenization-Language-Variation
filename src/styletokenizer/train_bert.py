@@ -6,7 +6,7 @@ from transformers import DataCollatorForLanguageModeling
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
-output_folder = "/shared/3/projects/hiatus/EVAL_wegmann/tiny-BERT/"
+output_base_folder = "/shared/3/projects/hiatus/EVAL_wegmann/tiny-BERT/"
 
 
 def load_dataset(test=False):
@@ -92,15 +92,17 @@ def main(tokenizer_name, test=False):
     if test:
         max_steps = 100
 
+    output_dir = output_base_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps)
+
     # Training arguments
     training_args = TrainingArguments(
-        output_dir=output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + max_steps,
+        output_dir=output_dir,
         overwrite_output_dir=True,
         max_steps=max_steps,
         per_device_train_batch_size=32,
         save_steps=10_000,
         save_total_limit=2,
-        logging_dir=output_folder + 'logs',
+        logging_dir=output_base_folder + 'logs',
         logging_steps=500,
         report_to="wandb",  # Enables WandB integration
         warmup_steps=1000,
@@ -125,8 +127,8 @@ def main(tokenizer_name, test=False):
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
     # Save the trained model
-    trainer.save_model(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps))
-    tokenizer.save_pretrained(output_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps))
+    trainer.save_model(output_dir)
+    tokenizer.save_pretrained(output_dir)
 
     import sys
     # add STEL folder to path
@@ -140,7 +142,7 @@ def main(tokenizer_name, test=False):
     class SBERTSimilarity(Similarity):
         def __init__(self):
             super().__init__()
-            self.model = SentenceTransformer(output_folder + "bert-tiny-pretrained/" + tokenizer_name)
+            self.model = SentenceTransformer(output_dir)
             self.model.to("cuda" if torch.cuda.is_available() else "cpu")
 
         def similarities(self, sentences_1, sentences_2):
