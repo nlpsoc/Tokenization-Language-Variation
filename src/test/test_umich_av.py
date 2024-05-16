@@ -13,7 +13,7 @@ class Test(TestCase):
 
     def test_create_pairs(self):
         dataset = umich_av.load_1_dev_data()
-        pairs, labels = umich_av.create_pairs(dataset)
+        pairs, labels = umich_av._create_pairs(dataset)
 
         self.assertTrue(len(dataset) < len(labels))
         self.assertTrue(len(labels) == len(dataset)*2)

@@ -1,4 +1,6 @@
 from unittest import TestCase
+
+from huggingface_tokenizers import T5
 from styletokenizer.tokenizer import TorchTokenizer
 
 
@@ -39,6 +41,10 @@ class TestTokenizer(TestCase):
         xlmroberta_tokenizer = TorchTokenizer("xlm-roberta-base")
         tokens = xlmroberta_tokenizer.tokenize(test_str)
         print(f"For tokenizer XLM-RoBERTa: {tokens}")
+
+        t5_tokenizer = TorchTokenizer(T5)
+        tokens = t5_tokenizer.tokenize(test_str)
+        print(f"For tokenizer T5: {tokens}")
 
 
         tokens = rob_tokenizer.tokenize("toot-toot")

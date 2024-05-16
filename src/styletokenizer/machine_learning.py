@@ -1,6 +1,7 @@
 import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 
 class TextClassifier:
@@ -18,7 +19,7 @@ class TextClassifier:
 
     def get_most_frequent_tokens(self, texts, n=100):
         X = self.vectorizer.transform(texts)
-        feature_names = self.vectorizer.get_feature_names_out()
+        feature_names = self.get_feature_names_out()
         token_counts = X.sum(axis=0).A1
 
         token_count_dict = dict(zip(feature_names, token_counts))
@@ -44,17 +45,37 @@ class TextClassifier:
         print("\\label{tab:top_tokens}")
         print("\\end{table}")
 
+    def transform_texts(self, texts):
+        return self.vectorizer.transform(texts)
+
+    def get_feature_names_out(self):
+        return self.vectorizer.get_feature_names_out()
+
     def fit(self, texts, labels):
         print("Transforming texts to feature matrix...")
-        X = self.vectorizer.transform(texts)
+        X = self.transform_texts(texts)
         print("Feature matrix shape:", X.shape)
         self.model.fit(X, labels)
 
     def predict(self, texts):
-        X = self.vectorizer.transform(texts)
+        X = self.transform_texts(texts)
         return self.model.predict(X)
 
     def score(self, texts, true_labels):
-        X = self.vectorizer.transform(texts)
-        predicted_labels = self.model.predict(X)
+        predicted_labels = self.predict(texts)
         return accuracy_score(true_labels, predicted_labels), predicted_labels
+
+    def classification_report(self, texts, true_labels):
+        predicted_labels = self.predict(texts)
+        return classification_report(true_labels, predicted_labels)
+
+    def confusion_matrix(self, texts, true_labels):
+        predicted_labels = self.predict(texts)
+        cm = confusion_matrix(true_labels, predicted_labels)
+        cm_df = pd.DataFrame(cm, index=['True Negative', 'True Positive'],
+                             columns=['Predicted Negative', 'Predicted Positive'])
+        return cm_df
+
+    def evaluate(self, texts, true_labels):
+        print(self.confusion_matrix(texts, true_labels))
+        print(self.classification_report(texts, true_labels))

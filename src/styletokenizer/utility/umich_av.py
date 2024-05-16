@@ -4,6 +4,7 @@ import pandas as pd
 from utility.filesystem import set_global_seed
 
 DEV_PATH = "../../data/UMich-AV/down_1/dev"
+TRAIN_PATH = "../../data/UMich-AV/down_1/train"
 # original cluster location at /shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1
 
 """
@@ -16,20 +17,29 @@ def load_1_dev_data():
     # loading follows same code as Kenan's
     # https://github.com/davidjurgens/sadiri/blob/main/src/style_content/poc/v1_no_adversarial/models.py#L23
     train_datatset = load_from_disk(DEV_PATH)['train']
-
     return train_datatset
 
 
+def load_1_train_data():
+    train_dataset = load_from_disk(TRAIN_PATH)['train']
+    return train_dataset
+
+
 # Create pairs of texts
-def create_pairs(dataset):
+def _create_pairs(dataset):
     # Set the seed once
     set_global_seed(42, False)
 
     df = pd.DataFrame(dataset)
     pairs = []
+    queries = []
+    candidates = []
     labels = []
     for i, row in df.iterrows():
+        # UMich dataset setup: query and candidate in the same row are a positive pair
         pairs.append((row['query_text'], row['candidate_text']))
+        queries.append(row['query_text'])
+        candidates.append(row['candidate_text'])
         labels.append(1)
         # Add negative samples (pairs from different rows)
         #   get a random row
@@ -38,6 +48,18 @@ def create_pairs(dataset):
             rand_row = df.sample(n=1)
             if rand_row['query_text'].values[0] != row['query_text']:
                 pairs.append((row['query_text'], rand_row['query_text'].values[0]))
+                queries.append(row['query_text'])
+                candidates.append(rand_row['query_text'].values[0])
                 labels.append(0)
                 neg_pair = True
-    return pairs, labels
+    return (queries, candidates), labels
+
+
+def get_1_dev_pairs():
+    dataset = load_1_dev_data()
+    return _create_pairs(dataset)
+
+
+def get_1_train_pairs():
+    dataset = load_1_train_data()
+    return _create_pairs(dataset)
