@@ -15,7 +15,7 @@ class RandomForestTextClassifier(TextClassifier):
 
 class RandomForestTextPairClassifier(TextClassifier):
     def __init__(self, tokenizer=None, ngram=None):
-        model = RandomForestClassifier(n_estimators=100, random_state=42, min_samples_leaf=100)
+        model = RandomForestClassifier(n_estimators=100, random_state=42, min_samples_leaf=10)
         super().__init__(model, tokenizer, ngram)
 
     def fit_vectorizer(self, input_list):
@@ -61,7 +61,7 @@ class RandomForestTextPairClassifier(TextClassifier):
         self.print_top_feature_importances()
         super().evaluate(input_list, true_labels)
 
-    def visualize_tree(self, tree_index=0):
+    def visualize_tree(self, tree_index=0, tok_name=""):
         feature_names = self.sanitize_feature_names()
         estimator = self.model.estimators_[tree_index]
         dot_data = export_graphviz(estimator,
@@ -73,7 +73,7 @@ class RandomForestTextPairClassifier(TextClassifier):
         graph = graphviz.Source(dot_data)
         # saving tree to png file
         png_bytes = graph.pipe(format='png')
-        with open('decision_tree.png', 'wb') as f:
+        with open(tok_name + '_decision-tree-0.png', 'wb') as f:
             f.write(png_bytes)
         return graph
 

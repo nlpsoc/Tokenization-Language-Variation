@@ -1,0 +1,324 @@
+/Users/anna/anaconda3/envs/StyleTokenizer/bin/python /Applications/PyCharm.app/Contents/plugins/python/helpers/pycharm/_jb_unittest_runner.py --target test_random_forest.TestRandomForestTextPairClassifier.test_train
+Testing started at 14:46 ...
+Launching unittests with arguments python -m unittest test_random_forest.TestRandomForestTextPairClassifier.test_train in /Users/anna/Documents/git projects.nosync/StyleTokenizer/src/test
+
+Size of pairs: 46665
+Tokenizer: roberta-base
+Token indices sequence length is longer than the specified maximum sequence length for this model (714 > 512). Running this sequence through the model will result in indexing errors
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Vocabulary size: 49151
+Transforming texts to feature matrix...
+Feature matrix shape: (46665, 98302)
+Top 20 feature importances:
+Ċ_1: 0.011340953961492508
+P_2: 0.009196161900443102
+>_2: 0.008948734058173516
+ERSON_1: 0.007932986558971941
+<_1: 0.007641919565171662
+P_1: 0.0075252353021840026
+Ċ_2: 0.007484562768394122
+<_2: 0.0068684138960797515
+}_2: 0.005949963295868297
+Ġ=_2: 0.005709218907530524
+ERSON_2: 0.005204185884402618
+Ġ<_2: 0.0049008130791914776
+Ġbook_2: 0.004722386435932018
+Hi_2: 0.0046919607562196704
+ĊĊ_1: 0.004336184539936988
+>_1: 0.004311773580851643
+Ġ_2: 0.004182005129509756
+>,_2: 0.004104646396912522
+Ġ{_2: 0.00409401366528676
+Ġ<_1: 0.0036525825673686214
+               Predicted Negative  Predicted Positive
+True Negative                1717                1076
+True Positive                 979                1814
+              precision    recall  f1-score   support
+
+           0       0.64      0.61      0.63      2793
+           1       0.63      0.65      0.64      2793
+
+    accuracy                           0.63      5586
+   macro avg       0.63      0.63      0.63      5586
+weighted avg       0.63      0.63      0.63      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: xlm-roberta-base
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Token indices sequence length is longer than the specified maximum sequence length for this model (762 > 512). Running this sequence through the model will result in indexing errors
+Vocabulary size: 27669
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 55338)
+Top 20 feature importances:
+▁from_2: 0.002376898873089769
+▁as_2: 0.0019242710798634424
+▁at_2: 0.001899951790296139
+)_1: 0.0018978818122931166
+▁in_2: 0.0018919606964346344
+▁some_1: 0.001868329696714323
+▁system_2: 0.0018398593500646122
+ed_2: 0.001751456773138319
+▁was_1: 0.0017366601817614977
+▁because_2: 0.0017336789376232375
+▁would_2: 0.0017005209087799858
+d_2: 0.001670692274847541
+▁back_2: 0.0016705184465551132
+▁be_2: 0.0016179675546187326
+PER_2: 0.0016136244650161765
+▁what_1: 0.001609771837322279
+www_2: 0.0015875148500883896
+▁an_2: 0.0015393469904404617
+▁_2: 0.0015365072685916655
+:_2: 0.0015363122026467993
+               Predicted Negative  Predicted Positive
+True Negative                2247                 546
+True Positive                 141                2652
+              precision    recall  f1-score   support
+
+           0       0.94      0.80      0.87      2793
+           1       0.83      0.95      0.89      2793
+
+    accuracy                           0.88      5586
+   macro avg       0.89      0.88      0.88      5586
+weighted avg       0.89      0.88      0.88      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: bert-base-cased
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Token indices sequence length is longer than the specified maximum sequence length for this model (739 > 512). Running this sequence through the model will result in indexing errors
+Vocabulary size: 23061
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 46122)
+Top 20 feature importances:
+as_2: 0.002946715160379455
+from_2: 0.0025313463515861463
+back_2: 0.0024838784995765335
+spot_2: 0.002354924345397487
+had_2: 0.0021671148508618566
+##N_2: 0.0020416045033445534
+only_2: 0.002003244033280079
+more_1: 0.0019458553735474222
+at_2: 0.0019183792669963695
+##ing_2: 0.0018910431929122131
+do_2: 0.001821985389148377
+my_2: 0.0017961347419083078
+their_2: 0.0017215341820805208
+like_1: 0.0016939562740674406
+m_1: 0.001678960286850916
+same_2: 0.0016755934169598162
+for_2: 0.0016571991510857937
+face_1: 0.0016557584445255112
+from_1: 0.0016330272382956382
+was_1: 0.001601943265030242
+               Predicted Negative  Predicted Positive
+True Negative                2274                 519
+True Positive                 154                2639
+              precision    recall  f1-score   support
+
+           0       0.94      0.81      0.87      2793
+           1       0.84      0.94      0.89      2793
+
+    accuracy                           0.88      5586
+   macro avg       0.89      0.88      0.88      5586
+weighted avg       0.89      0.88      0.88      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: Llama-2-70b-hf
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Vocabulary size: 21693
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 43386)
+Top 20 feature importances:
+h_2: 0.0027618846782207955
+▁them_1: 0.0027496337155139628
+<0x0A>_1: 0.0025078550495471635
+<0x0A>_2: 0.0024388226672692414
+▁from_2: 0.002419885650921977
+▁still_2: 0.0022670717167769684
+es_2: 0.0021544769217426004
+▁back_2: 0.002000949742864577
+▁had_2: 0.0019568194572227113
+▁he_2: 0.0019562685515035786
+t_1: 0.00194290517890262
+▁his_1: 0.0017775772730686528
+▁more_2: 0.0017616932669058747
+▁or_2: 0.0017196115386939736
+▁as_2: 0.001704718276326642
+▁about_1: 0.0016827326145493681
+▁with_2: 0.001670984802689662
+▁hand_2: 0.0016570505548737743
+▁eyes_1: 0.0016469892338864987
+▁not_1: 0.0015789469335215382
+               Predicted Negative  Predicted Positive
+True Negative                2289                 504
+True Positive                 129                2664
+              precision    recall  f1-score   support
+
+           0       0.95      0.82      0.88      2793
+           1       0.84      0.95      0.89      2793
+
+    accuracy                           0.89      5586
+   macro avg       0.89      0.89      0.89      5586
+weighted avg       0.89      0.89      0.89      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: Meta-Llama-3-70B
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Vocabulary size: 51004
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 102008)
+Top 20 feature importances:
+Ġwhat_2: 0.00304962341360433
+Ġallow_2: 0.00215338231394642
+.Ċ_1: 0.0021369985961087463
+Ġstill_2: 0.0021019337948321925
+ĠĠ_2: 0.0020707658657969225
+Ġthey_2: 0.0019263310676460343
+Ġfrom_2: 0.0018649362508085126
+Ġtheir_2: 0.0018475898074824973
+Ġsystem_2: 0.001817722218510254
+ĠHe_1: 0.001813968190070579
+,âĢĿ_1: 0.0017900612694409714
+Ġkind_2: 0.0017069482941462564
+Ġas_2: 0.0017021462592343283
+Ġhis_2: 0.0016419978886192041
+Ġnot_2: 0.001598728540821441
+Ġup_2: 0.0015843832072507697
+Ġup_1: 0.0015719600366686398
+Ġwith_2: 0.0015699218929653477
+Ġat_1: 0.0015225877388172504
+Ġthrough_2: 0.0015059590193691305
+               Predicted Negative  Predicted Positive
+True Negative                2090                 703
+True Positive                 193                2600
+              precision    recall  f1-score   support
+
+           0       0.92      0.75      0.82      2793
+           1       0.79      0.93      0.85      2793
+
+    accuracy                           0.84      5586
+   macro avg       0.85      0.84      0.84      5586
+weighted avg       0.85      0.84      0.84      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: t5-base
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Vocabulary size: 22791
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 45582)
+Top 20 feature importances:
+o_2: 0.002487711471421661
+▁circle_2: 0.0021346155771605232
+▁had_2: 0.0020968237804634086
+▁system_2: 0.0019825650536313168
+▁nose_2: 0.0019064329594883603
+▁from_2: 0.0018227166160120622
+▁was_2: 0.0018105910017064519
+▁spot_2: 0.0017960603355105403
+▁the_2: 0.001786366970293004
+▁just_2: 0.001760896726233096
+▁would_2: 0.0017364613548959107
+▁with_1: 0.0017354737104409343
+▁time_2: 0.0017218831707958146
+▁over_2: 0.001646511644361358
+▁with_2: 0.0016458825649858632
+:_1: 0.0015815629031475098
+▁for_2: 0.0015776326926070106
+m_2: 0.0015291475970042434
+▁eyes_1: 0.0015162578293849102
+ing_1: 0.0014989313549562467
+               Predicted Negative  Predicted Positive
+True Negative                2244                 549
+True Positive                 153                2640
+              precision    recall  f1-score   support
+
+           0       0.94      0.80      0.86      2793
+           1       0.83      0.95      0.88      2793
+
+    accuracy                           0.87      5586
+   macro avg       0.88      0.87      0.87      5586
+weighted avg       0.88      0.87      0.87      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+Tokenizer: Mixtral-8x7B-Instruct-v0.1
+Fitting vectorizer...
+/Users/anna/anaconda3/envs/StyleTokenizer/lib/python3.11/site-packages/sklearn/feature_extraction/text.py:525: UserWarning: The parameter 'token_pattern' will not be used since 'tokenizer' is not None'
+  warnings.warn(
+Vocabulary size: 23833
+Transforming texts to feature matrix...
+Feature matrix shape: (5586, 47666)
+Top 20 feature importances:
+<0x0A>_2: 0.00322534131518761
+<0x0A>_1: 0.0029628164582415867
+▁spot_2: 0.002440461514923062
+▁from_2: 0.002433062311388244
+▁had_2: 0.0022506454593449283
+d_2: 0.0021515010172516113
+2_2: 0.0020043609291958524
+▁in_2: 0.0019762086298283268
+I_2: 0.001964902814776375
+▁from_1: 0.001819068980437753
+▁as_2: 0.0017929084787278898
+▁or_1: 0.0017235795981840982
+▁developed_2: 0.0017222426701885077
+▁we_1: 0.0016764973134569406
+▁He_1: 0.001636288983878724
+▁me_1: 0.0015899185951100791
+▁out_2: 0.0015686012274122169
+▁said_2: 0.0015619626716990196
+▁by_2: 0.0015234050623750127
+ing_1: 0.0015062246377504742
+               Predicted Negative  Predicted Positive
+True Negative                2282                 511
+True Positive                 126                2667
+              precision    recall  f1-score   support
+
+           0       0.95      0.82      0.88      2793
+           1       0.84      0.95      0.89      2793
+
+    accuracy                           0.89      5586
+   macro avg       0.89      0.89      0.89      5586
+weighted avg       0.89      0.89      0.89      5586
+
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+
+
+Ran 1 test in 577.029s
+
+OK
+
+Process finished with exit code 0

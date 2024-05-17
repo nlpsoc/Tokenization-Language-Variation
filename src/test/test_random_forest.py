@@ -27,9 +27,14 @@ class TestRandomForestTextPairClassifier(TestCase):
         # Load UMich AV dataset
         pairs, labels = get_1_train_pairs()
 
+        percentage = 0.5
+        pairs = (pairs[0][:int(len(pairs[0]) * percentage)], pairs[1][:int(len(pairs[1]) * percentage)])
+        labels = labels[:int(len(labels) * percentage)]
+
         print(f"Size of pairs: {len(pairs[0])}")
 
         for tokenizer_name in huggingface_tokenizers.ALL_TOKENIZERS:
+            print(f"Tokenizer: { tokenizer_name.split('/')[-1]}")
             tokenizer = TorchTokenizer(tokenizer_name)
 
             # Random Forest Pair Classifier
@@ -40,8 +45,8 @@ class TestRandomForestTextPairClassifier(TestCase):
             # Evaluate
             pairs, labels = get_1_dev_pairs()
             rf_pair_classifier.evaluate(pairs, labels)
-            rf_pair_classifier.visualize_tree()
+            rf_pair_classifier.visualize_tree(0, tokenizer_name.split("/")[-1])
 
-            break
+
 
 
