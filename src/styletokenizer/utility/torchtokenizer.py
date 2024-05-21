@@ -33,6 +33,13 @@ class TorchTokenizer:
             return [self.tokenizer.tokenize(t) for t in text]
         return self.tokenizer.tokenize(text)
 
+    def normalize(self, text):
+        # check if normalizer exists
+        if hasattr(self.tokenizer, "normalize"):
+            return self.tokenizer.normalize(text)
+        else:
+            return text
+
     def encode(self, text):
         return self.tokenizer.encode(text)
 
