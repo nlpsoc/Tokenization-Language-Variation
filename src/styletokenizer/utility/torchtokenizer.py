@@ -29,9 +29,16 @@ class TorchTokenizer:
         :param text:
         :return:
         """
+        # if type(text) == list:
+        #     return [self.tokenizer.tokenize(t) for t in text]
+        # return self.tokenizer.tokenize(text)
         if type(text) == list:
-            return [self.tokenizer.tokenize(t) for t in text]
-        return self.tokenizer.tokenize(text)
+            return [self._single_tokenize(t) for t in text]
+        return self._single_tokenize(text)
+
+    def _single_tokenize(self, text):
+        token_ids = self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(text))
+        return self.tokenizer.convert_ids_to_tokens(token_ids)
 
     def normalize(self, text):
         # check if normalizer exists

@@ -26,13 +26,15 @@ class TestTokenizer(TestCase):
         self.assertEqual(tokens, [['hello', ',', 'my', 'dog', 'is', 'cute'], ['i', 'like', 'to', 'eat', 'ice', 'cream']])
 
     def test_robrta_tokenizer(self):
-        test_str = ("well...\u2003I aready can`t say i don'T or can't love, 100s € of emojis!!! 😊 :) :D :((")
+        test_str = ("well...\u2003\t\rI aready  love a café & i don'T or can't love, 100s € of emojis!!! 🫨 😊 :) :D :((   ")
         print(test_str)
 
         for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.tokenize(test_str)
+            token_ids = tokenizer.tokenizer.convert_tokens_to_ids(tokens)
             print(tokens)
+            print(token_ids)
 
     def test_unicode(self):
         test_str = "Hello there,\u2003I &#108;ove emojis"
@@ -45,7 +47,9 @@ class TestTokenizer(TestCase):
         for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.tokenize(test_str)
+            token_ids = tokenizer.tokenizer.convert_tokens_to_ids(tokens)
             print(tokens)
+            print(token_ids)
 
     def test_normalization(self):
         test_str = "Héllò hôw are ü?"
@@ -62,13 +66,21 @@ class TestTokenizer(TestCase):
             print(f"Tokenizer: {tok_name}")
             # Get the vocabulary
             vocab = tokenizer.get_vocab()
+            print(f"Vocab size: {len(vocab)}")
+
+            print("\U0001FAE8" in vocab)
+            print("🫨" in vocab)
+            print("\U0001F60A" in vocab)
+            print("😊" in vocab)
 
             # Extract single characters from the vocabulary
             atoms = {token for token in vocab.keys() if len(token) == 1}
             latin = {token for token in vocab.keys() if len(token) == 1 and token.isalpha() and token.isascii()}
+            print(tokenizer.tokenizer.all_special_tokens)
+            print(tokenizer.tokenizer.special_tokens_map)
 
             print(len(atoms))
-            print(latin)
+            print(atoms)
 
     def test_homoglyphs(self):
         tokenizers = []

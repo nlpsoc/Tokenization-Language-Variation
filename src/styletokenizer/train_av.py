@@ -6,6 +6,7 @@ from styletokenizer.load_data import load_pickle_file
 from styletokenizer.logistic_regression import TextsClassifier
 from styletokenizer.utility.filesystem import get_dir_to_src
 from styletokenizer.tokenizer import TorchTokenizer
+from sklearn.feature_selection import SelectKBest, chi2
 
 
 def main(train_path, dev_path):

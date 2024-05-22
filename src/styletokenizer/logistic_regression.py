@@ -1,10 +1,13 @@
 import math
 
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import PolynomialFeatures
+
+import styletokenizer.machine_learning as machine_learning
 
 
 class TextClassifier:
