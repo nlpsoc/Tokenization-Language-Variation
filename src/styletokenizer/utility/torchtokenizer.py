@@ -1,5 +1,7 @@
 from transformers import AutoTokenizer
 
+from huggingface_tokenizers import ALL_TOKENIZERS
+
 
 class TorchTokenizer:
     def __init__(self, model_name_or_path):
@@ -50,6 +52,8 @@ class TorchTokenizer:
     def encode(self, text):
         return self.tokenizer.encode(text)
 
+
+ALL_TOKENIZER_FUNCS = [TorchTokenizer(tokenizer_name).tokenize for tokenizer_name in ALL_TOKENIZERS]
 
 class XLMRobertaTokenizer(TorchTokenizer):
     def __init__(self):
