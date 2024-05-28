@@ -46,6 +46,7 @@ def main(train_path, dev_path, tok_func, features: str = "common_words"):
     elif features == "cross_words":
         cross_words = True
         common_words = False
+        print("Cross words")
 
     # Load the training data
     train_data = load_pickle_file(train_path)
@@ -93,6 +94,7 @@ def main(train_path, dev_path, tok_func, features: str = "common_words"):
         df_train = preprocess(df_train)
         df_dev = preprocess(df_dev)
     elif cross_words:
+        print("applying cross words")
         df_train = cross_words_preprocess(df_train)
         df_dev = cross_words_preprocess(df_dev)
 

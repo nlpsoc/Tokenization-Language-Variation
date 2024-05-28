@@ -26,7 +26,8 @@ class TestTokenizer(TestCase):
         self.assertEqual(tokens, [['hello', ',', 'my', 'dog', 'is', 'cute'], ['i', 'like', 'to', 'eat', 'ice', 'cream']])
 
     def test_robrta_tokenizer(self):
-        test_str = ("well...\u2003\t\rI aready  love a café & i don'T or can't love, 100s € of emojis!!! 🫨 😊 :) :D :((   ")
+        # unicode space is "\u0020", i.e., " " == "\u0020"
+        test_str = ("well...\u2003\u2002\t\rI aready  love a café & i don'T or can't love, 100s € of emojis!!! 🫨 😊 :) :D :((   ")
         print(test_str)
 
         for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
@@ -70,6 +71,7 @@ class TestTokenizer(TestCase):
 
             print("\U0001FAE8" in vocab)
             print("🫨" in vocab)
+            print(f"UNK: {tokenizer.tokenize('🫨')}")
             print("\U0001F60A" in vocab)
             print("😊" in vocab)
 
