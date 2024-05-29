@@ -26,6 +26,7 @@ class TestRandomForestTextPairClassifier(TestCase):
     def test_train(self):
         # Load UMich AV dataset
         pairs, labels = get_1_train_pairs()
+        print(len(pairs[0]))
 
         percentage = 0.5
         pairs = (pairs[0][:int(len(pairs[0]) * percentage)], pairs[1][:int(len(pairs[1]) * percentage)])

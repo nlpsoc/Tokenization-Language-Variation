@@ -27,7 +27,7 @@ class TestTokenizer(TestCase):
 
     def test_robrta_tokenizer(self):
         # unicode space is "\u0020", i.e., " " == "\u0020"
-        test_str = ("well...\u2003\u2002\t\rI aready  love a café & i don'T or can't love, 100s € of emojis!!! 🫨 😊 :) :D :((   ")
+        test_str = ("well...\nI aready   love me a café \t& i DON'T or we’ve got, 100s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
         print(test_str)
 
         for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
@@ -83,6 +83,17 @@ class TestTokenizer(TestCase):
 
             print(len(atoms))
             print(atoms)
+
+    def test_pre_tokenization(self):
+        test_str = "Hello    world!"
+        from tokenizers.pre_tokenizers import Split
+        # create regex for \s
+        from tokenizers import Regex
+        ws_re = Regex(r'\s+')
+        isolated_pre_tokenizer = Split(ws_re, behavior='isolated')
+        print("isolated:", isolated_pre_tokenizer.pre_tokenize_str(test_str))
+        contiguous_pre_tokenizer = Split(ws_re, behavior='contiguous')
+        print("contiguous:", contiguous_pre_tokenizer.pre_tokenize_str(test_str))
 
     def test_homoglyphs(self):
         tokenizers = []
