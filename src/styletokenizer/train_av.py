@@ -84,7 +84,8 @@ def main(tok_func, features: str = "common_words", reddit=False):
         random.seed(42)
         random.shuffle(pairs)
         # sample 10% of the data
-        pairs = pairs[:int(len(pairs) * 0.1)]
+        sample_size = 1
+        pairs = pairs[:int(len(pairs) * sample_size)]
         train_pairs, dev_pairs = train_test_split(pairs, test_size=0.2, random_state=42, shuffle=True)
         train_labels = [item[2] for item in train_pairs]
         dev_labels = [item[2] for item in dev_pairs]
