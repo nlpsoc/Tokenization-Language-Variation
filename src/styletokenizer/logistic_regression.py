@@ -264,7 +264,7 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, text1_name="t
     #   get the avg number tokens per text2
     dataframe['text2_num_tokens'] = dataframe['text2_tokens'].apply(len)
     print("Average number of tokens per text2:", dataframe['text2_num_tokens'].mean())
-    print("Average number of tokens per text1 and text2:", (dataframe['text1_num_tokens'] + dataframe['text2_num_tokens']).mean())
+    print("Total number of tokens per text1 and text2:", (dataframe['text1_num_tokens'] + dataframe['text2_num_tokens']).mean())
     #   average number of tokens per word
     #       Calculate the average number of tokens per word for each column
     dataframe['text1_avg_tokens_per_word'] = dataframe['text1_num_tokens'] / dataframe['text1_num_words']
