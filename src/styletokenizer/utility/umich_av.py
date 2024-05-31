@@ -7,7 +7,8 @@ from utility.filesystem import set_global_seed
 from whitespace_consts import APOSTROPHE_PATTERN
 
 DEV_PATH = "../../data/UMich-AV/down_1/dev"
-TRAIN_PATH = "../../data/UMich-AV/down_1/train"
+TRAIN_1_PATH = "../../data/UMich-AV/down_1/train"
+TRAIN_10_PATH = "../../data/UMich-AV/down_10/train"
 # original cluster location at /shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1
 
 """
@@ -24,7 +25,11 @@ def load_1_dev_data():
 
 
 def load_1_train_data():
-    train_dataset = load_from_disk(TRAIN_PATH)['train']
+    train_dataset = load_from_disk(TRAIN_1_PATH)['train']
+    return train_dataset
+
+def load_10_train_data():
+    train_dataset = load_from_disk(TRAIN_10_PATH)['train']
     return train_dataset
 
 
@@ -72,9 +77,17 @@ def get_1_train_pairs():
     dataset = load_1_train_data()
     return _create_pairs(dataset)
 
+def get_10_train_pairs():
+    dataset = load_10_train_data()
+    return _create_pairs(dataset)
+
 
 def get_1_train_dataframe():
     pairs, labels = get_1_train_pairs()
+    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels})
+
+def get_10_train_dataframe():
+    pairs, labels = get_10_train_pairs()
     return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels})
 
 

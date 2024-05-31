@@ -27,7 +27,7 @@ class TestTokenizer(TestCase):
 
     def test_robrta_tokenizer(self):
         # unicode space is "\u0020", i.e., " " == "\u0020"
-        test_str = ("well...\nI aready   love me a café \t& i DON'T or we’ve got, 100s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
+        test_str = ("well...\nI aready   love me a café \t& i DON'T or we’ve got, 1000s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
         print(test_str)
 
         for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):

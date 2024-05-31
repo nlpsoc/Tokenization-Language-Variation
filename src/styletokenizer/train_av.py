@@ -7,58 +7,25 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
 from huggingface_tokenizers import ALL_TOKENIZERS
+from logistic_regression import uncommon_whitespace_tokenizer, \
+    create_featurized_dataset
 from styletokenizer.load_data import load_pickle_file
-from styletokenizer.logistic_regression import TextsClassifier
 from styletokenizer.utility.filesystem import get_dir_to_src
-from styletokenizer.tokenizer import TorchTokenizer
-from sklearn.feature_selection import SelectKBest, chi2
-from collections import Counter
-from itertools import product
-from datasets import load_dataset
 
 from utility.torchtokenizer import ALL_TOKENIZER_FUNCS
 from utility.umich_av import get_1_train_pairs
 from sklearn.model_selection import train_test_split
 
-from whitespace_consts import common_ws_tokenize
-
-
-def whitespace_tokenizer(text):
-    return text.split("\u3000")
-
-def word_cross_product_phi(t1, t2):
-    """Basis for cross-product features. This tends to produce pretty
-    dense representations.
-
-    Parameters
-    ----------
-    t1, t2 : list of str
-        Tokenized premise and hypothesis.
-
-    Returns
-    -------
-    Counter
-        Maps each (w1, w2) in the cross-product of `t1` and `t2` to its count.
-    """
-    return Counter([(w1, w2) for w1, w2 in product(t1, t2)])
+from whitespace_consts import common_ws_tokenize, common_apostrophe_tokenize
 
 
 def main(tok_func, features: str = "common_words", reddit=False):
-    assert features in ["common_words", "cross_words", None]
-    common_words = False
-    cross_words = False
-    if features == "common_words":
-        common_words = True
-        cross_words = False
-    elif features == "cross_words":
-        cross_words = True
-        common_words = False
-        print("Cross words")
+
 
     if reddit:
         # Load the training data
         train_path = (get_dir_to_src() + "/../data/development/train_reddit-corpus-small-30000_dataset"
-                                                    ".pickle")
+                                         ".pickle")
         train_data = load_pickle_file(train_path)
         # dev_path = get_dir_to_src() + "/../data/development/dev_reddit-corpus-small-30000_dataset.pickle"
         # dev_data = load_pickle_file(dev_path)
@@ -83,7 +50,7 @@ def main(tok_func, features: str = "common_words", reddit=False):
         import random
         random.seed(42)
         random.shuffle(pairs)
-        # sample 10% of the data
+        # pote
         sample_size = 1
         pairs = pairs[:int(len(pairs) * sample_size)]
         train_pairs, dev_pairs = train_test_split(pairs, test_size=0.2, random_state=42, shuffle=True)
@@ -92,52 +59,19 @@ def main(tok_func, features: str = "common_words", reddit=False):
         train_text1, train_text2 = list(zip(*train_pairs))[0], list(zip(*train_pairs))[1]
         dev_text1, dev_text2 = list(zip(*dev_pairs))[0], list(zip(*dev_pairs))[1]
 
-
     # create dataframe
     import pandas as pd
     df_train = pd.DataFrame({"text1": train_text1, "text2": train_text2, "label": train_labels})
     df_dev = pd.DataFrame({"text1": dev_text1, "text2": dev_text2, "label": dev_labels})
 
-    def preprocess(dataframe):
-        dataframe = dataframe.dropna(subset=['text1', 'text2', 'label'])
-        dataframe['text'] = dataframe['text1'] + " " + dataframe['text2']
-        dataframe = dataframe[['text', 'label']]
-        return dataframe
-
-    def cross_words_preprocess(dataframe, common_only=False):
-        dataframe = dataframe.dropna(subset=['text1', 'text2', 'label'])
-        dataframe['text1_tokens'] = dataframe['text1'].apply(tok_func)
-        dataframe['text2_tokens'] = dataframe['text2'].apply(tok_func)
-
-        def counter_to_string(counter):
-            return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
-                                  if (not common_only) or (worda == wordb)])
-
-        dataframe['text'] = dataframe.apply(
-            lambda row: counter_to_string(word_cross_product_phi(row['text1_tokens'], row['text2_tokens'])),
-            axis=1)
-
-        return dataframe[['text', 'label']]
-
     print("Train size: ", len(df_train))
 
-    if (not common_words) and (not cross_words):
-        df_train = preprocess(df_train)
-        df_dev = preprocess(df_dev)
-    elif cross_words:
-        print("Applying cross words...")
-        df_train = cross_words_preprocess(df_train, common_only=False)
-        df_dev = cross_words_preprocess(df_dev, common_only=False)
-        print("Cross words applied.")
-    elif common_words:
-        print("Applying common words...")
-        df_train = cross_words_preprocess(df_train, common_only=True)
-        df_dev = cross_words_preprocess(df_dev, common_only=True)
-        print("Common words applied.")
-
+    df_train = create_featurized_dataset(features, tok_func, df_train, symmetric=True)
+    df_dev = create_featurized_dataset(features, tok_func, df_dev, symmetric=True)
 
     from sklearn.feature_extraction.text import CountVectorizer
-    vectorizer = CountVectorizer(tokenizer=whitespace_tokenizer, lowercase=False)  # add tokenizer=tok_func to preprocess text
+    vectorizer = CountVectorizer(tokenizer=uncommon_whitespace_tokenizer,
+                                 lowercase=False)  # add tokenizer=tok_func to preprocess text
     print("Fitting BoW vectorizer")
     concatenated_texts = df_train['text'].tolist() + df_dev['text'].tolist()
     vectorizer.fit_transform(concatenated_texts)
@@ -161,9 +95,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train a TextClassifier model.')
     args = parser.parse_args()
 
-    print(f"------ Whitespace Tokenizer ------")
-    main(reddit=False, tok_func=common_ws_tokenize, features="cross_words")
+    # print(f"------ Whitespace Tokenizer ------")
+    # main(reddit=False, tok_func=common_ws_tokenize, features="cross_words")
+    #
+    # print(f"------ Apostrophe Tokenizer ------")
+    # main(reddit=False, tok_func=common_apostrophe_tokenize, features="cross_words")
 
     for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
         print(f"------- Tokenizer: {tok_name} -------")
-        main(reddit=False, tok_func=tok_func, features="common_words")
+        main(reddit=False, tok_func=tok_func, features="cross_words")

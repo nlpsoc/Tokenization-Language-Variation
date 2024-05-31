@@ -1,4 +1,6 @@
 import math
+from collections import Counter
+from itertools import product
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
@@ -227,3 +229,132 @@ class TextsClassifier:
         zero_coefficients = [item for item in sorted_coefficients if item[1] == 0]
         for word, coefficient in zero_coefficients[:n]:
             print(f'{word}: {coefficient}')
+
+
+def preprocess(dataframe, text1_name="text1", text2_name="text2", label_name="label"):
+    dataframe = dataframe.dropna(subset=[text1_name, text2_name, label_name])
+    dataframe['text'] = dataframe[text1_name] + " " + dataframe[text2_name]
+    dataframe = dataframe[['text', label_name]]
+    return dataframe
+
+
+def cross_words_preprocess(tok_func, dataframe, common_only=False, text1_name="text1", text2_name="text2",
+                           label_name="label", symmetric=False):
+    dataframe = dataframe.dropna(subset=[text1_name, text2_name, label_name])
+    # cut of texts at word length of 130
+    dataframe[text1_name] = dataframe[text1_name].apply(lambda x: " ".join(x.split()[:100]))
+    dataframe[text2_name] = dataframe[text2_name].apply(lambda x: " ".join(x.split()[:100]))
+
+    dataframe['text1_tokens'] = dataframe[text1_name].apply(tok_func)
+    dataframe['text2_tokens'] = dataframe[text2_name].apply(tok_func)
+
+    # GET STATS
+    #   number of texts
+    print("Number of texts:", len(dataframe))
+    #   average number of words per text1
+    dataframe['text1_num_words'] = dataframe[text1_name].apply(lambda x: len(x.split()))
+    print("Average number of words per text1:", dataframe['text1_num_words'].mean())
+    #   average number of words per text2
+    dataframe['text2_num_words'] = dataframe[text2_name].apply(lambda x: len(x.split()))
+    print("Average number of words per text2:", dataframe['text2_num_words'].mean())
+    print("Average number of words per text1 and text2:", (dataframe['text1_num_words'] + dataframe['text2_num_words']).mean())
+    #   get the avg number tokens per text1
+    dataframe['text1_num_tokens'] = dataframe['text1_tokens'].apply(len)
+    print("Average number of tokens per text1:", dataframe['text1_num_tokens'].mean())
+    #   get the avg number tokens per text2
+    dataframe['text2_num_tokens'] = dataframe['text2_tokens'].apply(len)
+    print("Average number of tokens per text2:", dataframe['text2_num_tokens'].mean())
+    print("Average number of tokens per text1 and text2:", (dataframe['text1_num_tokens'] + dataframe['text2_num_tokens']).mean())
+    #   average number of tokens per word
+    #       Calculate the average number of tokens per word for each column
+    dataframe['text1_avg_tokens_per_word'] = dataframe['text1_num_tokens'] / dataframe['text1_num_words']
+    dataframe['text2_avg_tokens_per_word'] = dataframe['text2_num_tokens'] / dataframe['text2_num_words']
+    #       Calculate the overall average number of tokens per word for each column
+    text1_avg_tokens_per_word = dataframe['text1_avg_tokens_per_word'].mean()
+    text2_avg_tokens_per_word = dataframe['text2_avg_tokens_per_word'].mean()
+    print(f"Average number of tokens per word for text1: {text1_avg_tokens_per_word}")
+    print(f"Average number of tokens per word for text2: {text2_avg_tokens_per_word}")
+    print(f"Average number of tokens per word for text1 and text2: {(text1_avg_tokens_per_word + text2_avg_tokens_per_word) / 2}")
+
+    def counter_to_string(counter):
+        return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
+                              if (not common_only) or (worda == wordb)])
+
+    dataframe['text'] = dataframe.apply(
+        lambda row: counter_to_string(word_cross_product_phi(row['text1_tokens'], row['text2_tokens'],
+                                                             symmetric=symmetric)), axis=1)
+
+    return dataframe[['text', label_name]]
+
+
+def set_log_reg_features(features):
+    """
+        Set the features for logistic regression, currently only common words and cross words are supported.
+        I.e., common words will only use the common words between the two texts,
+            while cross words will use all combinations
+    :param features:
+    :return:
+    """
+    assert features in ["common_words", "cross_words", None]
+    common_words = False
+    cross_words = False
+    if features == "common_words":
+        common_words = True
+        cross_words = False
+    elif features == "cross_words":
+        cross_words = True
+        common_words = False
+    return common_words, cross_words
+
+
+def uncommon_whitespace_tokenizer(text):
+    return text.split("\u3000")
+
+
+def word_cross_product_phi(t1, t2, symmetric=False):
+    """Basis for cross-product features. This tends to produce pretty
+    dense representations.
+
+    Parameters
+    ----------
+    t1, t2 : list of str
+        Tokenized premise and hypothesis.
+
+    Returns
+    -------
+    Counter
+        Maps each (w1, w2) in the cross-product of `t1` and `t2` to its count.
+        :param symmetric:
+    """
+    counters = Counter([(w1, w2) for w1, w2 in product(t1, t2)])
+    result = Counter()
+    # combine the two counters (w1, w2) and (w2, w1) to one if w1 != w2
+    for (w1, w2), count in counters.items():
+        word_order = (w1, w2)
+        if symmetric and w1 != w2:
+            # decide order between w1 and w2
+            if w1 > w2:
+                word_order = (w2, w1)
+        if symmetric and (word_order in result) and (w1 != w2):
+            result[word_order] += count
+        else:
+            result[(w1, w2)] = count
+    return result
+
+
+def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", text2_name="text2", symmetric=False):
+    common_words, cross_words = set_log_reg_features(features)
+    # similar to https://github.com/duanzhihua/cs224u-1/blob/master/nli_02_models.ipynb
+    if (not common_words) and (not cross_words):
+        df_train = preprocess(df_train)
+    elif cross_words:
+        print("Applying cross words...")
+        df_train = cross_words_preprocess(tok_func, df_train, common_only=False,
+                                          text1_name=text1_name, text2_name=text2_name, symmetric=symmetric)
+        print("Cross words applied.")
+    elif common_words:
+        print("Applying common words...")
+        df_train = cross_words_preprocess(tok_func, df_train, common_only=True,
+                                          text1_name=text1_name, text2_name=text2_name)
+        print("Common words applied.")
+    return df_train

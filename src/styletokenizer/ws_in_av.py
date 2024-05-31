@@ -7,7 +7,7 @@ from styletokenizer.whitespace_consts import WHITESPACE_PATTERN
 from utility.umich_av import find_av_matches
 
 if __name__ == "__main__":
-    df = umich_av.get_1_train_dataframe()
+    df = umich_av.get_10_train_dataframe()
     ws_pattern = WHITESPACE_PATTERN
 
     find_av_matches(df, ws_pattern)

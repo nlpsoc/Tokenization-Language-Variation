@@ -53,6 +53,7 @@ modifier_letter_reverse_prime = "\u02BD"  # used in phonetic transcription
 APOSTROPHES = [apostrophe, right_single_quotation_mark, modifier_letter_apostrophe, left_single_quotation_mark, prime,
                right_half_ring, modifier_letter_turned_comma, reversed_prime, modifier_letter_prime,
                modifier_letter_reverse_prime]
+COMMON_APOSTROPHE = [apostrophe, right_single_quotation_mark, left_single_quotation_mark]
 APOSTROPHE_PATTERN = f"[{''.join(APOSTROPHES)}]"
 
 # get python ws: https://stackoverflow.com/questions/37903317/is-there-a-python-constant-for-unicode-whitespace
@@ -81,3 +82,12 @@ def common_ws_tokenize(text):
     :return:
     """
     return [char for char in text if char in COMMON_WHITESPACE]
+
+
+def common_apostrophe_tokenize(text):
+    """
+        given a text, only return the common apostrophe characters: ', `, ´ in a list
+    :param text:
+    :return:
+    """
+    return [char for char in text if char in COMMON_APOSTROPHE]
