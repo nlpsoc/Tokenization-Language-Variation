@@ -10,6 +10,8 @@ DEV_PATH = "../../data/UMich-AV/down_1/dev"
 TRAIN_1_PATH = "../../data/UMich-AV/down_1/train"
 TRAIN_10_PATH = "../../data/UMich-AV/down_10/train"
 # original cluster location at /shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1
+TRAIN_1_CLUSTER = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1/train"
+DEV_1_CLUSTER = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1/dev"
 
 """
     data has the form
@@ -20,12 +22,20 @@ TRAIN_10_PATH = "../../data/UMich-AV/down_10/train"
 def load_1_dev_data():
     # loading follows same code as Kenan's
     # https://github.com/davidjurgens/sadiri/blob/main/src/style_content/poc/v1_no_adversarial/models.py#L23
-    train_datatset = load_from_disk(DEV_PATH)['train']
+    from styletokenizer.utility.filesystem import on_cluster
+    if not on_cluster():
+        train_datatset = load_from_disk(DEV_PATH)['train']
+    else:
+        train_datatset = load_from_disk(DEV_1_CLUSTER)['train']
     return train_datatset
 
 
 def load_1_train_data():
-    train_dataset = load_from_disk(TRAIN_1_PATH)['train']
+    from styletokenizer.utility.filesystem import on_cluster
+    if not on_cluster():
+        train_dataset = load_from_disk(TRAIN_1_PATH)['train']
+    else:
+        train_dataset = load_from_disk(TRAIN_1_CLUSTER)['train']
     return train_dataset
 
 def load_10_train_data():
