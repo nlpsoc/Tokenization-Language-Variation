@@ -20,12 +20,19 @@ def get_dir_to_src():
         return dir_path
 
 
-def get_data_dir():
+def get_data_dir(jian=True):
     # test if on local machine
-    if "git projects.nosync" in get_dir_to_src():
+    if not on_cluster():
         return get_dir_to_src() + "/.."
-    else:
+    elif jian:
         return "/shared/3/projects/hiatus/TOKENIZER_wegmann/jian"
+    else:
+        return "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
+
+
+def on_cluster():
+    return "git projects.nosync" not in get_dir_to_src()
+
 
 
 def set_global_seed(seed=42, w_torch=True):

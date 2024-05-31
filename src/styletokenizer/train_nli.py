@@ -1,5 +1,12 @@
-from collections import Counter
-from itertools import product
+import os
+
+from styletokenizer.utility.filesystem import on_cluster
+
+if on_cluster():
+    cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
+    os.environ["TRANSFORMERS_CACHE"] = cache_dir
+    os.environ["HF_DATASETS_CACHE"] = cache_dir
+
 from datasets import load_dataset
 
 from huggingface_tokenizers import ALL_TOKENIZERS

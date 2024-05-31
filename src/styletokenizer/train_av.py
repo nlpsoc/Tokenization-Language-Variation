@@ -2,15 +2,22 @@
     original version generated with GitHub Copilot April 22nd 2024
 """
 import argparse
+import os
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+from styletokenizer.utility.filesystem import on_cluster
+
+if on_cluster():
+    cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
+    os.environ["TRANSFORMERS_CACHE"] = cache_dir
+    os.environ["HF_DATASETS_CACHE"] = cache_dir
 
 from huggingface_tokenizers import ALL_TOKENIZERS
 from logistic_regression import uncommon_whitespace_tokenizer, \
     create_featurized_dataset
 from styletokenizer.load_data import load_pickle_file
-from styletokenizer.utility.filesystem import get_dir_to_src
+from styletokenizer.utility.filesystem import get_dir_to_src, on_cluster
 
 from utility.torchtokenizer import ALL_TOKENIZER_FUNCS
 from utility.umich_av import get_1_train_pairs
