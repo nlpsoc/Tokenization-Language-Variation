@@ -3,6 +3,9 @@
 """
 import argparse
 import os
+import sys
+sys.path.append(".")
+sys.path.append("styletokenizer")
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
