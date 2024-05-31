@@ -91,3 +91,12 @@ def common_apostrophe_tokenize(text):
     :return:
     """
     return [char for char in text if char in COMMON_APOSTROPHE]
+
+
+def ws_tokenize(text):
+    """
+        given a text, return all whitespace characters
+    :param text:
+    :return:
+    """
+    return text.split(" ")

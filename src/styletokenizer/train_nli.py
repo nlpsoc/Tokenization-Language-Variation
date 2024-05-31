@@ -79,6 +79,9 @@ def do_train(tokenizer_func: str = None, features: str = "common_words"):
     print(classification_report(y_val, y_val_pred))
 
 
+print(f"------ split(" ") tokenizer ------")
+do_train(lambda x: x.split(" "), features="cross_words")
+
 print(f"------ Whitespace Tokenizer ------")
 do_train(common_ws_tokenize, features="cross_words")
 
@@ -87,4 +90,4 @@ do_train(common_apostrophe_tokenize, features="cross_words")
 
 for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
     print(f"------- Tokenizer: {tok_name} -------")
-    do_train(tok_func, features="cross_words")
+    do_train(tok_func, features="common_words")
