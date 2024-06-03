@@ -2,6 +2,7 @@ import re
 from unittest import TestCase
 
 import datasets
+import pandas as pd
 
 from styletokenizer.utility import umich_av
 from whitespace_consts import APOSTROPHES, APOSTROPHE_PATTERN
@@ -41,7 +42,8 @@ class Test(TestCase):
             return matches
 
         def find_apostrophes(df, column_name, pattern):
-            df['apostrophe_context'] = df[column_name].apply(lambda x: extract_apostrophe_context_with_unicode(x, pattern))
+            df['apostrophe_context'] = df[column_name].apply(
+                lambda x: extract_apostrophe_context_with_unicode(x, pattern))
             return df
 
         result_df = find_apostrophes(dataset, 'query', apostrophe_pattern)
@@ -69,3 +71,47 @@ class Test(TestCase):
 
         # Display the examples
         print_examples_per_apostrophe_type(grouped)
+
+    def test_compare_predictions(self):
+        print("Comparing Predictions for UMICH AV")
+        # load in predictions BERT cased and BERT uncased
+        bert_path = "../styletokenizer/bert-base-cased_df_dev_common_words_AV-1.tsv"
+        bert_uncased_path = "../styletokenizer/bert-base-uncased_df_dev_common_words_AV-1.tsv"
+        bert_path = "../styletokenizer/Meta-Llama-3-70B_df_dev_common_words_AV-1.tsv"
+        bert_uncased_path = "../styletokenizer/roberta-base_df_dev_common_words_AV-1.tsv"
+        model_1_name = "Llama 3"
+        model_2_name = "RoBERTa"
+        # load in predictions to dataframe
+        bert_df = pd.read_csv(bert_path, sep="\t")
+        bert_uncased_df = pd.read_csv(bert_uncased_path, sep="\t").add_prefix("uncased_")
+        bert_df = pd.concat([bert_df, bert_uncased_df], axis=1)
+        assert bert_df["label"].equals(bert_df["uncased_label"])
+        # get the predictions that mismatch and where BERT uncased is correct
+        mismatch = bert_df[(bert_df["prediction"] != bert_df["uncased_prediction"]) &
+                           (bert_df["label"] == bert_df["uncased_prediction"])]
+        mismatch_2 = bert_df[(bert_df["prediction"] != bert_df["uncased_prediction"]) &
+                             (bert_df["label"] == bert_df["prediction"])]
+        # print the results
+        print(f"Number of mismatches where {model_2_name} is correct: ", len(mismatch), " out of ", len(bert_df))
+        # sample 10 mismatches
+        for sample in mismatch.sample(10).iterrows():
+            print("Same author: ", sample[1]["label"])
+            print(f"{model_1_name} prediction: ", sample[1]["prediction"])
+
+            print(f"{model_1_name}: ", sample[1]["text1_tokens"])
+            print(f"{model_2_name}: ", sample[1]["uncased_text1_tokens"])
+            print(f"{model_1_name}: ", sample[1]["text2_tokens"])
+            print(f"{model_2_name}: ", sample[1]["uncased_text2_tokens"])
+            print("----")
+
+        print(f"Number of mismatches where {model_1_name} is correct: ", len(mismatch_2), " out of ", len(bert_df))
+        # sample 10 mismatches
+        for sample in mismatch_2.sample(10).iterrows():
+            print("Same author: ", sample[1]["label"])
+            print(f"{model_1_name} prediction: ", sample[1]["prediction"])
+
+            print(f"{model_1_name}: ", sample[1]["text1_tokens"])
+            print(f"{model_2_name}: ", sample[1]["uncased_text1_tokens"])
+            print(f"{model_1_name}: ", sample[1]["text2_tokens"])
+            print(f"{model_2_name}: ", sample[1]["uncased_text2_tokens"])
+            print("----")

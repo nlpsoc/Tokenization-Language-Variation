@@ -36,9 +36,21 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
         dev_name = f"{tok_name}_df_dev_{features}_AV-reddit.tsv"
         train_name = f"{tok_name}_df_train_{features}_AV-reddit.tsv"
     else:
-        sample_size = 0.1
-        dev_name = f"{tok_name}_df_dev_{features}_AV-{sample_size}.tsv"
-        train_name = f"{tok_name}_df_train_{features}_AV-{sample_size}.tsv"
+        sample_size = 0.01
+        dev_name = f"{tok_name.split('/')[-1]}_df_dev_{features}_AV-{sample_size}.tsv"
+        train_name = f"{tok_name.split('/')[-1]}_df_train_{features}_AV-{sample_size}.tsv"
+        print("Saving to: ", dev_name, train_name)
+        # check if file exists
+        if not os.path.exists(train_name):
+            # try saving a temporary file to check if the directory exists
+            try:
+                with open(train_name, "w") as f:
+                    f.write("test")
+            except FileNotFoundError:
+                print("Directory does not exist. Creating directory")
+                os.makedirs(train_name.split("/")[0])
+                os.makedirs(dev_name.split("/")[0])
+            os.remove(train_name)
 
     # try loading
     df_dev = None
@@ -49,6 +61,8 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
         print("Loaded existing dataframes")
     except FileNotFoundError:
         print("Creating new dataframes")
+        df_dev = None
+        df_train = None
 
     if reddit and df_train is None:
         # Load the training data
@@ -142,4 +156,4 @@ if __name__ == '__main__':
 
     for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
         print(f"------- Tokenizer: {tok_name} -------")
-        main(reddit=False, tok_func=tok_func, features="cross_words", tok_name=tok_name)
+        main(reddit=False, tok_func=tok_func, features="uncommon_words", tok_name=tok_name)

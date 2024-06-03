@@ -238,8 +238,12 @@ def preprocess(dataframe, text1_name="text1", text2_name="text2", label_name="la
     return dataframe
 
 
-def cross_words_preprocess(tok_func, dataframe, common_only=False, text1_name="text1", text2_name="text2",
+def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only=False, text1_name="text1", text2_name="text2",
                            label_name="label", symmetric=False, return_full_tokens=False):
+    # make sure common only and uncommon only are not both true
+    assert not (common_only and uncommon_only)
+    if uncommon_only:
+        symmetric = True
     dataframe = dataframe.dropna(subset=[text1_name, text2_name, label_name])
     # cut of texts at word length of 130
     dataframe[text1_name] = dataframe[text1_name].apply(lambda x: " ".join(x.split()[:]))  # :100
@@ -280,8 +284,22 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, text1_name="t
         f"Average number of tokens per word for text1 and text2: {(text1_avg_tokens_per_word + text2_avg_tokens_per_word) / 2}")
 
     def counter_to_string(counter):
-        return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
-                              if (not common_only) or (worda == wordb)])
+        if not uncommon_only:
+            return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
+                                  if (not common_only) or (worda == wordb)])
+        else:
+            result = ""
+            # get all unique words in counter
+            words = {word for word_tuple, count in counter.items() for word in word_tuple}
+            for word in words:
+                if (word, word) not in counter:
+                    # count the number of occurences of word
+                    for (worda, wordb), count in counter.items():
+                        if word in (worda, wordb):
+                            for _ in range(count):
+                                result += word + "_" + word + " "
+                        break
+            return result
 
     dataframe['text'] = dataframe.apply(
         lambda row: counter_to_string(word_cross_product_phi(row['text1_tokens'], row['text2_tokens'],
@@ -301,16 +319,19 @@ def set_log_reg_features(features):
     :param features:
     :return:
     """
-    assert features in ["common_words", "cross_words", None]
+    assert features in ["common_words", "cross_words", "uncommon_words", None]
     common_words = False
     cross_words = False
+    uncommon_words = False
     if features == "common_words":
         common_words = True
         cross_words = False
     elif features == "cross_words":
         cross_words = True
         common_words = False
-    return common_words, cross_words
+    elif features == "uncommon_words":
+        uncommon_words = True
+    return common_words, cross_words, uncommon_words
 
 
 def uncommon_whitespace_tokenizer(text):
@@ -350,9 +371,9 @@ def word_cross_product_phi(t1, t2, symmetric=False):
 
 def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", text2_name="text2", symmetric=False,
                               return_full_tokens=False):
-    common_words, cross_words = set_log_reg_features(features)
+    common_words, cross_words, uncommon_words = set_log_reg_features(features)
     # similar to https://github.com/duanzhihua/cs224u-1/blob/master/nli_02_models.ipynb
-    if (not common_words) and (not cross_words):
+    if (not common_words) and (not cross_words) and (not uncommon_words):
         df_train = preprocess(df_train)
     elif cross_words:
         print("Applying cross words...")
@@ -366,4 +387,10 @@ def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", 
                                           text1_name=text1_name, text2_name=text2_name,
                                           return_full_tokens=return_full_tokens)
         print("Common words applied.")
+    elif uncommon_words:
+        print("Applying uncommon words...")
+        df_train = cross_words_preprocess(tok_func, df_train, uncommon_only=True,
+                                          text1_name=text1_name, text2_name=text2_name,
+                                          return_full_tokens=return_full_tokens)
+        print("Uncommon words applied.")
     return df_train
