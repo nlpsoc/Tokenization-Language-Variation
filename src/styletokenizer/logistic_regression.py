@@ -298,7 +298,7 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
                         if word in (worda, wordb):
                             for _ in range(count):
                                 result += word + "_" + word + " "
-                        break
+                            break
             return result
 
     dataframe['text'] = dataframe.apply(
