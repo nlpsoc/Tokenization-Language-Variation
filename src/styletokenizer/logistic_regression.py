@@ -1,6 +1,7 @@
 import math
 from collections import Counter
 from itertools import product
+from typing import List, Dict, Tuple
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
@@ -283,27 +284,16 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
     print(
         f"Average number of tokens per word for text1 and text2: {(text1_avg_tokens_per_word + text2_avg_tokens_per_word) / 2}")
 
-    def counter_to_string(counter):
+    def counter_to_string(counter):  # TODO: this is inefficient, counting features twice like this
         if not uncommon_only:
             return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
                                   if (not common_only) or (worda == wordb)])
         else:
-            result = ""
-            # get all unique words in counter
-            words = {word for word_tuple, count in counter.items() for word in word_tuple}
-            for word in words:
-                if (word, word) not in counter:
-                    # count the number of occurences of word
-                    for (worda, wordb), count in counter.items():
-                        if word in (worda, wordb):
-                            for _ in range(count):
-                                result += word + "_" + word + " "
-                            break
-            return result
+            return '\u3000'.join([word for word, count in counter.items() for _ in range(count)])
 
     dataframe['text'] = dataframe.apply(
-        lambda row: counter_to_string(word_cross_product_phi(row['text1_tokens'], row['text2_tokens'],
-                                                             symmetric=symmetric)), axis=1)
+        lambda row: counter_to_string(get_feature_counts(row['text1_tokens'], row['text2_tokens'],
+                                                         symmetric=symmetric, uncommon_only=uncommon_only)), axis=1)
 
     if return_full_tokens:
         return dataframe[['text', label_name, 'text1_tokens', 'text2_tokens']]
@@ -338,7 +328,46 @@ def uncommon_whitespace_tokenizer(text):
     return text.split("\u3000")
 
 
-def word_cross_product_phi(t1, t2, symmetric=False):
+def count_unique_strings(list1: List[str], list2: List[str]) -> Dict[str, int]:
+    """
+        given list of strings, return the count of unique strings in list1 and list2
+            only if they are unique to one list
+    :param list1:
+    :param list2:
+    :return:
+    """
+    # Convert lists to sets
+    set1 = set(list1)
+    set2 = set(list2)
+
+    # Find the symmetric difference
+    unique_strings = set1.symmetric_difference(set2)
+
+    # Count occurrences in the original lists
+    count1 = Counter(list1)
+    count2 = Counter(list2)
+
+    result = {}
+    # Add counts
+    for string in unique_strings:
+        if string in count1:
+            result[string] = count1[string]
+        elif string in count2:
+            result[string] = count2[string]
+        else:
+            raise ValueError(f"Something went wrong. String {string} not in either list")
+    return result
+
+
+def get_feature_counts(t1: List[str], t2: List[str], symmetric=False, uncommon_only=False):
+    if not uncommon_only:
+        result = word_cross_product(t1, t2, symmetric)
+    else:
+        result = count_unique_strings(t1, t2)
+    return result
+
+
+def word_cross_product(t1, t2, symmetric) -> Dict[Tuple[str, str], int]:
     """Basis for cross-product features. This tends to produce pretty
     dense representations.
 

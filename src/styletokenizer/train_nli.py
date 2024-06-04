@@ -1,7 +1,8 @@
 import os
-
 # add current folder to path
 import sys
+import pandas as pd
+
 sys.path.append(".")
 sys.path.append("styletokenizer")
 
@@ -22,26 +23,34 @@ from whitespace_consts import common_ws_tokenize, common_apostrophe_tokenize
 
 
 def do_train(tokenizer_func: str = None, features: str = "common_words"):
-    # Load the SNLI dataset
-    #   0 - entailment
-    #   1 - neutral
-    #   2 - contradiction
-    snli_dataset = load_dataset('snli')
-    train_dataset = snli_dataset['train'].filter(lambda x: x['label'] != -1)
-    test_dataset = snli_dataset['test'].filter(lambda x: x['label'] != -1)
-    # test_df = pd.DataFrame(snli_dataset['test'])
+    val_name = f"{tok_name}_df_dev_{features}_NLI.tsv"
+    train_name = f"{tok_name}_df_train_{features}_NLI.tsv"
+    print("Will save results to: ", val_name, train_name)
 
-    import pandas as pd
+    try:
+        val_df = pd.read_csv(val_name, sep="\t")
+        train_df = pd.read_csv(train_name, sep="\t")
+        print("Loaded existing dataframes")
+    except FileNotFoundError:
+        print("Creating new dataframes")
+        # Load the SNLI dataset
+        #   0 - entailment
+        #   1 - neutral
+        #   2 - contradiction
+        snli_dataset = load_dataset('snli')
+        train_dataset = snli_dataset['train'].filter(lambda x: x['label'] != -1)
+        dev_dataset = snli_dataset['validation'].filter(lambda x: x['label'] != -1)
+        # test_df = pd.DataFrame(snli_dataset['test'])
 
-    # Convert to pandas DataFrame for easier manipulation
-    train_df = pd.DataFrame(train_dataset)
-    val_df = pd.DataFrame(test_dataset)
+        # Convert to pandas DataFrame for easier manipulation
+        train_df = pd.DataFrame(train_dataset)
+        val_df = pd.DataFrame(dev_dataset)
 
-    # Featurize the data, i.e., save texts as strings with the features we want to use
-    #   ATTENTION: needs the correct whitespace tokenizer in the count vectorizer later
-    train_df = create_featurized_dataset(features, tokenizer_func, train_df, text1_name="premise",
-                                         text2_name="hypothesis")
-    val_df = create_featurized_dataset(features, tokenizer_func, val_df, text1_name="premise", text2_name="hypothesis")
+        # Featurize the data, i.e., save texts as strings with the features we want to use
+        #   ATTENTION: needs the correct whitespace tokenizer in the count vectorizer later
+        train_df = create_featurized_dataset(features, tokenizer_func, train_df, text1_name="premise",
+                                             text2_name="hypothesis")
+        val_df = create_featurized_dataset(features, tokenizer_func, val_df, text1_name="premise", text2_name="hypothesis")
 
     print("Train size: ", len(train_df))
 
@@ -73,10 +82,17 @@ def do_train(tokenizer_func: str = None, features: str = "common_words"):
 
     # Predict on the validation set
     y_val_pred = model.predict(X_val)
+    val_df["prediction"] = y_val_pred
 
     # Print the classification report
     print("Validation Set Classification Report:")
     print(classification_report(y_val, y_val_pred))
+
+    # save the dataframe
+    val_df.to_csv(val_name, index=False, sep="\t")
+    train_df.to_csv(train_name, index=False, sep="\t")
+
+    print("Saved dataframes to: ", val_name, train_name)
 
 
 print(f"------ split(" ") tokenizer ------")

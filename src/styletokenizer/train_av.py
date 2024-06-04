@@ -36,7 +36,7 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
         dev_name = f"{tok_name}_df_dev_{features}_AV-reddit.tsv"
         train_name = f"{tok_name}_df_train_{features}_AV-reddit.tsv"
     else:
-        sample_size = 0.01
+        sample_size = 1
         dev_name = f"{tok_name.split('/')[-1]}_df_dev_{features}_AV-{sample_size}.tsv"
         train_name = f"{tok_name.split('/')[-1]}_df_train_{features}_AV-{sample_size}.tsv"
         print("Saving to: ", dev_name, train_name)
