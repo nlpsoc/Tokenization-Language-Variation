@@ -85,11 +85,11 @@ def create_dataframe(features, tokenizer_func):
     #   0 - entailment
     #   1 - neutral
     #   2 - contradiction
-    snli_dataset = load_dataset('nyu-mll/multi_nli')  # 'snli')
+    snli_dataset = load_dataset('snli')  # 'snli')  nyu-mll/multi_nli
     train_dataset = snli_dataset['train'].filter(lambda x: x['label'] != -1)
     # dev_dataset = snli_dataset['validation'].filter(lambda x: x['label'] != -1)
-    dev_dataset = snli_dataset['validation_matched'].filter(lambda x: x['label'] != -1)
-    # test_df = pd.DataFrame(snli_dataset['test'])
+    # dev_dataset = snli_dataset['validation_matched'].filter(lambda x: x['label'] != -1)
+    dev_dataset = pd.DataFrame(snli_dataset['test'].filter(lambda x: x['label'] != -1))
     # Convert to pandas DataFrame for easier manipulation
     train_df = pd.DataFrame(train_dataset)
     val_df = pd.DataFrame(dev_dataset)

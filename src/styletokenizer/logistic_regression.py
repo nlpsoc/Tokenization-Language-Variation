@@ -394,19 +394,22 @@ def word_cross_product(t1, t2, symmetric) -> Dict[Tuple[str, str], int]:
         :param symmetric:
     """
     counters = Counter([(w1, w2) for w1, w2 in product(t1, t2)])
-    result = Counter()
-    # combine the two counters (w1, w2) and (w2, w1) to one if w1 != w2
-    for (w1, w2), count in counters.items():
-        word_order = (w1, w2)
-        if symmetric and w1 != w2:
-            # decide order between w1 and w2
-            if w1 > w2:
+
+    if symmetric:
+        result = Counter()
+        # combine the two counters (w1, w2) and (w2, w1) to one if w1 != w2
+        for (w1, w2), count in counters.items():
+            word_order = (w1, w2)
+            if w1 != w2 and w1 > w2:
+                # decide order between w1 and w2
                 word_order = (w2, w1)
-        if symmetric and (word_order in result) and (w1 != w2):
-            result[word_order] += count
-        else:
-            result[(w1, w2)] = count
-    return result
+            if word_order in result:
+                result[word_order] += count
+            else:
+                result[word_order] = count
+        return result
+    else:
+        return counters
 
 
 def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", text2_name="text2", symmetric=False,
