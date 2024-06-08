@@ -253,6 +253,14 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
     dataframe['text1_tokens'] = dataframe[text1_name].apply(tok_func)
     dataframe['text2_tokens'] = dataframe[text2_name].apply(tok_func)
 
+    # get number of unique tokens
+    unique_tokens = set()
+    for tokens in dataframe['text1_tokens']:
+        unique_tokens.update(tokens)
+    for tokens in dataframe['text2_tokens']:
+        unique_tokens.update(tokens)
+    print("Number of unique tokens:", len(unique_tokens))
+
     # GET STATS
     #   number of texts
     print("Number of texts:", len(dataframe))
@@ -285,6 +293,9 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
         f"Average number of tokens per word for text1 and text2: {(text1_avg_tokens_per_word + text2_avg_tokens_per_word) / 2}")
 
     def counter_to_string(counter):  # TODO: this is inefficient, counting features twice like this
+        # return empty string if counter is empty
+        if not counter:
+            return ""
         if not uncommon_only:
             return '\u3000'.join([worda + "_" + wordb for (worda, wordb), count in counter.items() for _ in range(count)
                                   if (not common_only) or (worda == wordb)])
@@ -422,4 +433,6 @@ def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", 
                                           text1_name=text1_name, text2_name=text2_name,
                                           return_full_tokens=return_full_tokens)
         print("Uncommon words applied.")
+    # check that none of the columns contain nan values
+    assert not df_train.isnull().values.any()
     return df_train

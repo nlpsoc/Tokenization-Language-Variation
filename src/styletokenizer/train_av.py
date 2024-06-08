@@ -31,7 +31,7 @@ from whitespace_consts import common_ws_tokenize, common_apostrophe_tokenize
 import pandas as pd
 
 
-def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
+def main(tok_func, features: str = "common_words", reddit=False, tok_name="", load=False):
     if reddit:
         dev_name = f"{tok_name}_df_dev_{features}_AV-reddit.tsv"
         train_name = f"{tok_name}_df_train_{features}_AV-reddit.tsv"
@@ -56,6 +56,7 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
     df_dev = None
     df_train = None
     try:
+        assert load is True
         df_dev = pd.read_csv(dev_name, sep="\t")
         df_train = pd.read_csv(train_name, sep="\t")
         print("Loaded existing dataframes")
@@ -63,6 +64,8 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name=""):
         print("Creating new dataframes")
         df_dev = None
         df_train = None
+    except AssertionError:
+        print("Creating new dataframes")
 
     if reddit and df_train is None:
         # Load the training data
@@ -156,4 +159,4 @@ if __name__ == '__main__':
 
     for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
         print(f"------- Tokenizer: {tok_name} -------")
-        main(reddit=False, tok_func=tok_func, features="uncommon_words", tok_name=tok_name)
+        main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False)
