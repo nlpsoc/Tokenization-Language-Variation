@@ -1,8 +1,9 @@
 import argparse
 import wandb
 import os
-from transformers import DataCollatorForLanguageModeling
+from transformers import DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM
 from datasets import concatenate_datasets, load_dataset, load_from_disk
+import torch
 
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
@@ -26,6 +27,7 @@ def load_train_dataset(test=False):
     else:
         return raw_datasets
 
+
 def load_tokenizer(tokenizer_name):
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
@@ -48,10 +50,21 @@ def train_tokenizer(tokenizer_name, dataset):
     tokenizer = PreTrainedTokenizerFast(tokenizer_object=tokenizer)
     tokenizer.add_special_tokens({'pad_token': '[PAD]', 'mask_token': '[MASK]'})
 
-def load_model(tokenizer):
-    from transformers import BertForMaskedLM
-    model = BertForMaskedLM.from_pretrained('prajjwal1/bert-tiny')  # sequence len still 512
-    model.resize_token_embeddings(len(tokenizer))
+
+def load_model(tokenizer, keep_weights=False):
+    torch.manual_seed(42)
+    if not keep_weights:
+        # Load the configuration of 'prajjwal1/bert-tiny'
+        config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
+        # Initialize the model with the configuration but with random weights
+        model = BertForMaskedLM(config)
+        model.resize_token_embeddings(len(tokenizer))
+    else:
+        model = BertForMaskedLM.from_pretrained('prajjwal1/bert-tiny')  # sequence len still 512
+        # Randomly initialize the embedding matrix
+        embedding_dim = model.bert.embeddings.word_embeddings.embedding_dim
+        vocab_size = len(tokenizer)
+        model.bert.embeddings.word_embeddings = torch.nn.Embedding(vocab_size, embedding_dim)
     return model
 
 
@@ -70,8 +83,9 @@ def main(tokenizer_name, test=False):
     tokenizer = load_tokenizer(tokenizer_name)
 
     percentage = 10
-    tokenized_data_path = f"{output_base_folder}tokenized_data/{tokenizer_name}-{percentage}.json"
-    if os.path.exists(tokenized_data_path):
+    tokenized_data_path = f"{output_base_folder}tokenized_data/{tokenizer_name.split('/')[-1]}-{percentage}.json"
+
+    if False:
         tokenized_datasets = load_from_disk(tokenized_data_path)
     else:
 
@@ -105,7 +119,7 @@ def main(tokenizer_name, test=False):
     if test:
         max_steps = 100
 
-    output_dir = output_base_folder + "bert-tiny-pretrained/" + tokenizer_name + "-" + str(max_steps)
+    output_dir = output_base_folder + "bert-tiny-pretrained/reset/" + tokenizer_name.split('/')[-1] + "-" + str(max_steps)
 
     # Training arguments
     training_args = TrainingArguments(
@@ -139,6 +153,9 @@ def main(tokenizer_name, test=False):
     print("Current date and time : ")
     print(now.strftime("%Y-%m-%d %H:%M:%S"))
 
+    # create dir if not exists
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     # Save the trained model
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
@@ -173,7 +190,6 @@ if __name__ == '__main__':
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
     parser.add_argument("--test", action="store_true", help="use a tiny dataset for testing purposes")
 
-
     # Login to WandB account (this might prompt for an API key if not logged in already)
     wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
     # Initialize a new run with a project name
@@ -181,3 +197,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     main(tokenizer_name=args.tokenizer, test=args.test)
+
+    # example call:
+    # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
+    # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer meta-llama/Meta-Llama-3-8B &> 24-06-09_llama3.txt
+    # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer roberta-base &> 24-06-09_roberta.txt
