@@ -1,8 +1,13 @@
 import math
+import string
 from collections import Counter
+from functools import lru_cache
 from itertools import product
 from typing import List, Dict, Tuple
-
+import unicodedata
+import nltk
+from nltk import PorterStemmer, WordNetLemmatizer
+from nltk.corpus import wordnet
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
 import numpy as np
@@ -11,6 +16,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import PolynomialFeatures
 
 import styletokenizer.machine_learning as machine_learning
+from whitespace_consts import COMMON_APOSTROPHE
 
 
 class TextClassifier:
@@ -208,28 +214,31 @@ class TextsClassifier:
         # Return a dictionary mapping feature names to coefficients
         return dict(zip(feature_names, coefficients))
 
-    def print_extreme_coefficients(self, n=5):
-        # Get the coefficients
-        coefficients = self.get_coefficients()
 
-        # Sort the coefficients by value
-        sorted_coefficients = sorted(coefficients.items(), key=lambda item: item[1])
+def print_extreme_coefficients(logreg_model, vectorizer, n=5):
+    # Get the coefficients
+    coefficients = logreg_model.coef_[0]
+    # Get the feature names from the vectorizer
+    feature_names = vectorizer.get_feature_names_out()
 
-        # Print the smallest coefficients
-        print(f'Smallest coefficients:')
-        for word, coefficient in sorted_coefficients[:n]:
-            print(f'{word}: {coefficient}')
+    # Sort the coefficients by value
+    sorted_coefficients = sorted(zip(feature_names, coefficients), key=lambda item: item[1])
 
-        # Print the largest coefficients
-        print(f'\nLargest coefficients:')
-        for word, coefficient in sorted_coefficients[-n:]:
-            print(f'{word}: {coefficient}')
+    # Print the smallest coefficients
+    print(f'Smallest coefficients:')
+    for word, coefficient in sorted_coefficients[:n]:
+        print(f'{word}: {coefficient}')
 
-        # Print a few examples where the coefficient is 0
-        print(f'\nCoefficients equal to 0:')
-        zero_coefficients = [item for item in sorted_coefficients if item[1] == 0]
-        for word, coefficient in zero_coefficients[:n]:
-            print(f'{word}: {coefficient}')
+    # Print the largest coefficients
+    print(f'\nLargest coefficients:')
+    for word, coefficient in sorted_coefficients[-n:]:
+        print(f'{word}: {coefficient}')
+
+    # Print a few examples where the coefficient is 0
+    print(f'\nCoefficients equal to 0:')
+    zero_coefficients = [item for item in sorted_coefficients if item[1] == 0]
+    for word, coefficient in zero_coefficients[:n]:
+        print(f'{word}: {coefficient}')
 
 
 def preprocess(dataframe, text1_name="text1", text2_name="text2", label_name="label"):
@@ -239,7 +248,8 @@ def preprocess(dataframe, text1_name="text1", text2_name="text2", label_name="la
     return dataframe
 
 
-def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only=False, text1_name="text1", text2_name="text2",
+def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only=False, text1_name="text1",
+                           text2_name="text2",
                            label_name="label", symmetric=False, return_full_tokens=False):
     # make sure common only and uncommon only are not both true
     assert not (common_only and uncommon_only)
@@ -247,8 +257,8 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
         symmetric = True
     dataframe = dataframe.dropna(subset=[text1_name, text2_name, label_name])
     # cut of texts at word length of 130
-    dataframe[text1_name] = dataframe[text1_name].apply(lambda x: " ".join(x.split()[:]))  # :100
-    dataframe[text2_name] = dataframe[text2_name].apply(lambda x: " ".join(x.split()[:]))  # :100
+    # dataframe[text1_name] = dataframe[text1_name].apply(lambda x: " ".join(x.split()[:]))  # :100
+    # dataframe[text2_name] = dataframe[text2_name].apply(lambda x: " ".join(x.split()[:]))  # :100
 
     dataframe['text1_tokens'] = dataframe[text1_name].apply(tok_func)
     dataframe['text2_tokens'] = dataframe[text2_name].apply(tok_func)
@@ -341,32 +351,28 @@ def uncommon_whitespace_tokenizer(text):
 
 def count_unique_strings(list1: List[str], list2: List[str]) -> Dict[str, int]:
     """
-        given list of strings, return the count of unique strings in list1 and list2
-            only if they are unique to one list
-    :param list1:
-    :param list2:
-    :return:
+    Given two lists of strings, return a dictionary where the keys are the strings
+    that occur only in one of the two lists or occur with different frequencies in both lists,
+    and the values are the absolute differences in their occurrences between the lists.
+
+    :param list1: First list of strings
+    :param list2: Second list of strings
+    :return: Dictionary with strings and their absolute differences in occurrences
     """
-    # Convert lists to sets
-    set1 = set(list1)
-    set2 = set(list2)
-
-    # Find the symmetric difference
-    unique_strings = set1.symmetric_difference(set2)
-
     # Count occurrences in the original lists
     count1 = Counter(list1)
     count2 = Counter(list2)
 
+    # Create a set of all unique strings in both lists
+    all_strings = set(count1.keys()).union(set(count2.keys()))
+
     result = {}
-    # Add counts
-    for string in unique_strings:
-        if string in count1:
-            result[string] = count1[string]
-        elif string in count2:
-            result[string] = count2[string]
-        else:
-            raise ValueError(f"Something went wrong. String {string} not in either list")
+    # Calculate the absolute difference in counts
+    for string in all_strings:
+        diff = abs(count1[string] - count2[string])
+        if diff > 0:
+            result[string] = diff
+
     return result
 
 
@@ -439,3 +445,52 @@ def create_featurized_dataset(features, tok_func, df_train, text1_name="text1", 
     # check that none of the columns contain nan values
     assert not df_train.isnull().values.any()
     return df_train
+
+
+import nltk
+
+# Download the NLTK data (only required if not already done)
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
+
+cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
+stemmer = PorterStemmer()
+lemmatizer = WordNetLemmatizer()
+
+
+def get_wordnet_pos(word):
+    tag = nltk.pos_tag([word])[0][1][0].upper()
+    tag_dict = {"J": wordnet.ADJ,
+                "N": wordnet.NOUN,
+                "V": wordnet.VERB,
+                "R": wordnet.ADV}
+    return tag_dict.get(tag, wordnet.NOUN)
+
+
+# @lru_cache(maxsize=10000)
+def clean_text(text):
+    # Remove punctuation
+    # text = text.translate(str.maketrans('', '', string.punctuation + "–…"))
+    # text = ''.join(
+    #     char for char in text
+    #     if not unicodedata.category(char).startswith('P')
+    # )
+    # Convert to lowercase
+    text = text.lower()
+    # Remove extra whitespace
+    text = ' '.join(text.split())
+    # convert left and right apostrophe to normal apostrophe
+    for char in COMMON_APOSTROPHE:
+        text = text.replace(char, "'")
+    # Stem the text
+    # text = ' '.join([stemmer.stem(word) for word in text.split()])
+    # Lemmatize the text
+    # text = ' '.join([lemmatizer.lemmatize(word, get_wordnet_pos(word)) for word in text.split()])
+    return text
+
+
+def lowercase_stem_and_clean(example, text1_name="premise", text2_name="hypothesis"):
+    example[text1_name] = clean_text(example[text1_name])
+    example[text2_name] = clean_text(example[text2_name])
+    return example
