@@ -480,6 +480,8 @@ def clean_text(text):
     text = text.lower()
     # Remove extra whitespace
     text = ' '.join(text.split())
+    # remove dots
+    text = text.replace(".", "")
     # convert left and right apostrophe to normal apostrophe
     for char in COMMON_APOSTROPHE:
         text = text.replace(char, "'")

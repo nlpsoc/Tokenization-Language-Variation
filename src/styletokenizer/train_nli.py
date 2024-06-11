@@ -118,18 +118,18 @@ def get_dataset_and_preprocess(mnli=False, preprocess=False):
     dev_dataset = snli_dataset[val_key].filter(lambda x: x['label'] != -1)
 
     if preprocess:
-        train_dataset = train_dataset.map(lowercase_stem_and_clean)
-        dev_dataset = dev_dataset.map(lowercase_stem_and_clean)
+        train_dataset = train_dataset.map(lowercase_stem_and_clean, load_from_cache_file=False)
+        dev_dataset = dev_dataset.map(lowercase_stem_and_clean, load_from_cache_file=False)
 
     # Convert to pandas DataFrame for easier manipulation
     train_df = pd.DataFrame(train_dataset)
     # assert not train_df['premise'].str.contains("'").any()
-    # assert not train_df['premise'].str.contains("\.").any()
+    assert not train_df['premise'].str.contains("\.").any()
     val_df = pd.DataFrame(dev_dataset)
     return train_df, val_df
 
 
-train_df, val_df = get_dataset_and_preprocess(mnli=True, preprocess=False)
+train_df, val_df = get_dataset_and_preprocess(mnli=False, preprocess=True)
 # print(f"------ split(" ") tokenizer ------")
 # do_train(lambda x: x.split(" "), tok_name="split", features="cross_words")
 #

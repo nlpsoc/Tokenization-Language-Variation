@@ -30,7 +30,7 @@ class TestTokenizer(TestCase):
         test_str = ("well...\nI loves me a café \t i'm, i DON'T    or we’ve got 1000s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
         test_str = (
             "Me ‘Time @ UMich's great!!😊’\nLearned 1000s thangs:\u00a0I'm I'M I’m café..  ")
-        test_str = "guy learnt\u00a0guitar 🎸\nThe man learned to play. "
+        test_str = "guy learnt\u00a0guitar\nThe man learned an instrument. "
 
         print(test_str)
 
