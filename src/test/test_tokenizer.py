@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from huggingface_tokenizers import T5, ALL_TOKENIZERS
+from huggingface_tokenizers import T5, HUGGINGFACE_TOKENIZERS, TRAINED_TOKENIZERS
 from styletokenizer.tokenizer import TorchTokenizer
 import homoglyphs as hg
 
@@ -9,9 +9,14 @@ class TestTokenizer(TestCase):
 
     def setUp(self) -> None:
         self.tokenizers = []
-        for tokenizer_name in ALL_TOKENIZERS:
+        for tokenizer_name in HUGGINGFACE_TOKENIZERS:
             tokenizer = TorchTokenizer(tokenizer_name)
             self.tokenizers.append(tokenizer)
+
+        self.trained_tokenizers = []
+        for trained_tokenizer_name in TRAINED_TOKENIZERS:
+            tokenizer = TorchTokenizer(trained_tokenizer_name)
+            self.trained_tokenizers.append(tokenizer)
 
     def test_tokenizer(self):
         tokenizer = TorchTokenizer("bert-base-uncased")
@@ -30,11 +35,14 @@ class TestTokenizer(TestCase):
         test_str = ("well...\nI loves me a café \t i'm, i DON'T    or we’ve got 1000s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
         test_str = (
             "Me ‘Time @ UMich's great!!😊’\nLearned 1000s thangs:\u00a0I'm I'M I’m café..  ")
-        test_str = "guy learnt\u00a0guitar\nThe man learned music. "
+        # test_str = "guy learnt\u00a0guitar\nThe man learned an instrument. "
 
-        print(test_str)
+        for tok_name, tokenizer in zip(TRAINED_TOKENIZERS, self.trained_tokenizers):
+            print(f"Tokenizer: {tok_name}")
+            tokens = tokenizer.tokenize(test_str)
+            print(tokens)
 
-        for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
+        for tok_name, tokenizer in zip(HUGGINGFACE_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.tokenize(test_str)
             token_ids = tokenizer.tokenizer.convert_tokens_to_ids(tokens)
@@ -49,7 +57,7 @@ class TestTokenizer(TestCase):
         # test_str = "� Hello there 😊".encode('utf-8').decode('ascii', errors='ignore')
         test_str = "Hello, world! &amp; Welcome to the &lt;coding&gt; world."
         print(test_str)
-        for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
+        for tok_name, tokenizer in zip(HUGGINGFACE_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.tokenize(test_str)
             token_ids = tokenizer.tokenizer.convert_tokens_to_ids(tokens)
@@ -59,7 +67,7 @@ class TestTokenizer(TestCase):
     def test_normalization(self):
         test_str = "Héllò hôw are ü?"
         print(test_str)
-        for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
+        for tok_name, tokenizer in zip(HUGGINGFACE_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.normalize(test_str)
             print(tokens)
@@ -67,7 +75,7 @@ class TestTokenizer(TestCase):
             print(tokens)
 
     def test_get_atoms(self):
-        for tok_name, tokenizer in zip(ALL_TOKENIZERS, self.tokenizers):
+        for tok_name, tokenizer in zip(HUGGINGFACE_TOKENIZERS, self.tokenizers):
             print(f"Tokenizer: {tok_name}")
             # Get the vocabulary
             vocab = tokenizer.get_vocab()
@@ -101,7 +109,7 @@ class TestTokenizer(TestCase):
 
     def test_homoglyphs(self):
         tokenizers = []
-        for tokenizer_name in ALL_TOKENIZERS:
+        for tokenizer_name in HUGGINGFACE_TOKENIZERS:
             tokenizer = TorchTokenizer(tokenizer_name)
             tokenizers.append(tokenizer)
 
@@ -112,7 +120,7 @@ class TestTokenizer(TestCase):
                                list(test_str)))
         print(test_str)
 
-        for tok_name, tokenizer in zip(ALL_TOKENIZERS, tokenizers):
+        for tok_name, tokenizer in zip(HUGGINGFACE_TOKENIZERS, tokenizers):
             print(f"Tokenizer: {tok_name}")
             tokens = tokenizer.tokenize(test_str)
             print(tokens)

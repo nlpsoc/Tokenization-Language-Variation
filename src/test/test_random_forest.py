@@ -34,7 +34,7 @@ class TestRandomForestTextPairClassifier(TestCase):
 
         print(f"Size of pairs: {len(pairs[0])}")
 
-        for tokenizer_name in huggingface_tokenizers.ALL_TOKENIZERS:
+        for tokenizer_name in huggingface_tokenizers.HUGGINGFACE_TOKENIZERS:
             print(f"Tokenizer: { tokenizer_name.split('/')[-1]}")
             tokenizer = TorchTokenizer(tokenizer_name)
 

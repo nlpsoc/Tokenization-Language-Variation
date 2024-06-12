@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer
+from tokenizers import Tokenizer
 
-from huggingface_tokenizers import ALL_TOKENIZERS
+from huggingface_tokenizers import HUGGINGFACE_TOKENIZERS
 
 
 class TorchTokenizer:
@@ -15,6 +16,9 @@ class TorchTokenizer:
         #
         #     # Load the tokenizer
         #     self.tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+        # else:
+        # if "wikitext" in model_name_or_path:
+        #     self.tokenizer = Tokenizer.from_file(model_name_or_path)
         # else:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path)
 
@@ -53,7 +57,7 @@ class TorchTokenizer:
         return self.tokenizer.encode(text)
 
 
-ALL_TOKENIZER_FUNCS = [TorchTokenizer(tokenizer_name).tokenize for tokenizer_name in ALL_TOKENIZERS]
+ALL_TOKENIZER_FUNCS = [TorchTokenizer(tokenizer_name).tokenize for tokenizer_name in HUGGINGFACE_TOKENIZERS]
 
 class XLMRobertaTokenizer(TorchTokenizer):
     def __init__(self):

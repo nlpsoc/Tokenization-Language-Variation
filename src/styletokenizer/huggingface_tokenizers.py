@@ -8,5 +8,8 @@ BERT_CASED = "bert-base-cased"
 BERT_UNCASED = "bert-base-uncased"
 MBERT = "google-bert/bert-base-multilingual-cased"
 
-ALL_TOKENIZERS = [ROBERTA, XLMROBERTA, BERT_CASED,
-                  LLAMA2, LLAMA3, T5, MIXTRAL, BERT_UNCASED, MBERT]
+HUGGINGFACE_TOKENIZERS = [ROBERTA, XLMROBERTA, BERT_CASED,
+                          LLAMA2, LLAMA3, T5, MIXTRAL, BERT_UNCASED, MBERT]
+
+BASEFOLDER = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer"
+TRAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-wikitext-raw/{vocab_size}" for vocab_size in [100, 1000, 10000, 32000, 100000]]
