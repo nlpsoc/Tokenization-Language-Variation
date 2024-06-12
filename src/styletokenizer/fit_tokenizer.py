@@ -36,7 +36,7 @@ def load_bz2_json_batch(file_path, batch_size=1000, total_lines=6459000):
 
 
 def get_wiki_corpus_iterator(text_handle="text", test=False):
-    train_data = datasets.load_dataset('wikipedia', '20200501.en', split='train')
+    train_data = datasets.load_dataset('wikipedia', '20220301.en', split='train')
     for i in tqdm(range(0, len(train_data), 1000), desc="Generating training corpus"):
         yield train_data[i: i + 1000][text_handle]
         if test:
@@ -54,8 +54,8 @@ def get_twitter_corpus_iterator(text_handle="text", test=False):
 
 def fit_wiki_tokenizer(corpus_iterator, vocab_size, dir_name, test=False):
     old_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
-    tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size, length=6459000)
-    # dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
+    tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size,
+                                                      ength=(6459000 if not test else 1000))
     os.makedirs(dir_name, exist_ok=True)
     tokenizer.save_pretrained(f"{dir_name}")
     return tokenizer
