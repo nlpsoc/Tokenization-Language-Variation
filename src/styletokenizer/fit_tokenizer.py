@@ -1,38 +1,76 @@
-from datasets import load_dataset
-from tokenizers import Tokenizer, models, pre_tokenizers, decoders, trainers, processors
-from tokenizers.pre_tokenizers import PreTokenizer, Whitespace
+import argparse
+import bz2
+import json
+from tqdm import tqdm
+import datasets
+
 import os
-import regex as re
+
+cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
+os.environ["TRANSFORMERS_CACHE"] = cache_dir
+os.environ["HF_DATASETS_CACHE"] = cache_dir
 from transformers import AutoTokenizer
 
-# Step 1: Load the dataset
-dataset = load_dataset('Salesforce/wikitext', 'wikitext-103-raw-v1')
 
-vocab_size = 100000
+def load_bz2_json_batch(file_path, batch_size=1000, total_lines=6459000):
+    """
+    Load a bz2 compressed JSON file in batches.
 
-# train a new tokenizer based on another one
-old_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
-def get_training_corpus():
-    return (
-        dataset['train'][i : i + 1000]["text"]
-        for i in range(0, len(dataset['train']), 1000)
-    )
+    :param file_path: Path to the bz2 compressed JSON file.
+    :param batch_size: Number of lines to read in each batch.
+    :param total_lines: Total number of lines to read from the file.
+    :return: A generator yielding batches of JSON objects.
+    """
+    with bz2.open(file_path, 'rt') as f:
+        batch = []
+        for i, line in enumerate(f):
+            if i >= total_lines:
+                break
+            batch.append(json.loads(line))
+            if len(batch) == batch_size:
+                yield batch
+                batch = []
+        if batch:
+            yield batch
 
 
-training_corpus = get_training_corpus()
+def get_wiki_corpus_iterator(text_handle="text"):
+    train_data = datasets.load_dataset('wikipedia', '20200501.en', split='train')
+    for i in tqdm(range(0, len(train_data), 1000), desc="Generating training corpus"):
+        yield train_data[i: i + 1000][text_handle]
 
-tokenizer = old_tokenizer.train_new_from_iterator(training_corpus, vocab_size=vocab_size)
 
-dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
-# make dir if it doesnt exist
-os.makedirs(dir_name, exist_ok=True)
-# Step 6: Save the tokenizer
-tokenizer.save_pretrained(f"{dir_name}")
+def get_twitter_corpus_iterator(text_handle="text", total_lines=6459000):
+    file_path = '/nfs/locker/twitter-decahose-locker/2021/decahose.2021-12-01.p2.bz2'
+    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total_lines=total_lines, desc="Loading Twitter data"):
+        for item in batch:
+            yield item[text_handle]
 
-# load tokenizer into TorchTokenizer
-from src.styletokenizer.utility.torchtokenizer import TorchTokenizer
-tok = TorchTokenizer(f"{dir_name}")
 
-# encode a test sentence
-print(tok.tokenize("Hello, world!"))
+def fit_wiki_tokenizer(corpus_iterator, vocab_size, dir_name):
+    old_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
+    tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size)
+    # dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
+    os.makedirs(dir_name, exist_ok=True)
+    tokenizer.save_pretrained(f"{dir_name}")
+    return tokenizer
 
+
+def main(wiki=True, vocab_size=30000):
+    if wiki:
+        training_corpus = get_wiki_corpus_iterator()
+        dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
+    else:
+        training_corpus = get_twitter_corpus_iterator()
+        dir_name = f"./llama3-tokenizer-twitter-raw/{vocab_size}"
+
+    tokenizer = fit_wiki_tokenizer(training_corpus, vocab_size, dir_name)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--twitter", action="store_true")
+    parser.add_argument("--vocab_size", type=int, default=30000)
+    args = parser.parse_args()
+
+    main(wiki=not args.twitter, vocab_size=args.vocab_size)
