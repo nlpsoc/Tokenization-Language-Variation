@@ -15,9 +15,17 @@ class Test(TestCase):
         print(dataset)
         self.assertTrue(type(dataset) == datasets.Dataset)
 
+    def test_get_source(self):
+        source = umich_av.get_train_source()
+        # get unique sources
+        sources = list(set(source))
+        self.assertTrue(sources, 10)
+        dataset = umich_av.get_1_train_dataframe()
+        self.assertTrue(len(source), len(dataset))
+
     def test_create_pairs(self):
         dataset = umich_av.load_1_dev_data()
-        pairs, labels = umich_av._create_pairs(dataset)
+        pairs, labels, sources = umich_av._create_pairs(dataset)
 
         self.assertTrue(len(dataset) < len(labels))
         self.assertTrue(len(labels) == len(dataset) * 2)

@@ -14,10 +14,10 @@ if on_cluster():
 
 from datasets import load_dataset
 
-from huggingface_tokenizers import ALL_TOKENIZERS
+from huggingface_tokenizers import HUGGINGFACE_TOKENIZERS, TRAINED_TOKENIZERS
 from logistic_regression import create_featurized_dataset, \
     uncommon_whitespace_tokenizer, lowercase_stem_and_clean, print_extreme_coefficients
-from utility.torchtokenizer import ALL_TOKENIZER_FUNCS
+from utility.torchtokenizer import ALL_TOKENIZER_FUNCS, TorchTokenizer
 
 
 # Initialize the stemmer
@@ -124,12 +124,12 @@ def get_dataset_and_preprocess(mnli=False, preprocess=False):
     # Convert to pandas DataFrame for easier manipulation
     train_df = pd.DataFrame(train_dataset)
     # assert not train_df['premise'].str.contains("'").any()
-    assert not train_df['premise'].str.contains("\.").any()
+    # assert not train_df['premise'].str.contains("\.").any()
     val_df = pd.DataFrame(dev_dataset)
     return train_df, val_df
 
 
-train_df, val_df = get_dataset_and_preprocess(mnli=False, preprocess=True)
+train_df, val_df = get_dataset_and_preprocess(mnli=False, preprocess=False)
 # print(f"------ split(" ") tokenizer ------")
 # do_train(lambda x: x.split(" "), tok_name="split", features="cross_words")
 #
@@ -139,6 +139,10 @@ train_df, val_df = get_dataset_and_preprocess(mnli=False, preprocess=True)
 # print(f"------ Apostrophe Tokenizer ------")
 # do_train(common_apostrophe_tokenize, tok_name="ap", features="cross_words", load=False)
 
-for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
+# for tok_name, tok_func in zip(HUGGINGFACE_TOKENIZERS, ALL_TOKENIZER_FUNCS):
+#     print(f"------- Tokenizer: {tok_name} -------")
+#     do_train(tok_func, features="cross_words", tok_name=tok_name, load=False, train_df=train_df, val_df=val_df)
+
+for tok_name, tok_func in zip(TRAINED_TOKENIZERS, [TorchTokenizer(tok_name).tokenize for tok_name in TRAINED_TOKENIZERS]):
     print(f"------- Tokenizer: {tok_name} -------")
     do_train(tok_func, features="cross_words", tok_name=tok_name, load=False, train_df=train_df, val_df=val_df)

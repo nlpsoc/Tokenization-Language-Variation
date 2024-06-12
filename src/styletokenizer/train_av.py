@@ -17,13 +17,13 @@ if on_cluster():
     os.environ["TRANSFORMERS_CACHE"] = cache_dir
     os.environ["HF_DATASETS_CACHE"] = cache_dir
 
-from huggingface_tokenizers import ALL_TOKENIZERS
+from huggingface_tokenizers import HUGGINGFACE_TOKENIZERS, TRAINED_TOKENIZERS
 from logistic_regression import uncommon_whitespace_tokenizer, \
     create_featurized_dataset, lowercase_stem_and_clean, print_extreme_coefficients
 from styletokenizer.load_data import load_pickle_file
 from styletokenizer.utility.filesystem import get_dir_to_src, on_cluster
 
-from utility.torchtokenizer import ALL_TOKENIZER_FUNCS
+from utility.torchtokenizer import ALL_TOKENIZER_FUNCS, TorchTokenizer
 from utility.umich_av import get_1_train_pairs, get_1_dev_pairs
 from sklearn.model_selection import train_test_split
 
@@ -118,6 +118,14 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name="", lo
     # print most predicitve features
     print_extreme_coefficients(model, vectorizer)
 
+    # performance per source
+    for source in df_dev["source"].unique():
+        source_df = df_dev[df_dev["source"] == source]
+        y_val_pred = model.predict(vectorizer.transform(source_df['text'].tolist()))
+        print(f"Source: {source}")
+        print("Classification Report:")
+        print(classification_report(source_df["label"], y_val_pred))
+
     # save the dataframe
     df_dev.to_csv(dev_name, index=False, sep="\t")
     df_train.to_csv(train_name, index=False, sep="\t")
@@ -126,7 +134,7 @@ def main(tok_func, features: str = "common_words", reddit=False, tok_name="", lo
 
 
 def get_AV_data(preprocess=False, sample_size=1, ood_dev=False):
-    pairs, labels = get_1_train_pairs()
+    pairs, labels, sources = get_1_train_pairs()
     if ood_dev:
         dev_pairs, dev_labels = get_1_dev_pairs()
         train_pairs, train_labels = pairs, labels
@@ -134,7 +142,7 @@ def get_AV_data(preprocess=False, sample_size=1, ood_dev=False):
         dev_text1, dev_text2 = dev_pairs[0], dev_pairs[1]
     else:
         # create random split
-        pairs = (pairs[0], pairs[1], labels)
+        pairs = (pairs[0], pairs[1], labels, sources)
         # shuffle pairs
         pairs = list(zip(*pairs))
         import random
@@ -146,14 +154,16 @@ def get_AV_data(preprocess=False, sample_size=1, ood_dev=False):
         dev_labels = [item[2] for item in dev_pairs]
         train_text1, train_text2 = list(zip(*train_pairs))[0], list(zip(*train_pairs))[1]
         dev_text1, dev_text2 = list(zip(*dev_pairs))[0], list(zip(*dev_pairs))[1]
+        train_sources = [item[3] for item in train_pairs]
+        dev_sources = [item[3] for item in dev_pairs]
     # limit texts to 600 characters
     train_text1 = [text[:600] for text in train_text1]
     train_text2 = [text[:600] for text in train_text2]
     dev_text1 = [text[:600] for text in dev_text1]
     dev_text2 = [text[:600] for text in dev_text2]
     # create dataframe
-    df_train = pd.DataFrame({"text1": train_text1, "text2": train_text2, "label": train_labels})
-    df_dev = pd.DataFrame({"text1": dev_text1, "text2": dev_text2, "label": dev_labels})
+    df_train = pd.DataFrame({"text1": train_text1, "text2": train_text2, "label": train_labels, "source": train_sources})
+    df_dev = pd.DataFrame({"text1": dev_text1, "text2": dev_text2, "label": dev_labels, "source": dev_sources})
 
     if preprocess:
         df_dev = df_dev.apply(lambda x: lowercase_stem_and_clean(x, "text1", "text2"), axis=1)
@@ -165,7 +175,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train a TextClassifier model.')
     args = parser.parse_args()
 
-    df_dev, df_train = get_AV_data(ood_dev=False, preprocess=True)
+    df_dev, df_train = get_AV_data(ood_dev=False, preprocess=False)
 
     # print(f"------ Whitespace Tokenizer ------")
     # main(reddit=False, tok_func=common_ws_tokenize, features="common_words", tok_name="whitespace")
@@ -176,7 +186,12 @@ if __name__ == '__main__':
     # print(f"------ split(" ") tokenizer ------")
     # main(reddit=False, tok_func=lambda x: x.split(" "), features="common_words", tok_name="split")
 
-    for tok_name, tok_func in zip(ALL_TOKENIZERS, ALL_TOKENIZER_FUNCS):
+    for tok_name, tok_func in zip(HUGGINGFACE_TOKENIZERS, ALL_TOKENIZER_FUNCS):
         print(f"------- Tokenizer: {tok_name} -------")
         main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False,
              df_dev=df_dev, df_train=df_train)
+
+    # for tok_name, tok_func in zip(TRAINED_TOKENIZERS, [TorchTokenizer(tok_name).tokenize for tok_name in TRAINED_TOKENIZERS]):
+    #     print(f"------- Tokenizer: {tok_name} -------")
+    #     main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False,
+    #          df_dev=df_dev, df_train=df_train)

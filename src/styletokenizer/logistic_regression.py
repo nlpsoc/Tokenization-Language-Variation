@@ -317,9 +317,9 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
                                                          symmetric=symmetric, uncommon_only=uncommon_only)), axis=1)
 
     if return_full_tokens:
-        return dataframe[['text', label_name, 'text1_tokens', 'text2_tokens']]
+        return dataframe[['text', label_name, 'source', 'text1_tokens', 'text2_tokens']]
     else:
-        return dataframe[['text', label_name]]
+        return dataframe[['text', label_name, 'source']]
 
 
 def set_log_reg_features(features):

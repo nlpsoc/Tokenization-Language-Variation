@@ -1,3 +1,4 @@
+import json
 import re
 
 from datasets import load_from_disk
@@ -9,6 +10,7 @@ from whitespace_consts import APOSTROPHE_PATTERN
 DEV_PATH = "../../data/UMich-AV/down_1/dev"
 TRAIN_1_PATH = "../../data/UMich-AV/down_1/train"
 TRAIN_10_PATH = "../../data/UMich-AV/down_10/train"
+TRAIN_1_QUERY = "../../data/UMich-AV/down_1/train_queries.jsonl"
 # original cluster location at /shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1
 TRAIN_1_CLUSTER = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1/train"
 DEV_1_CLUSTER = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1/dev"
@@ -19,12 +21,68 @@ DEV_1_CLUSTER = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_maskin
 """
 
 
+def load_jsonl(file_path):
+    data = []
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            data.append(json.loads(line.strip()))
+    return data
+
+
+def get_source(query_path):
+    query_objects = load_jsonl(query_path)
+    sources = [obj['source'] for obj in query_objects]
+    sources = []
+    ordered_sources = ["Book3Corpus", "gmane", "realnews", "wiki", "pubmed", "amazon", "reddit", "archiveofourown",
+                       "stackexchange", "nytimes"]
+    cur_source = 0
+    for obj in query_objects:
+        # assumption ordered sources
+        source = obj['source']
+        if cur_source == 0 and "Book3Corpus" in obj['source']:
+            sources.append("Book3Corpus")
+        elif 0 <= cur_source <= 1 and "gmane." in source:
+            cur_source = 1
+            sources.append("gmane")
+        elif 1 <= cur_source <= 2 and "wiki" not in source:
+            cur_source = 2
+            sources.append("realnews")
+        elif 2 <= cur_source <= 3 and "wiki" in source:
+            cur_source = 3
+            sources.append("wiki")
+        elif 3 <= cur_source <= 4 and "pubmed" in source:
+            cur_source = 4
+            sources.append("pubmed")
+        elif 4 <= cur_source <= 5 and "amazon" in source:
+            cur_source = 5
+            sources.append("amazon")
+        elif 5 <= cur_source <= 6 and "reddit" in source:
+            cur_source = 6
+            sources.append("reddit")
+        elif 6 <= cur_source <= 7 and "archiveofourown" in source:
+            cur_source = 7
+            sources.append("archiveofourown")
+        elif 7 <= cur_source <= 8 and "new-york" not in source:
+            cur_source = 8
+            sources.append("stackexchange")
+        elif 8 <= cur_source <= 9 and "new-york" in source:
+            cur_source = 9
+            sources.append("nytimes")
+    # return list of "source" strings for each object
+    return sources
+
+
+def get_train_source():
+    return get_source(TRAIN_1_QUERY)
+
+
 def load_1_dev_data():
     # loading follows same code as Kenan's
     # https://github.com/davidjurgens/sadiri/blob/main/src/style_content/poc/v1_no_adversarial/models.py#L23
     from styletokenizer.utility.filesystem import on_cluster
     if not on_cluster():
         train_datatset = load_from_disk(DEV_PATH)['train']
+        # load a queries.jsonl file
     else:
         train_datatset = load_from_disk(DEV_1_CLUSTER)['train']
     return train_datatset
@@ -38,13 +96,14 @@ def load_1_train_data():
         train_dataset = load_from_disk(TRAIN_1_CLUSTER)['train']
     return train_dataset
 
+
 def load_10_train_data():
     train_dataset = load_from_disk(TRAIN_10_PATH)['train']
     return train_dataset
 
 
 # Create pairs of texts
-def _create_pairs(dataset):
+def _create_pairs(dataset, sources=None):
     # Set the seed once
     set_global_seed(42, False)
 
@@ -53,12 +112,14 @@ def _create_pairs(dataset):
     queries = []
     candidates = []
     labels = []
+    pair_sources = []
     for i, row in df.iterrows():
         # UMich dataset setup: query and candidate in the same row are a positive pair
         pairs.append((row['query_text'], row['candidate_text']))
         queries.append(row['query_text'])
         candidates.append(row['candidate_text'])
         labels.append(1)
+        pair_sources.append(sources[i] if sources else None)
         # Add negative samples (pairs from different rows)
         #   get a random row
         neg_pair = False
@@ -70,7 +131,8 @@ def _create_pairs(dataset):
                 candidates.append(rand_row['query_text'].values[0])
                 labels.append(0)
                 neg_pair = True
-    return (queries, candidates), labels
+                pair_sources.append(sources[i] if sources else None)
+    return (queries, candidates), labels, None if None in pair_sources else pair_sources
 
 
 def get_1_dev_pairs():
@@ -85,7 +147,9 @@ def get_1_dev_dataframe():
 
 def get_1_train_pairs():
     dataset = load_1_train_data()
-    return _create_pairs(dataset)
+    sources = get_train_source()
+    return _create_pairs(dataset, sources=sources)
+
 
 def get_10_train_pairs():
     dataset = load_10_train_data()
@@ -93,8 +157,9 @@ def get_10_train_pairs():
 
 
 def get_1_train_dataframe():
-    pairs, labels = get_1_train_pairs()
-    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels})
+    pairs, labels, sources = get_1_train_pairs()
+    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels, "source": sources})
+
 
 def get_10_train_dataframe():
     pairs, labels = get_10_train_pairs()
