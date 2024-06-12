@@ -175,7 +175,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train a TextClassifier model.')
     args = parser.parse_args()
 
-    df_dev, df_train = get_AV_data(ood_dev=False, preprocess=False)
+    df_dev, df_train = get_AV_data(ood_dev=False, preprocess=True)
 
     # print(f"------ Whitespace Tokenizer ------")
     # main(reddit=False, tok_func=common_ws_tokenize, features="common_words", tok_name="whitespace")

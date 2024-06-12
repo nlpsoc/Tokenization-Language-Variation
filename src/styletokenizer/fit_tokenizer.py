@@ -35,37 +35,40 @@ def load_bz2_json_batch(file_path, batch_size=1000, total_lines=6459000):
             yield batch
 
 
-def get_wiki_corpus_iterator(text_handle="text"):
+def get_wiki_corpus_iterator(text_handle="text", test=False):
     train_data = datasets.load_dataset('wikipedia', '20200501.en', split='train')
     for i in tqdm(range(0, len(train_data), 1000), desc="Generating training corpus"):
         yield train_data[i: i + 1000][text_handle]
+        if test:
+            break
 
 
-def get_twitter_corpus_iterator(text_handle="text", total_lines=6459000):
+def get_twitter_corpus_iterator(text_handle="text", test=False):
     file_path = '/nfs/locker/twitter-decahose-locker/2021/decahose.2021-12-01.p2.bz2'
     for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=6459, desc="Loading Twitter data"):
         for item in batch:
             yield item[text_handle]
+        if test:
+            break
 
 
-def fit_wiki_tokenizer(corpus_iterator, vocab_size, dir_name):
+def fit_wiki_tokenizer(corpus_iterator, vocab_size, dir_name, test=False):
     old_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
-    tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size)
+    tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size, length=6459000)
     # dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
     os.makedirs(dir_name, exist_ok=True)
     tokenizer.save_pretrained(f"{dir_name}")
     return tokenizer
 
 
-def main(wiki=True, vocab_size=30000):
+def main(wiki=True, vocab_size=30000, test=False):
+    dir_name = f"./llama3-tokenizer-{'wiki' if wiki else 'twitter'}-raw{'-test' if test else ''}/{vocab_size}"
     if wiki:
-        training_corpus = get_wiki_corpus_iterator()
-        dir_name = f"./llama3-tokenizer-wikitext-raw/{vocab_size}"
+        training_corpus = get_wiki_corpus_iterator(test=test)
     else:
-        training_corpus = get_twitter_corpus_iterator()
-        dir_name = f"./llama3-tokenizer-twitter-raw/{vocab_size}"
+        training_corpus = get_twitter_corpus_iterator(test=test)
 
-    tokenizer = fit_wiki_tokenizer(training_corpus, vocab_size, dir_name)
+    tokenizer = fit_wiki_tokenizer(training_corpus, vocab_size, dir_name, test=test)
 
 
 if __name__ == "__main__":
