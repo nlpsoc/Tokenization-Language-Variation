@@ -2,7 +2,7 @@ import argparse
 import bz2
 import json
 from tqdm import tqdm
-import datasets
+
 
 import os
 
@@ -10,6 +10,7 @@ cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
 from transformers import AutoTokenizer
+import datasets
 
 
 def load_bz2_json_batch(file_path, batch_size=1000, total_lines=6459000):
@@ -42,7 +43,7 @@ def get_wiki_corpus_iterator(text_handle="text"):
 
 def get_twitter_corpus_iterator(text_handle="text", total_lines=6459000):
     file_path = '/nfs/locker/twitter-decahose-locker/2021/decahose.2021-12-01.p2.bz2'
-    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total_lines=total_lines, desc="Loading Twitter data"):
+    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=total_lines, desc="Loading Twitter data"):
         for item in batch:
             yield item[text_handle]
 
