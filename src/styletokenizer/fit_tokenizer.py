@@ -43,7 +43,7 @@ def get_wiki_corpus_iterator(text_handle="text"):
 
 def get_twitter_corpus_iterator(text_handle="text", total_lines=6459000):
     file_path = '/nfs/locker/twitter-decahose-locker/2021/decahose.2021-12-01.p2.bz2'
-    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=total_lines, desc="Loading Twitter data"):
+    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=6459, desc="Loading Twitter data"):
         for item in batch:
             yield item[text_handle]
 
