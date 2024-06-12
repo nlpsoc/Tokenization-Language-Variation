@@ -57,7 +57,7 @@ def get_twitter_corpus_iterator(text_handle="text", test=False):
 def fit_wiki_tokenizer(corpus_iterator, vocab_size, dir_name, test=False):
     old_tokenizer = AutoTokenizer.from_pretrained("meta-llama/Meta-Llama-3-8B")
     tokenizer = old_tokenizer.train_new_from_iterator(corpus_iterator, vocab_size=vocab_size,
-                                                      ength=(6459000 if not test else 1000))
+                                                      length=(6459000 if not test else 1000))
     os.makedirs(dir_name, exist_ok=True)
     tokenizer.save_pretrained(f"{dir_name}")
     return tokenizer
