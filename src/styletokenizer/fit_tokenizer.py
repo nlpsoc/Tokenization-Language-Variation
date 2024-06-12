@@ -75,6 +75,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--twitter", action="store_true")
     parser.add_argument("--vocab_size", type=int, default=30000)
+    parser.add_argument("--test", action="store_true")
     args = parser.parse_args()
 
-    main(wiki=not args.twitter, vocab_size=args.vocab_size)
+    main(wiki=not args.twitter, vocab_size=args.vocab_size, test=args.test)
