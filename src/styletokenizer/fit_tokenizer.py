@@ -37,7 +37,8 @@ def load_bz2_json_batch(file_path, batch_size=1000, total_lines=6459000):
 
 def get_wiki_corpus_iterator(text_handle="text", test=False):
     train_data = datasets.load_dataset('wikipedia', '20220301.en', split='train')
-    for i in tqdm(range(0, len(train_data), 1000), desc="Generating training corpus"):
+    # for i in tqdm(range(0, len(train_data), 1000), desc="Generating training corpus"):
+    for i in range(0, len(train_data), 1000):
         yield train_data[i: i + 1000][text_handle]
         if test:
             break
@@ -45,7 +46,8 @@ def get_wiki_corpus_iterator(text_handle="text", test=False):
 
 def get_twitter_corpus_iterator(text_handle="text", test=False):
     file_path = '/nfs/locker/twitter-decahose-locker/2021/decahose.2021-12-01.p2.bz2'
-    for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=6459, desc="Loading Twitter data"):
+    # for batch in tqdm(load_bz2_json_batch(file_path, 1000), total=6459, desc="Loading Twitter data"):
+    for batch in load_bz2_json_batch(file_path, 1000):
         for item in batch:
             yield item[text_handle]
         if test:
