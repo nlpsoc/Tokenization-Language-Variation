@@ -12,4 +12,7 @@ HUGGINGFACE_TOKENIZERS = [ROBERTA, XLMROBERTA, BERT_CASED,
                           LLAMA2, LLAMA3, T5, MIXTRAL, BERT_UNCASED, MBERT]
 
 BASEFOLDER = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/src/styletokenizer"
-TRAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-wikitext-raw/{vocab_size}" for vocab_size in [100, 1000, 10000, 32000, 100000]]
+# TRAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-wiki-20GB-raw/{vocab_size}" for vocab_size in [500, 8000, 16000, 32000, 64000]]
+# TRAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-wiki-20GB-raw/{vocab_size}" for vocab_size in [2000, 4000, 128000]]
+# RAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-wiki-20GB-raw/{vocab_size}" for vocab_size in [1000, 246000, 512000]]
+TRAINED_TOKENIZERS = [f"{BASEFOLDER}/llama3-tokenizer-twitter-raw/{vocab_size}" for vocab_size in [32000]]
