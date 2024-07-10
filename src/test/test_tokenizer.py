@@ -36,6 +36,7 @@ class TestTokenizer(TestCase):
         test_str = (
             "Me ‘Time @ UMich's great!!😊’\nLearned 1000s thangs:\u00a0I'm I'M I’m café..  ")
         # test_str = "guy learnt\u00a0guitar\nThe man learned an instrument. "
+        test_str = ("Me ‘Learned 1000s thangs!!’\nI've learnt many things!")
 
         for tok_name, tokenizer in zip(TRAINED_TOKENIZERS, self.trained_tokenizers):
             print(f"Tokenizer: {tok_name}")
