@@ -61,10 +61,11 @@ def load_model(tokenizer, keep_weights=False):
         model.resize_token_embeddings(len(tokenizer))
     else:
         model = BertForMaskedLM.from_pretrained('prajjwal1/bert-tiny')  # sequence len still 512
-        # Randomly initialize the embedding matrix
-        embedding_dim = model.bert.embeddings.word_embeddings.embedding_dim
-        vocab_size = len(tokenizer)
-        model.bert.embeddings.word_embeddings = torch.nn.Embedding(vocab_size, embedding_dim)
+        model.resize_token_embeddings(len(tokenizer))
+        # Reinitialize the token embeddings
+        model.get_input_embeddings().weight.data.normal_(mean=0.0, std=model.config.initializer_range)
+        # Verify the reset (optional)
+        print(model.get_input_embeddings().weight)
     return model
 
 
@@ -103,7 +104,7 @@ def main(tokenizer_name, test=False):
         # Save the tokenized dataset to disk
         dataset.save_to_disk(tokenized_data_path)
 
-    model = load_model(tokenizer)
+    model = load_model(tokenizer, keep_weights=True)
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=True, mlm_probability=0.15
