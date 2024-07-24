@@ -101,7 +101,7 @@ def create_dataframe(features, tokenizer_func, train_df, val_df):
     return train_df, val_df
 
 
-def get_dataset_and_preprocess(mnli=False, preprocess=False):
+def get_dataset_and_preprocess(mnli=False, preprocess=False, debias=False):
     # Load the SNLI dataset
     #   0 - entailment
     #   1 - neutral

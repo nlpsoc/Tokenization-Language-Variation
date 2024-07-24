@@ -186,12 +186,12 @@ if __name__ == '__main__':
     # print(f"------ split(" ") tokenizer ------")
     # main(reddit=False, tok_func=lambda x: x.split(" "), features="common_words", tok_name="split")
 
-    for tok_name, tok_func in zip(HUGGINGFACE_TOKENIZERS, ALL_TOKENIZER_FUNCS):
-        print(f"------- Tokenizer: {tok_name} -------")
-        main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False,
-             df_dev=df_dev, df_train=df_train)
-
-    # for tok_name, tok_func in zip(TRAINED_TOKENIZERS, [TorchTokenizer(tok_name).tokenize for tok_name in TRAINED_TOKENIZERS]):
+    # for tok_name, tok_func in zip(HUGGINGFACE_TOKENIZERS, ALL_TOKENIZER_FUNCS):
     #     print(f"------- Tokenizer: {tok_name} -------")
     #     main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False,
     #          df_dev=df_dev, df_train=df_train)
+
+    for tok_name, tok_func in zip(TRAINED_TOKENIZERS, [TorchTokenizer(tok_name).tokenize for tok_name in TRAINED_TOKENIZERS]):
+        print(f"------- Tokenizer: {tok_name} -------")
+        main(reddit=False, tok_func=tok_func, features="common_words", tok_name=tok_name, load=False,
+             df_dev=df_dev, df_train=df_train)

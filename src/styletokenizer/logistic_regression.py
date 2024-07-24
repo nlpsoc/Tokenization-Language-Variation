@@ -316,10 +316,14 @@ def cross_words_preprocess(tok_func, dataframe, common_only=False, uncommon_only
         lambda row: counter_to_string(get_feature_counts(row['text1_tokens'], row['text2_tokens'],
                                                          symmetric=symmetric, uncommon_only=uncommon_only)), axis=1)
 
+    column_names = ['text', label_name]
+    if 'source' in dataframe.columns:
+        column_names.append('source')
     if return_full_tokens:
-        return dataframe[['text', label_name, 'source', 'text1_tokens', 'text2_tokens']]
-    else:
-        return dataframe[['text', label_name, 'source']]
+        column_names.append('text1_tokens')
+        column_names.append('text2_tokens')
+
+    return dataframe[column_names]
 
 
 def set_log_reg_features(features):
@@ -481,7 +485,7 @@ def clean_text(text):
     # Remove extra whitespace
     text = ' '.join(text.split())
     # remove dots
-    text = text.replace(".", "")
+    # text = text.replace(".", "")
     # convert left and right apostrophe to normal apostrophe
     for char in COMMON_APOSTROPHE:
         text = text.replace(char, "'")
