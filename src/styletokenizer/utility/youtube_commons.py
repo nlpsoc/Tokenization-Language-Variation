@@ -26,15 +26,17 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
     filtered_df = shuffled_dataset.compute()
 
     # Initialize variables to store the sampled texts and the accumulated word count
-    sampled_texts = []
     total_word_count = 0
+    sampled_texts = []
     sampled_ids = []
+    sampled_word_count = []
 
     # Iterate through the shuffled dataframe and sample texts until the required word count is reached
     for _, row in filtered_df.iterrows():
         sampled_texts.append(row['text'])
-        total_word_count += row['word_count']
         sampled_ids.append(row['video_id'])
+        sampled_word_count.append(row['word_count'])
+        total_word_count += row['word_count']
         if total_word_count >= required_word_count:
             break
 
@@ -46,5 +48,6 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
         "id": sampled_ids,
         "domain": ["YouTubeCommons"] * len(sampled_texts),
         "source": ["YouTubeCommons"] * len(sampled_texts),
+        "word_count": sampled_word_count,
         "text": sampled_texts,
     }

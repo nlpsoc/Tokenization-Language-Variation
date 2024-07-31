@@ -35,10 +35,10 @@ import styletokenizer.utility.youtube_commons as youtube_commons
 
 
 def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed'):
-    sadiri_sample_dict = sadiri.sample_sadiri_texts()
     s2orc_sample_dict = s2orc.sample_s2orc_texts()
-    pile_sample_dict = the_pile.sample_pile_texts()
     youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts()
+    sadiri_sample_dict = sadiri.sample_sadiri_texts()
+    pile_sample_dict = the_pile.sample_pile_texts()
 
     # Convert dictionaries to pandas DataFrames
     sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)
