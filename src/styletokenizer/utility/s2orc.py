@@ -13,6 +13,7 @@ def count_words(text):
 
 def read_files_and_sample(path, target_word_count):
     total_word_count = 0
+    sampled_items = []
     sampled_ids = []
     sampled_texts = []
     samled_word_counts = []
@@ -40,22 +41,31 @@ def read_files_and_sample(path, target_word_count):
                 text = line.get('content', {}).get('text', "")
                 words = text.split()
 
-                sampled_texts.append(text)
-                sampled_ids.append(corpusid)
-                samled_word_counts.append(len(words))
+                sampled_items.append({
+                    "id": corpusid,
+                    "text": text,
+                    "word_count": len(words),
+                    "domain": "s2orc",
+                    "source": "s2orc"
+                })
+                # sampled_texts.append(text)
+                # sampled_ids.append(corpusid)
+                # samled_word_counts.append(len(words))
                 word_count += len(words)
                 total_word_count += len(words)
             print(f"Sampled word count for file {file_path}: {word_count}")
 
-    return sampled_ids, sampled_texts, samled_word_counts
+    return sampled_items
 
 
 def sample_s2orc_texts(required_word_count=WORD_COUNT):
-    sampled_ids, sampled_texts, sampled_wc = read_files_and_sample(s2orc_path, required_word_count)
-    return {
-        "id": sampled_ids,  # corpusid as used in original s2orc dataset
-        "domain": ["s2orc"] * len(sampled_texts),
-        "source": ["s2orc"] * len(sampled_texts),
-        "word_count": sampled_wc,
-        "text": sampled_texts,
-    }
+    sampled_items = read_files_and_sample(s2orc_path, required_word_count)
+    return sampled_items
+
+    # {
+    #     "id": sampled_ids,  # corpusid as used in original s2orc dataset
+    #     "domain": ["s2orc"] * len(sampled_texts),
+    #     "source": ["s2orc"] * len(sampled_texts),
+    #     "word_count": sampled_wc,
+    #     "text": sampled_texts,
+    # }

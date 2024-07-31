@@ -1,10 +1,14 @@
 import bz2
 import json
 import os
-from datasets import Dataset
+from datasets import Dataset, DatasetDict
+
+from styletokenizer.utility.datasets_helper import save_to_huggingface_format
+
 
 def count_words(text):
     return len(text.split())
+
 
 def process_file(file_path, target_word_count_per_file, data):
     cumulative_word_count = 0
@@ -14,10 +18,10 @@ def process_file(file_path, target_word_count_per_file, data):
             text = tweet.get("text", "")
             tweet_id = tweet.get("id", "")
             word_count = count_words(text)
-            
+
             cumulative_word_count += word_count
             data.append({"id": tweet_id, "text": text, "word_count": word_count})
-            
+
             if cumulative_word_count >= target_word_count_per_file:
                 return data, cumulative_word_count
     return data, cumulative_word_count
@@ -62,11 +66,15 @@ def sample_texts_from_files(directory, target_word_count):
 
     return data
 
-directory = '/nfs/locker/twitter-decahose-locker/2021'
-output_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/twitter'
-target_word_count = 1_500_000_000
-data = sample_texts_from_files(directory, target_word_count)
-dataset = Dataset.from_dict({"id": [item["id"] for item in data],
-                             "text": [item["text"] for item in data],
-                             "word_count": [item["word_count"] for item in data]})
-dataset.save_to_disk(output_path)
+
+def main():
+    directory = '/nfs/locker/twitter-decahose-locker/2021'
+    output_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/twitter'
+    target_word_count = 1_500_000_000
+    sampled_twitter_data = sample_texts_from_files(directory, target_word_count)
+    save_to_huggingface_format(sampled_twitter_data, output_path)
+
+# dataset = Dataset.from_dict({"id": [item["id"] for item in data],
+#                              "text": [item["text"] for item in data],
+#                              "word_count": [item["word_count"] for item in data]})
+# dataset.save_to_disk(output_path)

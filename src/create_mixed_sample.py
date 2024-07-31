@@ -32,52 +32,67 @@ import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.youtube_commons as youtube_commons
+from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 
 
 def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed', test=False):
     print("Creating mixed dataset")
     if not test:
-        s2orc_sample_dict = s2orc.sample_s2orc_texts()
-        youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts()
-        sadiri_sample_dict = sadiri.sample_sadiri_texts()
-        pile_sample_dict = the_pile.sample_pile_texts()
+        print("Sampling from s2orc")
+        s2orc_sample_dicts = s2orc.sample_s2orc_texts()
+        print("Sampling from YouTubeCommons")
+        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts()
+        print("Sampling from sadiri")
+        sadiri_sample_dicts = sadiri.sample_sadiri_texts()
+        print("Sampling from the pile")
+        pile_sample_dicts = the_pile.sample_pile_texts()
     else:
         print("Running in test mode")
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         print(f"Saving to {save_path}")
 
         print("Sampling from s2orc")
-        s2orc_sample_dict = s2orc.sample_s2orc_texts(required_word_count=10)
+        s2orc_sample_dicts = s2orc.sample_s2orc_texts(required_word_count=10)
         print("Sampling from YouTubeCommons")
-        youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts(required_word_count=10)
+        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(required_word_count=10)
         print("Sampling from sadiri")
-        sadiri_sample_dict = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
+        sadiri_sample_dicts = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
         print("Sampling from the pile")
-        pile_sample_dict = the_pile.sample_pile_texts(sampled_word_counts=
+        pile_sample_dicts = the_pile.sample_pile_texts(sampled_word_counts=
                                                       [10 for _ in range(len(the_pile.PILE_SET_NAMES))])
 
+    # combine list of dicts into a single dict
+    all_dicts = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
+
+    # shuffle the list of dicts
+    import random
+    random.seed(42)
+    random.shuffle(all_dicts)
+
+    save_to_huggingface_format(all_dicts, save_path)
+
     # Convert dictionaries to pandas DataFrames
-    sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)
-    s2orc_df = pd.DataFrame.from_dict(s2orc_sample_dict)
-    pile_df = pd.DataFrame.from_dict(pile_sample_dict)
-    youtube_df = pd.DataFrame.from_dict(youtube_sample_dict)
+    # sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)
+    # s2orc_df = pd.DataFrame.from_dict(s2orc_sample_dict)
+    # pile_df = pd.DataFrame.from_dict(pile_sample_dict)
+    # youtube_df = pd.DataFrame.from_dict(youtube_sample_dict)
 
     # Convert DataFrames to Hugging Face Datasets
-    sadiri_dataset = Dataset.from_pandas(sadiri_df)
-    s2orc_dataset = Dataset.from_pandas(s2orc_df)
-    pile_dataset = Dataset.from_pandas(pile_df)
-    youtube_dataset = Dataset.from_pandas(youtube_df)
+    # sadiri_dataset = Dataset.from_pandas(sadiri_df)
+    # s2orc_dataset = Dataset.from_pandas(s2orc_df)
+    # pile_dataset = Dataset.from_pandas(pile_df)
+    # youtube_dataset = Dataset.from_pandas(youtube_df)
 
     # Concatenate the datasets
-    combined_dataset = concatenate_datasets([sadiri_dataset, s2orc_dataset, pile_dataset, youtube_dataset])
+    # combined_dataset = concatenate_datasets([sadiri_dataset, s2orc_dataset, pile_dataset, youtube_dataset])
 
     # Shuffle the combined dataset
-    shuffled_dataset = combined_dataset.shuffle(seed=42)
+    # shuffled_dataset = combined_dataset.shuffle(seed=42)
 
     # Save the combined dataset to the specified path
-    shuffled_dataset.save_to_disk(save_path)
+    # shuffled_dataset.save_to_disk(save_path)
 
-    print(f"Dataset saved to {save_path}")
+    # print(f"Dataset saved to {save_path}")
 
 
 if __name__ == "__main__":

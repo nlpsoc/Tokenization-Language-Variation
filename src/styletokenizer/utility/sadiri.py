@@ -18,7 +18,8 @@ WORD_COUNTS = [249000000,
                8189607]
 
 
-def sample_texts_from_dataframe(data_df, target_word_count):
+def sample_texts_from_dataframe(data_df, target_word_count, dataset_name):
+    sampeled_items = []
     sampled_texts = []
     document_ids = []
     sampled_word_counts = []
@@ -28,22 +29,28 @@ def sample_texts_from_dataframe(data_df, target_word_count):
         text = row['fullText']
         words = text.split()
         word_count = len(words)
+        sampeled_items.append({
+            "text": text, "word_count": word_count, "id": row['documentID'], "source": "SADIRI",
+            "domain": dataset_name})
         sampled_texts.append(text)
         document_ids.append(row['documentID'])
         sampled_word_counts.append(word_count)
         current_word_count += word_count
         if current_word_count >= target_word_count:
             break
-    return {
-        "sampled_texts": sampled_texts,
-        "sampled_word_count": sampled_word_counts,
-        "document_ids": document_ids
-    }
+    return sampeled_items, current_word_count
+    # {
+    #     "sampled_texts": sampled_texts,
+    #     "sampled_word_count": sampled_word_counts,
+    #     "document_ids": document_ids
+    # }
 
 
 def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
     data_samples = defaultdict(list)
     total_word_count = defaultdict(int)
+
+    sampled_items = []
 
     for dataset_path, word_count in zip(dataset_paths, word_samples):
         dataset_name = os.path.basename(dataset_path)
@@ -61,15 +68,18 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
             else:
                 print(f"{file_name} does not exist in {dataset_path}.")
 
-        sample_dict = sample_texts_from_dataframe(combined_df, word_count)
-        print(f"Sampled {len(sample_dict['sampled_word_count'])} words from {dataset_name}")
+        current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name)
+        print(f"Sampled {len(current_sample)} words from {dataset_name}")
+        sampled_items += current_sample
+        # print(f"Sampled {len(sample_dict['sampled_word_count'])} words from {dataset_name}")
 
-        data_samples['source'] += ["SADIRI" for _ in range(len(sample_dict))]
-        data_samples['domain'] += [dataset_name for _ in range(len(sample_dict))]
-        data_samples['text'] += sample_dict["sampled_texts"]
-        data_samples['id'] += sample_dict["document_ids"]
-        data_samples['word_count'] += sample_dict["sampled_word_count"]
-        total_word_count[dataset_name] += sample_dict["sampled_word_count"]
-        print(f"Total words collected for {dataset_name}: {total_word_count[dataset_name]}")
+        # data_samples['source'] += ["SADIRI" for _ in range(len(sample_dict))]
+        # data_samples['domain'] += [dataset_name for _ in range(len(sample_dict))]
+        # data_samples['text'] += sample_dict["sampled_texts"]
+        # data_samples['id'] += sample_dict["document_ids"]
+        # data_samples['word_count'] += sample_dict["sampled_word_count"]
+        # total_word_count[dataset_name] += sample_dict["sampled_word_count"]
+        # print(f"Total words collected for {dataset_name}: {total_word_count[dataset_name]}")
 
-    print(data_samples)
+    # print(data_samples)
+    return sampled_items

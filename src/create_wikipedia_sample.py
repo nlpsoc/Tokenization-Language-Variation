@@ -1,7 +1,8 @@
 import gzip
 import random
-from datasets import Dataset
+from datasets import Dataset, DatasetDict
 import os
+from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 
 
 def count_words_in_line(line):
@@ -22,19 +23,8 @@ def extract_random_lines(file_path, target_word_count=1_500_000_000, seed=42):
             if total_word_count + line_word_count > target_word_count:
                 break
             total_word_count += line_word_count
-            selected_lines.append((line_number, line, line_word_count))
-
+            selected_lines.append({"id": line_number, "text": line, "word_count": line_word_count})
     return selected_lines
-
-
-def save_to_huggingface_format(lines, output_path):
-    dataset_dict = {
-        "line_number": [line_number for line_number, _, _ in lines],
-        "text": [text for _, text, _ in lines],
-        "word_count": [word_count for _, _, word_count in lines]
-    }
-    dataset = Dataset.from_dict(dataset_dict)
-    dataset.save_to_disk(output_path)
 
 
 def process_wikipedia_file(input_path, output_path):
@@ -42,8 +32,13 @@ def process_wikipedia_file(input_path, output_path):
     save_to_huggingface_format(lines, output_path)
 
 
-# Replace with your actual file path and desired output path
-input_path = "/shared/3/datasets/wikipedia/enwiki/pages-articles/enwiki-20230601-pages-articles.clean-text.txt.gz"
-output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/wikipedia"
+def main():
+    # Replace with your actual file path and desired output path
+    in_path = "/shared/3/datasets/wikipedia/enwiki/pages-articles/enwiki-20230601-pages-articles.clean-text.txt.gz"
+    out_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/wikipedia"
 
-process_wikipedia_file(input_path, output_path)
+    process_wikipedia_file(in_path, out_path)
+
+
+if __name__ == "__main__":
+    main()

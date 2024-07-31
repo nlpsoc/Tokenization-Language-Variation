@@ -35,6 +35,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_CO
     sampled_texts = []
     domains = []
     sampled_word_counts = []
+    sampled_items = []
 
     # Dictionary to keep track of the word count for each pile set name
     word_counts_dict = dict(zip(pile_set_names, sampled_word_counts))
@@ -63,10 +64,13 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_CO
                         current_word_counts[pile_set_name] < word_counts_dict[pile_set_name]):
                     text = data.get('text', '')
                     text_word_count = len(text.split())
-                    sampled_lines.append(line_counter)
-                    sampled_texts.append(text)
-                    domains.append(pile_set_name)
-                    sampled_word_counts.append(text_word_count)
+
+                    sampled_items = {"id": line_counter, "text": text, "word_count": text_word_count,
+                                     "domain": pile_set_name, "source": "thePile"}
+                    # sampled_lines.append(line_counter)
+                    # sampled_texts.append(text)
+                    # domains.append(pile_set_name)
+                    # sampled_word_counts.append(text_word_count)
                     current_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
                 print("decode error")
@@ -75,10 +79,12 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_CO
         print(f"Sampled {current_word_counts} total")
 
     # Return the sampled data
-    return {
-        "id": sampled_lines,
-        "domain": domains,
-        "source": ["thePile"] * len(sampled_texts),
-        "word_count": sampled_word_counts,
-        "text": sampled_texts,
-    }
+    return sampled_items
+
+    # {
+    #     "id": sampled_lines,
+    #     "domain": domains,
+    #     "source": ["thePile"] * len(sampled_texts),
+    #     "word_count": sampled_word_counts,
+    #     "text": sampled_texts,
+    # }
