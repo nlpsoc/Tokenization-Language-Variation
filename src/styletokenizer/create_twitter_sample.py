@@ -16,7 +16,7 @@ def process_file(file_path, target_word_count_per_file, data):
             word_count = count_words(text)
             
             cumulative_word_count += word_count
-            data.append({"id": tweet_id, "text": text})
+            data.append({"id": tweet_id, "text": text, "word_count": word_count})
             
             if cumulative_word_count >= target_word_count_per_file:
                 return data, cumulative_word_count
@@ -66,5 +66,7 @@ directory = '/nfs/locker/twitter-decahose-locker/2021'
 output_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/twitter'
 target_word_count = 1_500_000_000
 data = sample_texts_from_files(directory, target_word_count)
-dataset = Dataset.from_dict({"id": [item["id"] for item in data], "text": [item["text"] for item in data]})
+dataset = Dataset.from_dict({"id": [item["id"] for item in data],
+                             "text": [item["text"] for item in data],
+                             "word_count": [item["word_count"] for item in data]})
 dataset.save_to_disk(output_path)
