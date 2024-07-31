@@ -52,3 +52,4 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
 
     # Save the dataset to the specified path
     dataset_dict.save_to_disk(output_path)
+    print(f"Saved dataset to {output_path}")
