@@ -72,6 +72,10 @@ def main():
     output_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/twitter'
     target_word_count = 1_500_000_000
     sampled_twitter_data = sample_texts_from_files(directory, target_word_count)
+    # shuffle list
+    import random
+    random.seed(42)
+    random.shuffle(sampled_twitter_data)
     save_to_huggingface_format(sampled_twitter_data, output_path)
 
 # dataset = Dataset.from_dict({"id": [item["id"] for item in data],

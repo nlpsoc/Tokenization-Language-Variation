@@ -27,17 +27,13 @@ def extract_random_lines(file_path, target_word_count=1_500_000_000, seed=42):
     return selected_lines
 
 
-def process_wikipedia_file(input_path, output_path):
-    lines = extract_random_lines(input_path)
-    save_to_huggingface_format(lines, output_path)
-
-
 def main():
     # Replace with your actual file path and desired output path
-    in_path = "/shared/3/datasets/wikipedia/enwiki/pages-articles/enwiki-20230601-pages-articles.clean-text.txt.gz"
-    out_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/wikipedia"
+    input_path = "/shared/3/datasets/wikipedia/enwiki/pages-articles/enwiki-20230601-pages-articles.clean-text.txt.gz"
+    output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/wikipedia"
 
-    process_wikipedia_file(in_path, out_path)
+    lines = extract_random_lines(input_path)
+    save_to_huggingface_format(lines, output_path)
 
 
 if __name__ == "__main__":

@@ -2,13 +2,14 @@ import os
 import zstandard as zstd
 import json
 
-PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC' , 'DM Mathematics']
+PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
                200000000,
                50000000,
                50000000,
                100000000,
                20000000]
+
 
 def read_lines_from_zst(file_path):
     """Generator to read lines from a .zst compressed file"""
