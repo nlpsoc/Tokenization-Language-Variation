@@ -1,0 +1,50 @@
+import dask.dataframe as dd
+
+WORD_COUNT = 100_000_000
+
+
+def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
+    # Load the dataset using Dask
+    dataset = dd.read_parquet('/shared/3/datasets/YouTube-Commons')
+    print(f"Dataset loaded")
+
+    # Filter the dataset where both transcription_language and original_language are 'en'
+    filtered_dataset = dataset[(dataset['transcription_language'] == 'en') & (dataset['original_language'] == 'en')]
+    print(f"Dataset filtered")
+
+    # Debugging step: Check the number of rows after filtering
+    filtered_count = filtered_dataset.shape[0].compute()
+    print(f"Number of rows after filtering: {filtered_count}")
+
+    if filtered_count == 0:
+        raise ValueError("No data found after filtering. Check the filter conditions or data content.")
+
+    # Shuffle the dataset
+    shuffled_dataset = filtered_dataset.sample(frac=1, random_state=42)
+
+    # Compute the shuffled dataset
+    filtered_df = shuffled_dataset.compute()
+
+    # Initialize variables to store the sampled texts and the accumulated word count
+    sampled_texts = []
+    total_word_count = 0
+    sampled_ids = []
+
+    # Iterate through the shuffled dataframe and sample texts until the required word count is reached
+    for _, row in filtered_df.iterrows():
+        sampled_texts.append(row['text'])
+        total_word_count += row['word_count']
+        sampled_ids.append(row['video_id'])
+        if total_word_count >= required_word_count:
+            break
+
+    # Ensure that we have sampled enough texts to meet the word count requirement
+    if total_word_count < required_word_count:
+        raise ValueError("Not enough data to meet the required word count")
+
+    return {
+        "id": sampled_ids,
+        "domain": ["YouTubeCommons"] * len(sampled_texts),
+        "source": ["YouTubeCommons"] * len(sampled_texts),
+        "text": sampled_texts,
+    }
