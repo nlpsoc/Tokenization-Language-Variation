@@ -78,6 +78,9 @@ def main():
     random.shuffle(sampled_twitter_data)
     save_to_huggingface_format(sampled_twitter_data, output_path)
 
+if __name__ == "__main__":
+    main()
+
 # dataset = Dataset.from_dict({"id": [item["id"] for item in data],
 #                              "text": [item["text"] for item in data],
 #                              "word_count": [item["word_count"] for item in data]})
