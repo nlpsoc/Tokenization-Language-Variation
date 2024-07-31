@@ -34,11 +34,18 @@ import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.youtube_commons as youtube_commons
 
 
-def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed'):
-    s2orc_sample_dict = s2orc.sample_s2orc_texts()
-    youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts()
-    sadiri_sample_dict = sadiri.sample_sadiri_texts()
-    pile_sample_dict = the_pile.sample_pile_texts()
+def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed', test=False):
+    if not test:
+        s2orc_sample_dict = s2orc.sample_s2orc_texts()
+        youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts()
+        sadiri_sample_dict = sadiri.sample_sadiri_texts()
+        pile_sample_dict = the_pile.sample_pile_texts()
+    else:
+        s2orc_sample_dict = s2orc.sample_s2orc_texts(required_word_count=10)
+        youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts(required_word_count=10)
+        sadiri_sample_dict = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
+        pile_sample_dict = the_pile.sample_pile_texts(sampled_word_counts=
+                                                      [10 for _ in range(len(the_pile.PILE_SET_NAMES))])
 
     # Convert dictionaries to pandas DataFrames
     sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)

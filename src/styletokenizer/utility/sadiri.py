@@ -21,6 +21,7 @@ WORD_COUNTS = [249000000,
 def sample_texts_from_dataframe(data_df, target_word_count):
     sampled_texts = []
     document_ids = []
+    sampled_word_counts = []
     current_word_count = 0
     data_df = data_df.sample(frac=1).reset_index(drop=True)  # Shuffle the texts
     for idx, row in data_df.iterrows():
@@ -29,12 +30,13 @@ def sample_texts_from_dataframe(data_df, target_word_count):
         word_count = len(words)
         sampled_texts.append(text)
         document_ids.append(row['documentID'])
+        sampled_word_counts.append(word_count)
         current_word_count += word_count
         if current_word_count >= target_word_count:
             break
     return {
         "sampled_texts": sampled_texts,
-        "sampled_word_count": current_word_count,
+        "sampled_word_count": sampled_word_counts,
         "document_ids": document_ids
     }
 
@@ -58,12 +60,13 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
             else:
                 print(f"{file_name} does not exist in {dataset_path}.")
 
-        sample_dict = sample_texts_from_dataframe(data_df, word_count)
+        sample_dict = sample_texts_from_dataframe(combined_df, word_count)
 
         data_samples['source'] += ["SADIRI" for _ in range(len(sample_dict))]
         data_samples['domain'] += [dataset_name for _ in range(len(sample_dict))]
         data_samples['text'] += sample_dict["sampled_texts"]
         data_samples['id'] += sample_dict["document_ids"]
+        data_samples['word_count'] += sample_dict["sampled_word_count"]
         total_word_count[dataset_name] += sample_dict["sampled_word_count"]
         print(f"Total words collected for {dataset_name}: {total_word_count[dataset_name]}")
 
