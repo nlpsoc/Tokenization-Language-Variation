@@ -35,6 +35,7 @@ def sample_texts_from_files(directory, target_word_count):
     print(files)
     # testing opening each file
     stream_error = False
+    error_files = []
     for file_path in files:
         try:
             with bz2.open(file_path, 'rt') as file:
@@ -44,9 +45,11 @@ def sample_texts_from_files(directory, target_word_count):
         except Exception as e:
             print(f"Error opening file: {file_path}")
             print(e)
+            error_files.append(file_path)
             stream_error = True
     if stream_error:
-        raise ValueError("Error opening files")
+        files = [file for file in files if file not in error_files]
+        print(f"Error opening {len(error_files)} files. Continuing with {len(files)} files.")
 
     num_files = len(files)
     target_word_count_per_file = target_word_count // num_files
