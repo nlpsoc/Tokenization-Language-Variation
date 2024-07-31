@@ -33,6 +33,22 @@ def sample_texts_from_files(directory, target_word_count):
              for file_name in sorted(files)
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
     print(files)
+    # testing opening each file
+    error = False
+    for file_path in files:
+        try:
+            with bz2.open(file_path, 'rt') as file:
+                for line in file:
+                    json.loads(line)
+                    break
+        except Exception as e:
+            print(f"Error opening file: {file_path}")
+            print(e)
+            error = True
+            return
+    if error:
+        raise ValueError("Error opening files")
+
     num_files = len(files)
     target_word_count_per_file = target_word_count // num_files
     data = []
