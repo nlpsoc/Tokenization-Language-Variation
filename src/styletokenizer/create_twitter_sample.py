@@ -34,7 +34,7 @@ def sample_texts_from_files(directory, target_word_count):
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
     print(files)
     # testing opening each file
-    error = False
+    stream_error = False
     for file_path in files:
         try:
             with bz2.open(file_path, 'rt') as file:
@@ -44,9 +44,8 @@ def sample_texts_from_files(directory, target_word_count):
         except Exception as e:
             print(f"Error opening file: {file_path}")
             print(e)
-            error = True
-            return
-    if error:
+            stream_error = True
+    if stream_error:
         raise ValueError("Error opening files")
 
     num_files = len(files)
