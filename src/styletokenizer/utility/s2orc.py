@@ -20,6 +20,8 @@ def read_files_and_sample(path, target_word_count):
     files = [os.path.join(path, f) for f in os.listdir(path) if f.startswith('s2orc_')]
     num_files = len(files)
     words_per_file = target_word_count // num_files
+    words_per_file = max(words_per_file, 1)  # at least 1 word per file for test purposes
+    print(f"Sampling {words_per_file} words from each of {num_files} files")
 
     for file_path in files:
         word_count = 0
