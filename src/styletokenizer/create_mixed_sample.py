@@ -27,7 +27,7 @@
 """
 import pandas as pd
 from datasets import Dataset, concatenate_datasets
-
+import argparse
 import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
@@ -72,4 +72,8 @@ def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-cor
 
 
 if __name__ == "__main__":
-    main()
+    # add boolean command line argument test
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true', help='Run the script in test mode')
+    args = parser.parse_args()
+    main(test=args.test)
