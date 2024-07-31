@@ -14,9 +14,9 @@ def count_words(text):
 def read_files_and_sample(path, target_word_count):
     total_word_count = 0
     sampled_items = []
-    sampled_ids = []
-    sampled_texts = []
-    samled_word_counts = []
+    # sampled_ids = []
+    # sampled_texts = []
+    # samled_word_counts = []
 
     files = [os.path.join(path, f) for f in os.listdir(path) if f.startswith('s2orc_')]
     num_files = len(files)
@@ -39,6 +39,8 @@ def read_files_and_sample(path, target_word_count):
                 line = json.loads(lines[idx])
                 corpusid = line.get('corpusid')
                 text = line.get('content', {}).get('text', "")
+                if not type(text) == str:
+                    continue
                 words = text.split()
 
                 sampled_items.append({
