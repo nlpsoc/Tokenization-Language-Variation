@@ -53,3 +53,18 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
     # Save the dataset to the specified path
     dataset_dict.save_to_disk(output_path)
     print(f"Saved dataset to {output_path}")
+
+    # print statistics
+    print(f"Total word count: {total_word_count}")
+    print(f"Train word count: {sum(train_data['word_count'])}")
+    print(f"Dev word count: {sum(dev_data['word_count'])}")
+
+    # distribution over word count over "domain" for each split if "domain" was provided
+    if "domain" in data[0]:
+        for split in [train_data, dev_data, test_data]:
+            domain_word_count = {}
+            for domain, word_count in zip(split["domain"], split["word_count"]):
+                if domain not in domain_word_count:
+                    domain_word_count[domain] = 0
+                domain_word_count[domain] += word_count
+            print(f"Domain word count distribution for {split}: {domain_word_count}")
