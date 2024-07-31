@@ -24,6 +24,7 @@ def read_files_and_sample(path, target_word_count):
     for file_path in files:
         word_count = 0
         with open(file_path, 'r') as f:
+            print(f"Reading file: {file_path}")
             lines = f.readlines()
             total_lines = len(lines)
             random_indices = random.sample(range(total_lines), total_lines)  # Shuffle the line indices
@@ -42,6 +43,7 @@ def read_files_and_sample(path, target_word_count):
                 samled_word_counts.append(len(words))
                 word_count += len(words)
                 total_word_count += len(words)
+            print(f"Sampled word count for file {file_path}: {word_count}")
 
     return sampled_ids, sampled_texts, samled_word_counts
 

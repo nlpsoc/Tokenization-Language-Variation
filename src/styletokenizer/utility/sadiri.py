@@ -50,6 +50,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
 
         combined_df = pd.DataFrame()
 
+        print("Loading data from", dataset_path)
         # Combine both JSONL files into one dataframe
         for file_name in ['train_queries.jsonl', 'train_candidates.jsonl']:
             file_path = os.path.join(dataset_path, file_name)
@@ -61,6 +62,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
                 print(f"{file_name} does not exist in {dataset_path}.")
 
         sample_dict = sample_texts_from_dataframe(combined_df, word_count)
+        print(f"Sampled {len(sample_dict['sampled_word_count'])} words from {dataset_name}")
 
         data_samples['source'] += ["SADIRI" for _ in range(len(sample_dict))]
         data_samples['domain'] += [dataset_name for _ in range(len(sample_dict))]

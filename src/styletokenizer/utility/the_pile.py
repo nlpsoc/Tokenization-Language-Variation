@@ -51,6 +51,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_CO
             break
 
         file_path = os.path.join(dir_path, filename)
+        print(f"Sampling from {file_path}")
         for line in read_lines_from_zst(file_path):
             if not should_continue_sampling():
                 break
@@ -71,6 +72,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_CO
                 print("decode error")
                 continue
             line_counter += 1
+        print(f"Sampled {current_word_counts} total")
 
     # Return the sampled data
     return {

@@ -6,11 +6,11 @@ WORD_COUNT = 100_000_000
 def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
     # Load the dataset using Dask
     dataset = dd.read_parquet('/shared/3/datasets/YouTube-Commons')
-    print(f"Dataset loaded")
+    print(f"YouTube-Commons loaded")
 
     # Filter the dataset where both transcription_language and original_language are 'en'
     filtered_dataset = dataset[(dataset['transcription_language'] == 'en') & (dataset['original_language'] == 'en')]
-    print(f"Dataset filtered")
+    print(f"YouTube-Commons filtered")
 
     # Debugging step: Check the number of rows after filtering
     filtered_count = filtered_dataset.shape[0].compute()
@@ -43,6 +43,8 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
     # Ensure that we have sampled enough texts to meet the word count requirement
     if total_word_count < required_word_count:
         raise ValueError("Not enough data to meet the required word count")
+
+    print(f"Sampled word count: {total_word_count}")
 
     return {
         "id": sampled_ids,

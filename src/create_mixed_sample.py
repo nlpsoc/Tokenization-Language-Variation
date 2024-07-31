@@ -35,15 +35,24 @@ import styletokenizer.utility.youtube_commons as youtube_commons
 
 
 def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed', test=False):
+    print("Creating mixed dataset")
     if not test:
         s2orc_sample_dict = s2orc.sample_s2orc_texts()
         youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts()
         sadiri_sample_dict = sadiri.sample_sadiri_texts()
         pile_sample_dict = the_pile.sample_pile_texts()
     else:
+        print("Running in test mode")
+        save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
+        print(f"Saving to {save_path}")
+
+        print("Sampling from s2orc")
         s2orc_sample_dict = s2orc.sample_s2orc_texts(required_word_count=10)
+        print("Sampling from YouTubeCommons")
         youtube_sample_dict = youtube_commons.sample_YouTubeCommons_texts(required_word_count=10)
+        print("Sampling from sadiri")
         sadiri_sample_dict = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
+        print("Sampling from the pile")
         pile_sample_dict = the_pile.sample_pile_texts(sampled_word_counts=
                                                       [10 for _ in range(len(the_pile.PILE_SET_NAMES))])
 
