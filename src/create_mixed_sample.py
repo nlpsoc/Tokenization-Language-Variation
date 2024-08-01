@@ -38,14 +38,14 @@ from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed', test=False):
     print("Creating mixed dataset")
     if not test:
+        print("Sampling from the pile")
+        pile_sample_dicts = the_pile.sample_pile_texts()
         print("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts()
         print("Sampling from YouTubeCommons")
         youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts()
         print("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts()
-        print("Sampling from the pile")
-        pile_sample_dicts = the_pile.sample_pile_texts()
     else:
         print("Running in test mode")
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
