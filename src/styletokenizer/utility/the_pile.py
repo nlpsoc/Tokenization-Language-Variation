@@ -28,15 +28,14 @@ def read_lines_from_zst(file_path):
                     yield line
 
 
-def sample_pile_texts(pile_set_names=PILE_SET_NAMES, sampled_word_counts=WORD_COUNTS):
+def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS):
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
 
-    sampled_word_counts = []
     sampled_items = []
 
     # Dictionary to keep track of the word count for each pile set name
-    word_counts_dict = dict(zip(pile_set_names, sampled_word_counts))
+    word_counts_dict = dict(zip(pile_set_names, word_counts))
     print(word_counts_dict)
     current_word_counts = {name: 0 for name in pile_set_names}
     print(current_word_counts)
