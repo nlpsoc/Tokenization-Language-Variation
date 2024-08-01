@@ -29,23 +29,26 @@ def process_file(file_path, target_word_count_per_file, data):
 
 def sample_texts_from_files(directory, target_word_count):
     """
-        get the number of compressed files and determine how much to sample from each file,
-        st target word count is distributed equally across bz2 files
+    Get the number of compressed files and determine how much to sample from each file,
+    so that the target word count is distributed equally across bz2 files.
     """
+    # Gather all relevant bz2 files (p1 and p2), excluding those with "2022" in their names
     files = [os.path.join(root, file_name)
              for root, _, files in os.walk(directory)
              for file_name in sorted(files)
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
-    print(files)
-    # testing opening each file
+    print("Found files:", files)
+
+    # Test opening each file
     stream_error = False
     error_files = []
+    valid_files = []
+
     for file_path in files:
         try:
             with bz2.open(file_path, 'rt') as file:
                 for line in file:
                     json.loads(line)
-                    break
         except Exception as e:
             print(f"Error opening file: {file_path}")
             print(e)
