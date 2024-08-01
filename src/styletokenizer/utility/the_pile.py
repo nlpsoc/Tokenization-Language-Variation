@@ -31,6 +31,7 @@ def read_lines_from_zst(file_path):
 def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS):
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
+    print(zst_files)
 
     sampled_items = []
 
