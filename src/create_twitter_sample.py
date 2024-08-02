@@ -42,7 +42,6 @@ def sample_texts_from_files(directory, target_word_count):
     # Test opening each file
     stream_error = False
     error_files = []
-    valid_files = []
 
     for file_path in files:
         try:

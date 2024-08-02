@@ -58,10 +58,10 @@ def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-cor
         print("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
         print("Sampling from the pile")
-        pile_sample_dicts = the_pile.sample_pile_texts(sampled_word_counts=
+        pile_sample_dicts = the_pile.sample_pile_texts(word_counts=
                                                       [10 for _ in range(len(the_pile.PILE_SET_NAMES))])
 
-    # combine list of dicts into a single dict
+    # combine list of dicts into a single list
     all_dicts = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
 
     # shuffle the list of dicts

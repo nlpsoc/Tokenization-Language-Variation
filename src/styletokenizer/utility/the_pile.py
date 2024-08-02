@@ -66,12 +66,8 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS):
                     text = data.get('text', '')
                     text_word_count = len(text.split())
 
-                    sampled_items = {"id": line_counter, "text": text, "word_count": text_word_count,
-                                     "domain": pile_set_name, "source": "thePile"}
-                    # sampled_lines.append(line_counter)
-                    # sampled_texts.append(text)
-                    # domains.append(pile_set_name)
-                    # sampled_word_counts.append(text_word_count)
+                    sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
+                                          "domain": pile_set_name, "source": "thePile"})
                     current_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
                 print("decode error")
@@ -81,11 +77,3 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS):
 
     # Return the sampled data
     return sampled_items
-
-    # {
-    #     "id": sampled_lines,
-    #     "domain": domains,
-    #     "source": ["thePile"] * len(sampled_texts),
-    #     "word_count": sampled_word_counts,
-    #     "text": sampled_texts,
-    # }

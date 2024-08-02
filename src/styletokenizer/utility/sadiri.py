@@ -4,7 +4,7 @@ from collections import defaultdict
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
 SET_PATHS = ["reddit", "ao3", "bookcorpus", "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
-                "amazon", "gmane", "blogcorpus"]
+             "amazon", "gmane", "blogcorpus"]
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
 WORD_COUNTS = [249000000,
                100000000,
@@ -39,17 +39,9 @@ def sample_texts_from_dataframe(data_df, target_word_count, dataset_name):
         if current_word_count >= target_word_count:
             break
     return sampeled_items, current_word_count
-    # {
-    #     "sampled_texts": sampled_texts,
-    #     "sampled_word_count": sampled_word_counts,
-    #     "document_ids": document_ids
-    # }
 
 
 def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
-    data_samples = defaultdict(list)
-    total_word_count = defaultdict(int)
-
     sampled_items = []
 
     for dataset_path, word_count in zip(dataset_paths, word_samples):
@@ -71,15 +63,5 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
         current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name)
         print(f"Sampled {len(current_sample)} words from {dataset_name}")
         sampled_items += current_sample
-        # print(f"Sampled {len(sample_dict['sampled_word_count'])} words from {dataset_name}")
 
-        # data_samples['source'] += ["SADIRI" for _ in range(len(sample_dict))]
-        # data_samples['domain'] += [dataset_name for _ in range(len(sample_dict))]
-        # data_samples['text'] += sample_dict["sampled_texts"]
-        # data_samples['id'] += sample_dict["document_ids"]
-        # data_samples['word_count'] += sample_dict["sampled_word_count"]
-        # total_word_count[dataset_name] += sample_dict["sampled_word_count"]
-        # print(f"Total words collected for {dataset_name}: {total_word_count[dataset_name]}")
-
-    # print(data_samples)
     return sampled_items
