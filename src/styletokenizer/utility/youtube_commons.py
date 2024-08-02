@@ -40,8 +40,8 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
             break
 
     # Ensure that we have sampled enough texts to meet the word count requirement
-    if total_word_count < required_word_count:
-        raise ValueError("Not enough data to meet the required word count")
+    if (not test) and (total_word_count < required_word_count):
+        print("WARNING: Not enough data to meet the required word count")
 
     print(f"Sampled word count: {total_word_count}")
 
