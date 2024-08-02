@@ -52,12 +52,16 @@ def main(save_path=CORPORA_MIXED, test=False):
 
         print("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
+        print(s2orc_sample_dicts)
         print("Sampling from YouTubeCommons")
         youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(test=True)
+        print(youtube_sample_dicts)
         print("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
+        print(sadiri_sample_dicts)
         print("Sampling from the pile")
         pile_sample_dicts = the_pile.sample_pile_texts(test=True)
+        print(pile_sample_dicts)
 
     # combine list of dicts into a single list
     all_dicts = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
