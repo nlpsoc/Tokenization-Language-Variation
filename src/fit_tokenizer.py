@@ -70,7 +70,7 @@ def init_tokenizer_with_regex(pre_tokenizer):
 
 def main(fitting_corpus_path: str, vocab_size: int, pre_tokenize: str, test=False):
     # get base dir of fit_path
-    corpus_name = os.path.dirname(fitting_corpus_path)
+    corpus_name = os.path.basename(fitting_corpus_path)
     # set the output directory name for tokenizer
     dir_name = f"{OUT_PATH}/{corpus_name}-{pre_tokenize}-{vocab_size}"
 
