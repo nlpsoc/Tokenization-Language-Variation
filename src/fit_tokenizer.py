@@ -19,6 +19,9 @@ from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, C
 def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: str, test=False):
     # init tokenizer with PRE_TOKENIZER
     tokenizer = init_tokenizer_with_regex(pre_tokenizer)
+    # test if save works
+    tokenizer.save(f"{dir_name}/tokenizer.json")
+
     # Initialize the BPE trainer with VOCAB_SIZE
     trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size)
     # Get the text generator for the FITTING CORPUS
