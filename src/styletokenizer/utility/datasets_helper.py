@@ -1,4 +1,4 @@
-from datasets import Dataset, DatasetDict
+from datasets import Dataset, DatasetDict, load_from_disk
 
 
 def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01):
@@ -81,7 +81,7 @@ def huggingface_format_generator(dataset_path, split="train"):
     Yields:
     - data_entry (dict): A data entry from the dataset.
     """
-    dataset = Dataset.load_from_disk(dataset_path)
+    dataset = load_from_disk(dataset_path)
     for i in range(len(dataset[split])):
         yield dataset[split][i]
 

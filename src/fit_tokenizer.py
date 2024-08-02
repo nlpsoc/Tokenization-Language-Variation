@@ -106,13 +106,13 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenize: str, dir_name: s
     return tokenizer
 
 
-def main(fit_path: str, vocab_size: int, pre_tokenize: str, test=False):
+def main(fitting_corpus_path: str, vocab_size: int, pre_tokenize: str, test=False):
     # get base dir of fit_path
-    corpus_name = os.path.dirname(fit_path)
+    corpus_name = os.path.dirname(fitting_corpus_path)
     # set the output directory name for tokenizer
     dir_name = f"{OUT_PATH}/{corpus_name}-{pre_tokenize}-{vocab_size}"
 
-    fit_tokenizer(fit_path, vocab_size, pre_tokenize, dir_name, test=test)
+    fit_tokenizer(fitting_corpus_path, vocab_size, pre_tokenize, dir_name, test=test)
 
     # if wiki:
     #     training_corpus = get_wiki_corpus_iterator(test=test)
@@ -160,4 +160,4 @@ if __name__ == "__main__":
     # Output the pre-tokenization method
     print(f"Pre-tokenization method: {args.pre_tokenize}")
 
-    main(fit_path=fit_path, vocab_size=args.vocab_size, pre_tokenize=args.pre_tokenize)
+    main(fitting_corpus_path=fit_path, vocab_size=args.vocab_size, pre_tokenize=args.pre_tokenize)
