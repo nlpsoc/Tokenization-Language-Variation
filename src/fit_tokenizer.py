@@ -20,7 +20,9 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
     # init tokenizer with PRE_TOKENIZER
     tokenizer = init_tokenizer_with_regex(pre_tokenizer)
     # test if save works
-    tokenizer.save(f"{dir_name}/tokenizer.json")
+    save_dir = f"{dir_name}/tokenizer.json"
+    print(f"Saving tokenizer to: {save_dir}")
+    tokenizer.save(save_dir)
 
     # Initialize the BPE trainer with VOCAB_SIZE
     trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size)
@@ -32,7 +34,7 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
 
     # SAVE the tokenizer to the specified directory
     os.makedirs(dir_name, exist_ok=True)
-    tokenizer.save(f"{dir_name}/tokenizer.json")
+    tokenizer.save(save_dir)
     return tokenizer
 
 
