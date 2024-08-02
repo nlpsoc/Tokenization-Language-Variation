@@ -22,7 +22,7 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
     # test if save works
     save_dir = f"{dir_name}/tokenizer.json"
     print(f"Saving tokenizer to: {save_dir}")
-    os.makedirs(save_dir, exist_ok=True)
+    os.makedirs(dir_name, exist_ok=True)
     tokenizer.save(save_dir)
 
     # Initialize the BPE trainer with VOCAB_SIZE
