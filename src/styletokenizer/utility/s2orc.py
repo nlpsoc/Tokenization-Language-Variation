@@ -11,7 +11,7 @@ def count_words(text):
     return len(text.split())
 
 
-def read_files_and_sample(path, target_word_count):
+def read_files_and_sample(path, target_word_count, test=False):
     total_word_count = 0
     sampled_items = []
     # sampled_ids = []
@@ -53,10 +53,12 @@ def read_files_and_sample(path, target_word_count):
                 word_count += len(words)
                 total_word_count += len(words)
             print(f"Sampled word count for file {file_path}: {word_count}")
+        if test:
+            break
 
     return sampled_items
 
 
-def sample_s2orc_texts(required_word_count=WORD_COUNT):
-    sampled_items = read_files_and_sample(s2orc_path, required_word_count)
+def sample_s2orc_texts(required_word_count=WORD_COUNT, test=False):
+    sampled_items = read_files_and_sample(s2orc_path, required_word_count, test=test)
     return sampled_items

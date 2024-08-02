@@ -18,7 +18,7 @@ WORD_COUNTS = [249000000,
                8189607]
 
 
-def sample_texts_from_dataframe(data_df, target_word_count, dataset_name):
+def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=False):
     sampeled_items = []
     sampled_texts = []
     document_ids = []
@@ -36,12 +36,12 @@ def sample_texts_from_dataframe(data_df, target_word_count, dataset_name):
         document_ids.append(row['documentID'])
         sampled_word_counts.append(word_count)
         current_word_count += word_count
-        if current_word_count >= target_word_count:
+        if (current_word_count >= target_word_count) or test:
             break
     return sampeled_items, current_word_count
 
 
-def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
+def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=False):
     sampled_items = []
 
     for dataset_path, word_count in zip(dataset_paths, word_samples):
@@ -60,7 +60,8 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS):
             else:
                 print(f"{file_name} does not exist in {dataset_path}.")
 
-        current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name)
+        current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name,
+                                                                         test=test)
         print(f"Sampled {len(current_sample)} words from {dataset_name}")
         sampled_items += current_sample
 

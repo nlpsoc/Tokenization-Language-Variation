@@ -3,7 +3,7 @@ import dask.dataframe as dd
 WORD_COUNT = 100_000_000
 
 
-def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
+def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
     # Load the dataset using Dask
     dataset = dd.read_parquet('/shared/3/datasets/YouTube-Commons')
     print(f"YouTube-Commons loaded")
@@ -36,7 +36,7 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT):
             "domain": "YouTubeCommons"
         })
         total_word_count += row['word_count']
-        if total_word_count >= required_word_count:
+        if (total_word_count >= required_word_count) or test:
             break
 
     # Ensure that we have sampled enough texts to meet the word count requirement

@@ -51,17 +51,18 @@ def main(save_path=CORPORA_MIXED, test=False):
         print(f"Saving to {save_path}")
 
         print("Sampling from s2orc")
-        s2orc_sample_dicts = s2orc.sample_s2orc_texts(required_word_count=10)
+        s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
         print("Sampling from YouTubeCommons")
-        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(required_word_count=10)
+        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(test=True)
         print("Sampling from sadiri")
-        sadiri_sample_dicts = sadiri.sample_sadiri_texts(word_samples=[10 for _ in range(len(sadiri.SET_PATHS))])
+        sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
         print("Sampling from the pile")
-        pile_sample_dicts = the_pile.sample_pile_texts(word_counts=
-                                                      [10 for _ in range(len(the_pile.PILE_SET_NAMES))])
+        pile_sample_dicts = the_pile.sample_pile_texts(test=True)
 
     # combine list of dicts into a single list
     all_dicts = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
+    if test:
+        print(all_dicts)
 
     # shuffle the list of dicts
     import random

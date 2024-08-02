@@ -29,7 +29,7 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
 
     # SAVE the tokenizer to the specified directory
     os.makedirs(dir_name, exist_ok=True)
-    tokenizer.save_pretrained(f"{dir_name}")
+    tokenizer.save(f"{dir_name}/tokenizer.json")
     return tokenizer
 
 
