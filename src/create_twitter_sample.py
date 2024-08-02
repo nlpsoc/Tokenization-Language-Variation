@@ -1,8 +1,8 @@
 import bz2
 import json
 import os
-from datasets import Dataset, DatasetDict
 
+from styletokenizer.fitting_corpora import CORPORA_TWITTER
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 
 
@@ -71,7 +71,7 @@ def sample_texts_from_files(directory, target_word_count):
 
 def main():
     directory = '/nfs/locker/twitter-decahose-locker/2021'
-    output_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/twitter'
+    output_path = CORPORA_TWITTER
     target_word_count = 1_500_000_000
     sampled_twitter_data = sample_texts_from_files(directory, target_word_count)
     # shuffle list

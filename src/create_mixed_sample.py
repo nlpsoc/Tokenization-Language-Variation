@@ -25,17 +25,16 @@
                                             TOTAL: 						   		 				 1,500,499,244
 
 """
-import pandas as pd
-from datasets import Dataset, concatenate_datasets
 import argparse
 import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.youtube_commons as youtube_commons
+from styletokenizer.fitting_corpora import CORPORA_MIXED
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 
 
-def main(save_path='/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed', test=False):
+def main(save_path=CORPORA_MIXED, test=False):
     print("Creating mixed dataset")
     if not test:
         print("Sampling from the pile")

@@ -69,3 +69,57 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
                     domain_word_count[domain] = 0
                 domain_word_count[domain] += word_count
             print(f"Domain word count distribution for {split}: {domain_word_count}")
+
+
+def huggingface_format_generator(dataset_path, split="train"):
+    """
+    Generator that yields data entries from a Huggingface-formatted dataset.
+
+    Args:
+    - dataset_path (str): Path to the Huggingface-formatted dataset.
+
+    Yields:
+    - data_entry (dict): A data entry from the dataset.
+    """
+    dataset = Dataset.load_from_disk(dataset_path)
+    for i in range(len(dataset[split])):
+        yield dataset[split][i]
+
+
+def train_text_generator(dataset_path):
+    """
+    Generator that yields text data from a Huggingface-formatted dataset.
+
+    Args:
+    - dataset_path (str): Path to the Huggingface-formatted dataset.
+
+    Yields:
+    - text (str): Text data from the dataset.
+    """
+    for data_entry in huggingface_format_generator(dataset_path):
+        yield data_entry["text"]
+
+
+# def batch_text_generator(dataset_path, split="train", batch_size=1000):
+#     """
+#     Generator that yields data entries from a Huggingface-formatted dataset in batches.
+#
+#     Args:
+#     - dataset_path (str): Path to the Huggingface-formatted dataset.
+#     - split (str): The split of the dataset to use (default is "train").
+#     - batch_size (int): Number of data entries in each batch (default is 1000).
+#
+#     Yields:
+#     - batch (list of dict): A batch of data entries from the dataset.
+#     """
+#     dataset = Dataset.load_from_disk(dataset_path)
+#     batch = []
+#     for i in range(len(dataset[split])):
+#         batch.append(dataset[split][i]["text"])
+#         if len(batch) == batch_size:
+#             yield batch
+#             batch = []
+#
+#     # Yield the last batch if it's not empty and has less than batch_size elements
+#     if batch:
+#         yield batch

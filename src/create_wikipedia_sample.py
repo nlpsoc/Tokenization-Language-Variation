@@ -1,7 +1,7 @@
 import gzip
 import random
-from datasets import Dataset, DatasetDict
-import os
+
+from fitting_corpora import CORPORA_WIKIPEDIA
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 
 
@@ -30,7 +30,7 @@ def extract_random_lines(file_path, target_word_count=1_500_000_000, seed=42):
 def main():
     # Replace with your actual file path and desired output path
     input_path = "/shared/3/datasets/wikipedia/enwiki/pages-articles/enwiki-20230601-pages-articles.clean-text.txt.gz"
-    output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/wikipedia"
+    output_path = CORPORA_WIKIPEDIA
 
     lines = extract_random_lines(input_path)
     save_to_huggingface_format(lines, output_path)
