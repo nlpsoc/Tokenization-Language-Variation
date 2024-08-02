@@ -52,7 +52,11 @@ def read_files_and_sample(path, target_word_count, test=False):
                 })
                 word_count += len(words)
                 total_word_count += len(words)
+                if test:
+                    break
+
             print(f"Sampled word count for file {file_path}: {word_count}")
+
         if test:
             break
 
