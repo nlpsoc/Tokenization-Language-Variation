@@ -17,10 +17,25 @@ from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, C
 
 
 def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: str, test=False):
-    # Initialize the BPE tokenizer and trainer with the desired VOCAB_SIZE
-    tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
+    # init tokenizer with PRE_TOKENIZER
+    tokenizer = init_tokenizer_with_regex(pre_tokenizer)
+    # Initialize the BPE trainer with VOCAB_SIZE
     trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size)
+    # Get the text generator for the FITTING CORPUS
+    text_generator = datasets_helper.train_text_generator(fit_path)
 
+    # TRAIN the tokenizer on the corpus
+    tokenizer.train_from_iterator(text_generator, trainer=trainer)
+
+    # SAVE the tokenizer to the specified directory
+    os.makedirs(dir_name, exist_ok=True)
+    tokenizer.save_pretrained(f"{dir_name}")
+    return tokenizer
+
+
+def init_tokenizer_with_regex(pre_tokenizer):
+    # Initialize the BPE tokenizer
+    tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
     # PRE-TOKENIZATION variable
     if pre_tokenizer == "ws":
         split = Whitespace()
@@ -40,21 +55,11 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
         raise ValueError(f"Invalid pre-tokenizer: {pre_tokenizer}")
     # assert split is a variable
     assert split is not None
-
     # use byte level encoding
     #   --> with use_regex=False this is only transforming to byte level encoding
-    #       importantly: it is performing no additional split
+    #       importantly: it is performing no additional split as tested in Pre_Tokenizers.ipynb
     byte = ByteLevel(add_prefix_space=False, use_regex=False)
     tokenizer.pre_tokenizer = Sequence([split, byte])
-
-    text_generator = datasets_helper.train_text_generator(fit_path)
-
-    # Train the tokenizer on the corpus
-    tokenizer.train_from_iterator(text_generator, trainer=trainer)
-
-    # save the tokenizer to the specified directory
-    os.makedirs(dir_name, exist_ok=True)
-    tokenizer.save_pretrained(f"{dir_name}")
     return tokenizer
 
 
@@ -65,13 +70,6 @@ def main(fitting_corpus_path: str, vocab_size: int, pre_tokenize: str, test=Fals
     dir_name = f"{OUT_PATH}/{corpus_name}-{pre_tokenize}-{vocab_size}"
 
     fit_tokenizer(fitting_corpus_path, vocab_size, pre_tokenize, dir_name, test=test)
-
-    # if wiki:
-    #     training_corpus = get_wiki_corpus_iterator(test=test)
-    # else:
-    #     training_corpus = get_twitter_corpus_iterator(test=test)
-    #
-    # tokenizer = fit_wiki_tokenizer(training_corpus, vocab_size, dir_name, test=test)
 
 
 if __name__ == "__main__":
