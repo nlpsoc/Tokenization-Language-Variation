@@ -1,9 +1,11 @@
+import argparse
 import bz2
 import json
 import os
 
 from styletokenizer.fitting_corpora import CORPORA_TWITTER
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
+from styletokenizer.utility.custom_logger import log_and_flush
 
 
 def count_words(text):
@@ -37,7 +39,7 @@ def sample_texts_from_files(directory, target_word_count):
              for root, _, files in os.walk(directory)
              for file_name in sorted(files)
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
-    print("Found files:", files)
+    log_and_flush("Found files:", files)
 
     # Test opening each file
     stream_error = False
@@ -49,30 +51,34 @@ def sample_texts_from_files(directory, target_word_count):
                 for line in file:
                     json.loads(line)
         except Exception as e:
-            print(f"Error opening file: {file_path}")
-            print(e)
+            log_and_flush(f"Error opening file: {file_path}")
+            log_and_flush(e)
             error_files.append(file_path)
             stream_error = True
     if stream_error:
         files = [file for file in files if file not in error_files]
-        print(f"Error opening {len(error_files)} files. Continuing with {len(files)} files.")
+        log_and_flush(f"Error opening {len(error_files)} files. Continuing with {len(files)} files.")
 
     num_files = len(files)
     target_word_count_per_file = target_word_count // num_files
     data = []
 
     for filen_index, file_path in enumerate(files):
-        print(f"At file {filen_index}/{num_files} called {file_path}")
-        print(f"Extracting {target_word_count_per_file} words")
+        log_and_flush(f"At file {filen_index}/{num_files} called {file_path}")
+        log_and_flush(f"Extracting {target_word_count_per_file} words")
         data, _ = process_file(file_path, target_word_count_per_file, data)
 
     return data
 
 
-def main():
+def main(test=False):
     directory = '/nfs/locker/twitter-decahose-locker/2021'
     output_path = CORPORA_TWITTER
-    target_word_count = 1_500_000_000
+    if test:
+        target_word_count = 10
+    else:
+        target_word_count = 1_500_000_000
+    log_and_flush(f"Sampling {target_word_count} words from Twitter data")
     sampled_twitter_data = sample_texts_from_files(directory, target_word_count)
     # shuffle list
     import random
@@ -80,10 +86,11 @@ def main():
     random.shuffle(sampled_twitter_data)
     save_to_huggingface_format(sampled_twitter_data, output_path)
 
-if __name__ == "__main__":
-    main()
 
-# dataset = Dataset.from_dict({"id": [item["id"] for item in data],
-#                              "text": [item["text"] for item in data],
-#                              "word_count": [item["word_count"] for item in data]})
-# dataset.save_to_disk(output_path)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true', help='Run the script in test mode')
+    args = parser.parse_args()
+    main(test=args.test)
+
+
