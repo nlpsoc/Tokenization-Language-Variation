@@ -1,4 +1,5 @@
 from datasets import Dataset, DatasetDict, load_from_disk
+import pyarrow as pa
 
 
 def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01):
@@ -35,9 +36,18 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
 
     # Create datasets for each split
     def create_dataset(data):
+        # Create the dataset dictionary with inline type conversion for 'id'
         keys = data[0].keys()
-        dataset_dict = {key: [item[key] for item in data] for key in keys}
-        return Dataset.from_dict(dataset_dict)
+        dataset_dict = {
+            key: [str(item[key]) if key == 'id' else item[key] for item in data]
+            for key in keys
+        }
+
+        try:
+            return Dataset.from_dict(dataset_dict)
+        except pa.lib.ArrowInvalid as e:
+            print(f"Some values have unexpected type: {e}")
+            raise ValueError("Inconsistent data to create the dataset")
 
     train_dataset = create_dataset(train_data)
     dev_dataset = create_dataset(dev_data)

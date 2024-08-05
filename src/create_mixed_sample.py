@@ -64,16 +64,16 @@ def main(save_path=CORPORA_MIXED, test=False):
         print(pile_sample_dicts)
 
     # combine list of dicts into a single list
-    all_dicts = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
+    all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
     if test:
-        print(all_dicts)
+        print(all_dicts_list)
 
     # shuffle the list of dicts
     import random
     random.seed(42)
-    random.shuffle(all_dicts)
+    random.shuffle(all_dicts_list)
 
-    save_to_huggingface_format(all_dicts, save_path)
+    save_to_huggingface_format(all_dicts_list, save_path)
 
     # Convert dictionaries to pandas DataFrames
     # sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)
