@@ -90,7 +90,7 @@ def main(word_count=1_000_000_000):
 
 if __name__ == '__main__':
     # create command line arguments: word count to sample
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--word_count", type=int, help="Number of words to sample")
-    args = parser.parse_args()
-    main(args.word_count)
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument("--word_count", type=int, help="Number of words to sample")
+    # args = parser.parse_args()
+    main()
