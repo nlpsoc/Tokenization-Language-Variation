@@ -1,14 +1,12 @@
 import argparse
 import os
 
-from utility.datasets_helper import save_to_huggingface_format
-
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
 
+from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 from datasets import concatenate_datasets, load_dataset, load_from_disk
-
 from datasets import load_dataset
 import random
 
