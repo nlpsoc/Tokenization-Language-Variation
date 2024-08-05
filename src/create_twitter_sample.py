@@ -82,6 +82,7 @@ def main(test=False):
     output_path = CORPORA_TWITTER
     if test:
         target_word_count = 10
+        output_path += "_test"
     else:
         target_word_count = 1_500_000_000
     log_and_flush(f"Sampling {target_word_count} words from Twitter data")
