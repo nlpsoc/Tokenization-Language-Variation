@@ -51,18 +51,18 @@ def main(save_path=CORPORA_MIXED, test=False):
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         log_and_flush(f"Saving to {save_path}")
 
-        log_and_flush("Sampling from s2orc")
-        s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
-        log_and_flush(s2orc_sample_dicts)
-        log_and_flush("Sampling from YouTubeCommons")
-        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(test=True)
-        log_and_flush(youtube_sample_dicts)
         log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
         log_and_flush(sadiri_sample_dicts)
         log_and_flush("Sampling from the pile")
         pile_sample_dicts = the_pile.sample_pile_texts(test=True)
         log_and_flush(pile_sample_dicts)
+        log_and_flush("Sampling from s2orc")
+        s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
+        log_and_flush(s2orc_sample_dicts)
+        log_and_flush("Sampling from YouTubeCommons")
+        youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(test=True)
+        log_and_flush(youtube_sample_dicts)
 
     # combine list of dicts into a single list
     all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts

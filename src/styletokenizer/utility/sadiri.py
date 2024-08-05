@@ -50,7 +50,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         combined_df = pd.DataFrame()
 
-        log_and_flush("Loading data from", dataset_path)
+        log_and_flush(f"Loading data from {dataset_path}")
         # Combine both JSONL files into one dataframe
         for file_name in ['train_queries.jsonl', 'train_candidates.jsonl']:
             file_path = os.path.join(dataset_path, file_name)
