@@ -1,6 +1,7 @@
 import os
 import zstandard as zstd
 import json
+from styletokenizer.utility.custom_logger import log_and_flush
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
@@ -31,16 +32,16 @@ def read_lines_from_zst(file_path):
 def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False):
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
-    print(zst_files)
+    log_and_flush(zst_files)
 
     sampled_items = []
 
     # Dictionary to keep track of the word count for each pile set name
     word_counts_dict = dict(zip(pile_set_names, word_counts))
-    print(word_counts_dict)
+    log_and_flush(word_counts_dict)
     current_word_counts = {name: 0 for name in pile_set_names}
-    print(current_word_counts)
-    print(pile_set_names)
+    log_and_flush(current_word_counts)
+    log_and_flush(pile_set_names)
 
     line_counter = 0
 
@@ -53,7 +54,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
             break
 
         file_path = os.path.join(dir_path, filename)
-        print(f"Sampling from {file_path}")
+        log_and_flush(f"Sampling from {file_path}")
         for line in read_lines_from_zst(file_path):
             if not should_continue_sampling():
                 break
@@ -70,13 +71,13 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                                           "domain": pile_set_name, "source": "thePile"})
                     current_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
-                print("decode error")
+                log_and_flush("decode error")
                 continue
             line_counter += 1
 
             if test:
                 break
-        print(f"Sampled {current_word_counts} total")
+        log_and_flush(f"Sampled {current_word_counts} total")
 
     # Return the sampled data
     return sampled_items

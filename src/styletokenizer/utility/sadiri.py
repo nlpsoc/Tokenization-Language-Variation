@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 from collections import defaultdict
+from styletokenizer.utility.custom_logger import log_and_flush
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
 SET_PATHS = ["reddit", "ao3", "bookcorpus", "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
@@ -49,20 +50,20 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         combined_df = pd.DataFrame()
 
-        print("Loading data from", dataset_path)
+        log_and_flush("Loading data from", dataset_path)
         # Combine both JSONL files into one dataframe
         for file_name in ['train_queries.jsonl', 'train_candidates.jsonl']:
             file_path = os.path.join(dataset_path, file_name)
             if os.path.exists(file_path):
                 data_df = pd.read_json(file_path, lines=True)
-                print(f"Loaded {len(data_df)} rows from {file_path}")
+                log_and_flush(f"Loaded {len(data_df)} rows from {file_path}")
                 combined_df = pd.concat([combined_df, data_df], ignore_index=True)
             else:
-                print(f"{file_name} does not exist in {dataset_path}.")
+                log_and_flush(f"{file_name} does not exist in {dataset_path}.")
 
         current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name,
                                                                          test=test)
-        print(f"Sampled {len(current_sample)} words from {dataset_name}")
+        log_and_flush(f"Sampled {len(current_sample)} words from {dataset_name}")
         sampled_items += current_sample
 
     return sampled_items

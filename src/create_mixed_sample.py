@@ -32,41 +32,42 @@ import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.youtube_commons as youtube_commons
 from styletokenizer.fitting_corpora import CORPORA_MIXED
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
+from styletokenizer.utility.custom_logger import log_and_flush
 
 
 def main(save_path=CORPORA_MIXED, test=False):
-    print("Creating mixed dataset")
+    log_and_flush("Creating mixed dataset")
     if not test:
-        print("Sampling from the pile")
+        log_and_flush("Sampling from the pile")
         pile_sample_dicts = the_pile.sample_pile_texts()
-        print("Sampling from s2orc")
+        log_and_flush("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts()
-        print("Sampling from YouTubeCommons")
+        log_and_flush("Sampling from YouTubeCommons")
         youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts()
-        print("Sampling from sadiri")
+        log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts()
     else:
-        print("Running in test mode")
+        log_and_flush("Running in test mode")
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
-        print(f"Saving to {save_path}")
+        log_and_flush(f"Saving to {save_path}")
 
-        print("Sampling from s2orc")
+        log_and_flush("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
-        print(s2orc_sample_dicts)
-        print("Sampling from YouTubeCommons")
+        log_and_flush(s2orc_sample_dicts)
+        log_and_flush("Sampling from YouTubeCommons")
         youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts(test=True)
-        print(youtube_sample_dicts)
-        print("Sampling from sadiri")
+        log_and_flush(youtube_sample_dicts)
+        log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
-        print(sadiri_sample_dicts)
-        print("Sampling from the pile")
+        log_and_flush(sadiri_sample_dicts)
+        log_and_flush("Sampling from the pile")
         pile_sample_dicts = the_pile.sample_pile_texts(test=True)
-        print(pile_sample_dicts)
+        log_and_flush(pile_sample_dicts)
 
     # combine list of dicts into a single list
     all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
     if test:
-        print(all_dicts_list)
+        log_and_flush(all_dicts_list)
 
     # shuffle the list of dicts
     import random
@@ -96,7 +97,7 @@ def main(save_path=CORPORA_MIXED, test=False):
     # Save the combined dataset to the specified path
     # shuffled_dataset.save_to_disk(save_path)
 
-    # print(f"Dataset saved to {save_path}")
+    # log_and_flush(f"Dataset saved to {save_path}")
 
 
 if __name__ == "__main__":

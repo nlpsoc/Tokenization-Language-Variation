@@ -1,5 +1,6 @@
 from datasets import Dataset, DatasetDict, load_from_disk
 import pyarrow as pa
+from styletokenizer.utility.custom_logger import log_and_flush
 
 
 def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01):
@@ -46,7 +47,7 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
         try:
             return Dataset.from_dict(dataset_dict)
         except pa.lib.ArrowInvalid as e:
-            print(f"Some values have unexpected type: {e}")
+            log_and_flush(f"Some values have unexpected type: {e}")
             raise ValueError("Inconsistent data to create the dataset")
 
     train_dataset = create_dataset(train_data)
@@ -62,13 +63,13 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
 
     # Save the dataset to the specified path
     dataset_dict.save_to_disk(output_path)
-    print(f"Saved dataset to {output_path}")
+    log_and_flush(f"Saved dataset to {output_path}")
 
     # print statistics
-    print(f"Total word count: {total_word_count}")
-    print(f"Train word count: {sum(train_dataset['word_count'])}")
-    print(f"Dev word count: {sum(dev_dataset['word_count'])}")
-    print(f"Test word count: {sum(test_dataset['word_count'])}")
+    log_and_flush(f"Total word count: {total_word_count}")
+    log_and_flush(f"Train word count: {sum(train_dataset['word_count'])}")
+    log_and_flush(f"Dev word count: {sum(dev_dataset['word_count'])}")
+    log_and_flush(f"Test word count: {sum(test_dataset['word_count'])}")
 
     # distribution over word count over "domain" for each split if "domain" was provided
     if "domain" in train_dataset[0]:
@@ -78,7 +79,7 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
                 if domain not in domain_word_count:
                     domain_word_count[domain] = 0
                 domain_word_count[domain] += word_count
-            print(f"Domain word count distribution for {split}: {domain_word_count}")
+            log_and_flush(f"Domain word count distribution for {split}: {domain_word_count}")
 
 
 def huggingface_format_generator(dataset_path, split="train"):

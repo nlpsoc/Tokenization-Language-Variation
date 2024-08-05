@@ -2,6 +2,8 @@ import os
 import json
 import random
 
+from styletokenizer.utility.custom_logger import log_and_flush
+
 s2orc_path = "/shared/3/projects/citation-context/s2orc/s2orc"
 
 WORD_COUNT = 100_000_000
@@ -22,12 +24,12 @@ def read_files_and_sample(path, target_word_count, test=False):
     num_files = len(files)
     words_per_file = target_word_count // num_files
     words_per_file = max(words_per_file, 1)  # at least 1 word per file for test purposes
-    print(f"Sampling {words_per_file} words from each of {num_files} files")
+    log_and_flush(f"Sampling {words_per_file} words from each of {num_files} files")
 
     for file_path in files:
         word_count = 0
         with open(file_path, 'r') as f:
-            print(f"Reading file: {file_path}")
+            log_and_flush(f"Reading file: {file_path}")
             lines = f.readlines()
             total_lines = len(lines)
             random_indices = random.sample(range(total_lines), total_lines)  # Shuffle the line indices
@@ -55,7 +57,7 @@ def read_files_and_sample(path, target_word_count, test=False):
                 if test:
                     break
 
-            print(f"Sampled word count for file {file_path}: {word_count}")
+            log_and_flush(f"Sampled word count for file {file_path}: {word_count}")
 
         if test:
             break

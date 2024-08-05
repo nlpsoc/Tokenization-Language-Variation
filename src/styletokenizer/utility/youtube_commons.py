@@ -1,4 +1,5 @@
 import dask.dataframe as dd
+from styletokenizer.utility.custom_logger import log_and_flush
 
 WORD_COUNT = 100_000_000
 
@@ -6,15 +7,15 @@ WORD_COUNT = 100_000_000
 def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
     # Load the dataset using Dask
     dataset = dd.read_parquet('/shared/3/datasets/YouTube-Commons')
-    print(f"YouTube-Commons loaded")
+    log_and_flush(f"YouTube-Commons loaded")
 
     # Filter the dataset where both transcription_language and original_language are 'en'
     filtered_dataset = dataset[(dataset['transcription_language'] == 'en') & (dataset['original_language'] == 'en')]
-    print(f"YouTube-Commons filtered")
+    log_and_flush(f"YouTube-Commons filtered")
 
     # Debugging step: Check the number of rows after filtering
     filtered_count = filtered_dataset.shape[0].compute()
-    print(f"Number of rows after filtering: {filtered_count}")
+    log_and_flush(f"Number of rows after filtering: {filtered_count}")
 
     if filtered_count == 0:
         raise ValueError("No data found after filtering. Check the filter conditions or data content.")
@@ -41,8 +42,8 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
 
     # Ensure that we have sampled enough texts to meet the word count requirement
     if (not test) and (total_word_count < required_word_count):
-        print("WARNING: Not enough data to meet the required word count")
+        log_and_flush("WARNING: Not enough data to meet the required word count")
 
-    print(f"Sampled word count: {total_word_count}")
+    log_and_flush(f"Sampled word count: {total_word_count}")
 
     return sampled_items
