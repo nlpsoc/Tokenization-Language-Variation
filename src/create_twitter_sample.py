@@ -66,6 +66,7 @@ def sample_texts_from_files(directory, target_word_count):
 
     num_files = len(files)
     target_word_count_per_file = target_word_count // num_files
+    target_word_count_per_file = max(target_word_count_per_file, 1)  # at least 1 word even for testing per file
     data = []
 
     for filen_index, file_path in enumerate(files):
