@@ -39,7 +39,7 @@ def sample_texts_from_files(directory, target_word_count):
              for root, _, files in os.walk(directory)
              for file_name in sorted(files)
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
-    log_and_flush("Found files:", files)
+    log_and_flush(f"Found files: {files}")
 
     # Test opening each file
     stream_error = False
