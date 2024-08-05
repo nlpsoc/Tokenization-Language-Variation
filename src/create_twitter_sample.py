@@ -41,6 +41,10 @@ def sample_texts_from_files(directory, target_word_count):
              if not "2022" in file_name and (file_name.endswith('p2.bz2') or file_name.endswith('p1.bz2'))]
     log_and_flush(f"Found files: {files}")
 
+    # remove files with sizes < 10GB
+    files = [file for file in files if os.path.getsize(file) > 10_000_000_000]
+    log_and_flush(f"Files with size > 10GB: {files}")
+
     # Test opening each file
     stream_error = False
     error_files = []
@@ -50,6 +54,7 @@ def sample_texts_from_files(directory, target_word_count):
             with bz2.open(file_path, 'rt') as file:
                 for line in file:
                     json.loads(line)
+                    break
         except Exception as e:
             log_and_flush(f"Error opening file: {file_path}")
             log_and_flush(e)
