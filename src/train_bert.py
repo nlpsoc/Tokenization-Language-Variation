@@ -214,3 +214,4 @@ if __name__ == '__main__':
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
     # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer meta-llama/Meta-Llama-3-8B &> 24-06-09_llama3.txt
     # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer roberta-base &> 24-06-09_roberta.txt
+    # CUDA_VISIBLE_DEVICES=6 python train_bert.py --tokenizer /shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer/wikipedia-gpt2-32000 --seed 42 &> 24-08-06_wiki-gpt2-32k_250000.txt
