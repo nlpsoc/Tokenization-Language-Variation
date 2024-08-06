@@ -77,7 +77,7 @@ def create_balanced_dataset(total_word_count):
 
 def main(word_count=1_000_000_000):
     balanced_dataset = create_balanced_dataset(word_count)
-    output_path = "/shared/3/projects/hiatus/EVAL_wegmann/data/train-corpora/wikibook"
+    output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
     save_to_huggingface_format(balanced_dataset, output_path)
 
     # Print out some information about the resulting dataset
