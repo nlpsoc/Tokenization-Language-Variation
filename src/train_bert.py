@@ -108,8 +108,10 @@ def main(tokenizer_name, random_seed, test=False):
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # Apply tokenization and encoding
+    #   DANGER: map is creating cache files that potentially
+    #       will be loaded even when specifying a different tokenizer later on, needs to be tested later (!)
     tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
-                                     batched=True, remove_columns=["text"])
+                                     batched=True, remove_columns=["text"])  # keep_in_memory=True
     number_of_epochs = (max_steps * batch_size) / len(tokenized_datasets)
 
     # # Save the tokenized dataset to disk --> REMOVED for now, check if needed
