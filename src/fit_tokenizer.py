@@ -8,6 +8,11 @@ import os
 
 from styletokenizer.utility import datasets_helper
 
+# the tokenizer variables
+PRE_TOKENIZER = ["ws", "gpt2", "llama3"]
+VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
+FITTING_CORPORA = ["twitter", "wikipedia", "mixed"]
+
 OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
 
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
@@ -88,13 +93,13 @@ if __name__ == "__main__":
     group.add_argument("--mixed", action="store_true", help="Use a mixed corpus for fitting.")
 
     # Define the valid vocabulary sizes
-    vocab_sizes = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
+    vocab_sizes = VOCAB_SIZE
     # Add the vocab_size argument with restricted choices
     parser.add_argument("--vocab_size", type=int, choices=vocab_sizes, required=True,
                         help="Specify the vocabulary size. Must be one of: " + ", ".join(map(str, vocab_sizes)))
 
     # Add the pre_tokenize argument with choices
-    parser.add_argument("--pre_tokenize", type=str, choices=["ws", "gpt2", "llama3"], required=True,
+    parser.add_argument("--pre_tokenize", type=str, choices=PRE_TOKENIZER, required=True,
                         help="Specify the pre-tokenization method. Must be one of: 'ws', 'gpt2', 'llama3'.")
     # parser.add_argument("--test", action="store_true")
 

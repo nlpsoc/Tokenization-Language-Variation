@@ -68,6 +68,10 @@ def create_balanced_dataset(total_word_count):
     # Combine sampled texts into a single list
     combined_texts = sampled_wiki_texts + sampled_bookcorpus_texts
 
+    # shuffle the list of dicts
+    random.seed(42)
+    random.shuffle(combined_texts)
+
     # Print actual word counts achieved
     print(f"Actual word count from Wikipedia: {wiki_actual_word_count}")
     print(f"Actual word count from BooksCorpus: {bookcorpus_actual_word_count}")

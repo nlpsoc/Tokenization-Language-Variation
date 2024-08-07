@@ -90,6 +90,8 @@ def main(tokenizer_name, random_seed, test=False):
     tokenizer = load_tokenizer(tokenizer_name)
     log_and_flush(f"Tokenizer loaded: {tokenizer_name}")
 
+    # set parameters
+    batch_size = 32
     max_steps = 250000
     if test:
         max_steps = 100
@@ -108,6 +110,7 @@ def main(tokenizer_name, random_seed, test=False):
     # Apply tokenization and encoding
     tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
                                      batched=True, remove_columns=["text"])
+    number_of_epochs = (max_steps * batch_size) / len(tokenized_datasets)
 
     # # Save the tokenized dataset to disk --> REMOVED for now, check if needed
     # dataset.save_to_disk(tokenized_data_path)
@@ -126,11 +129,12 @@ def main(tokenizer_name, random_seed, test=False):
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Training arguments
+
     training_args = TrainingArguments(
         output_dir=output_dir,
         overwrite_output_dir=True,
         max_steps=max_steps,
-        per_device_train_batch_size=32,
+        per_device_train_batch_size=batch_size,
         save_steps=10_000,
         save_total_limit=2,
         logging_dir=output_base_folder + 'logs',
