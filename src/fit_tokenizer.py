@@ -48,7 +48,18 @@ def init_tokenizer_with_regex(pre_tokenizer):
     tokenizer = Tokenizer(BPE(unk_token="[UNK]"))
     # PRE-TOKENIZATION variable
     if pre_tokenizer == "ws":
-        split = Whitespace()
+        # this might be different to what you expect, it is not equivalent to Whitespace(),
+        #   which would be inverted r"\w+|[^\w\s]+"
+        # instead this is already "a step towards" more gpt2/llama 3 like pre-tokenization,
+        #   where the leading whitespace in front of non-whitespace characters is kept,
+        #   otherwise all whitespaces are split off separately
+        # in detail:
+        #       (?!\S)  -->  negative lookahead for non-whitespace character
+        #       \s+     -->  one or more whitespace characters
+        regex_pattern = (
+            r"\s+(?!\S)|\s+"
+        )
+        split = Split(pattern=Regex(regex_pattern), behavior="merged_with_next", invert=False)
     elif (pre_tokenizer == "gpt2") or (pre_tokenizer == "llama3"):
         if pre_tokenizer == "gpt2":
             # regex pattern copied from

@@ -109,10 +109,25 @@ def main(tokenizer_name, random_seed, test=False):
 
     # Apply tokenization and encoding
     #   DANGER: map is creating cache files that potentially
-    #       will be loaded even when specifying a different tokenizer later on, needs to be tested later (!)
-    tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
-                                     batched=True, remove_columns=["text"])  # keep_in_memory=True
-    number_of_epochs = (max_steps * batch_size) / len(tokenized_datasets)
+    #       will be loaded even when specifying a different tokenizer later on, to be sure, delete after use
+    # Tokenize the dataset with cache file names specified
+    def tokenize_with_cache(dataset, tokenizer):
+        cache_file_name = f"cache-{split_name}.arrow"
+
+        # Tokenizing the dataset
+        tokenized_dataset = dataset.map(
+            lambda examples: tokenize_and_encode(tokenizer, examples),
+            batched=True,
+            remove_columns=["text"],
+            cache_file_name=cache_file_name  # Specify custom cache file name
+        )
+
+        print(f"Cache file created for {split_name}: {cache_file_name}")
+        return tokenized_dataset, cache_file_name
+
+    # tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
+    #                                  batched=True, remove_columns=["text"])  # keep_in_memory=True
+    tokenized_datasets, cache_file_name = tokenize_with_cache(dataset, "train", tokenizer)
 
     # # Save the tokenized dataset to disk --> REMOVED for now, check if needed
     # dataset.save_to_disk(tokenized_data_path)
@@ -169,6 +184,9 @@ def main(tokenizer_name, random_seed, test=False):
     trainer.save_model(output_dir)
     tokenizer.save_pretrained(output_dir)
     log_and_flush(f"Model saved to: {output_dir}")
+
+    log_and_flush(f"Deleting cache files at data dir {os.path.join(TRAIN_DATASET_PATH, 'train')}")
+
 
     import sys
     # add STEL folder to path
