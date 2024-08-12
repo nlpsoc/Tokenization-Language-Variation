@@ -2,11 +2,14 @@ import argparse
 import os
 import re
 
+
+
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
 
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
+from styletokenizer.utility.custom_logger import log_and_flush
 from datasets import concatenate_datasets, load_dataset, load_from_disk
 from datasets import load_dataset
 import random
@@ -16,6 +19,7 @@ COUNT_PER_ROW = 512
 
 
 def sample_texts_from_wiki_dataset(target_word_count, source_name, use_id=False):
+    log_and_flush("Sampling from Wikipedia")
     # Load datasets
     dataset = load_dataset("wikipedia", "20220301.en", split="train")
 
@@ -48,6 +52,8 @@ def sample_texts_from_wiki_dataset(target_word_count, source_name, use_id=False)
         if current_word_count >= target_word_count:
             break
 
+    log_and_flush(f"Extracted {current_word_count} words")
+
     return sampled_texts, current_word_count
 
 
@@ -69,6 +75,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
     current_word_count = 0
     # caluculate the number of words to extract from each file
     for file in bookcorpus_files:
+        log_and_flush(f"At file {file}")
         with open(file, 'r') as f:
             text = f.read()
 
@@ -87,6 +94,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
             }
             sampled_texts.append(text_entry)
             current_word_count += COUNT_PER_ROW
+        log_and_flush(f"Extracted {current_word_count} words")
         return sampled_texts, current_word_count
 
 
@@ -100,16 +108,16 @@ def create_balanced_dataset(total_word_count, test=False):
     wiki_word_count = int(total_word_count * (wiki_ratio / (1 + wiki_ratio)))
     bookcorpus_word_count = total_word_count - wiki_word_count
 
-    print(f"Target word count for Wikipedia: {wiki_word_count}")
-    print(f"Target word count for BooksCorpus: {bookcorpus_word_count}")
+    log_and_flush(f"Target word count for Wikipedia: {wiki_word_count}")
+    log_and_flush(f"Target word count for BooksCorpus: {bookcorpus_word_count}")
 
     random.seed(42)
 
     # Sample texts from each dataset
-    sampled_wiki_texts, wiki_actual_word_count = sample_texts_from_wiki_dataset(wiki_word_count, "wikipedia",
-                                                                                use_id=True)
     sampled_bookcorpus_texts, bookcorpus_actual_word_count = (
         sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, "bookcorpus", use_id=True, test=test))
+    sampled_wiki_texts, wiki_actual_word_count = sample_texts_from_wiki_dataset(wiki_word_count, "wikipedia",
+                                                                                use_id=True)
 
     # Combine sampled texts into a single list
     combined_texts = sampled_wiki_texts + sampled_bookcorpus_texts
