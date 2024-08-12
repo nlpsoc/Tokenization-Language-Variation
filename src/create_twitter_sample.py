@@ -17,6 +17,9 @@ def process_file(file_path, target_word_count_per_file, data):
     with bz2.open(file_path, 'rt') as file:
         for line in file:
             tweet = json.loads(line)
+            lang = tweet.get("lang", "")
+            if lang != "en":  # Only consider English tweets
+                continue
             text = tweet.get("text", "")
             tweet_id = tweet.get("id", "")
             word_count = count_words(text)
