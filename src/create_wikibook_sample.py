@@ -136,6 +136,8 @@ def create_balanced_dataset(total_word_count, test=False):
 def main(word_count=3_300_000_000, test=False):
     balanced_dataset = create_balanced_dataset(word_count, test=test)
     output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
+    if test:
+        output_path += "_test"
     save_to_huggingface_format(balanced_dataset, output_path)
 
     # Print out some information about the resulting dataset
