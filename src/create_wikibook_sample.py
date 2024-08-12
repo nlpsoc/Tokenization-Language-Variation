@@ -10,7 +10,7 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 from styletokenizer.utility.custom_logger import log_and_flush
-from datasets import concatenate_datasets, load_dataset, load_from_disk
+from styletokenizer.utility.bookcorpus import BOOK3CORPUS_PATH
 from datasets import load_dataset
 import random
 from pathlib import Path
@@ -58,7 +58,7 @@ def sample_texts_from_wiki_dataset(target_word_count, source_name, use_id=False)
 
 
 def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=False, test=False):
-    bookcorpus_path = '/shared/2/datasets/gpt3-books/books3/the-eye.eu/public/Books/Bibliotik/'
+    bookcorpus_path = BOOK3CORPUS_PATH
     base_path = Path(bookcorpus_path)
     subfolders = [f for f in base_path.iterdir() if f.is_dir() and f.name != '0_Other']
     # get all text files with path

@@ -26,6 +26,7 @@
 
 """
 import argparse
+import styletokenizer.utility.bookcorpus as bookcorpus
 import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
@@ -50,6 +51,9 @@ def main(save_path=CORPORA_MIXED, test=False):
         log_and_flush("Running in test mode")
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         log_and_flush(f"Saving to {save_path}")
+
+        # log_and_flush("Sampling from bookcorpus")
+        # bookcorpus_sample_dicts = bookcorpus.sample_bookcorpus_texts(test=True)
 
         log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
