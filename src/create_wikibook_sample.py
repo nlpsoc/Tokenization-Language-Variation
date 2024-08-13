@@ -68,8 +68,9 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
     if test:
         bookcorpus_files = bookcorpus_files[:5]
     word_per_file = target_word_count // len(bookcorpus_files)
+    log_and_flush(f"Aiming to sample {word_per_file} words from each of {len(bookcorpus_files)} files")
     # determine how many excerpts to extract
-    num_excerpts = int(word_per_file // COUNT_PER_ROW)
+    num_excerpts = int(word_per_file // COUNT_PER_ROW) + 1
     log_and_flush(f"Sampling {num_excerpts} excerpts from each of {len(bookcorpus_files)} files")
 
     sampled_texts = []
