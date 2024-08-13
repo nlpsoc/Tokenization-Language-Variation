@@ -109,8 +109,8 @@ def create_balanced_dataset(total_word_count, test=False):
     wiki_word_count = int(total_word_count * (wiki_ratio / (1 + wiki_ratio)))
     bookcorpus_word_count = total_word_count - wiki_word_count
 
-    log_and_flush(f"Target word count for Wikipedia: {wiki_word_count}")
     log_and_flush(f"Target word count for BooksCorpus: {bookcorpus_word_count}")
+    log_and_flush(f"Target word count for Wikipedia: {wiki_word_count}")
 
     random.seed(42)
 

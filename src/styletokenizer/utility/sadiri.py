@@ -52,7 +52,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         log_and_flush(f"Loading data from {dataset_path}")
         # Combine both JSONL files into one dataframe
-        for file_name in ['train_queries.jsonl', 'train_candidates.jsonl']:
+        for file_name in ['corpus.jsonl']:  # ['train_queries.jsonl', 'train_candidates.jsonl']:
             file_path = os.path.join(dataset_path, file_name)
             if os.path.exists(file_path):
                 data_df = pd.read_json(file_path, lines=True)
