@@ -4,19 +4,18 @@ from collections import defaultdict
 from styletokenizer.utility.custom_logger import log_and_flush
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
-SET_PATHS = ["reddit", "ao3", "bookcorpus", "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
-             "amazon", "gmane", "blogcorpus"]
+SET_PATHS = ["reddit", "ao3", "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
+             "amazon", "gmane", "blogcorpus"]  # "bookcorpus"
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
 WORD_COUNTS = [249000000,
-               100000000,
-               50000000,
+               150000000,  # increase by 50M because bookcorpus was removed
                169000000,
                24131163,
                3007117,
                53683977,
                31650279,
                141837101,
-               8189607]
+               8189607]  # 50000000
 
 
 def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=False):
