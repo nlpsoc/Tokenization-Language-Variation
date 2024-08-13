@@ -70,6 +70,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
     word_per_file = target_word_count // len(bookcorpus_files)
     # determine how many excerpts to extract
     num_excerpts = int(word_per_file // COUNT_PER_ROW)
+    log_and_flush(f"Sampling {num_excerpts} excerpts from each of {len(bookcorpus_files)} files")
 
     sampled_texts = []
     current_word_count = 0
@@ -80,7 +81,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
             text = f.read()
 
         tokens = re.findall(r'\S+|\s+', text)
-        print(f"Words in file is {len(tokens) // 2}")
+        log_and_flush(f"Words in file is {len(tokens) // 2}")
 
         # get num_excerpts random starting points that do not overlap in 512 token chunks
         possible_starts = list(range(0, len(tokens) - COUNT_PER_ROW * 2, COUNT_PER_ROW * 2))
