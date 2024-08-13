@@ -39,14 +39,14 @@ from styletokenizer.utility.custom_logger import log_and_flush
 def main(save_path=CORPORA_MIXED, test=False):
     log_and_flush("Creating mixed dataset")
     if not test:
+        log_and_flush("Sampling from sadiri")
+        sadiri_sample_dicts = sadiri.sample_sadiri_texts()
         log_and_flush("Sampling from the pile")
         pile_sample_dicts = the_pile.sample_pile_texts()
         log_and_flush("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts()
         log_and_flush("Sampling from YouTubeCommons")
         youtube_sample_dicts = youtube_commons.sample_YouTubeCommons_texts()
-        log_and_flush("Sampling from sadiri")
-        sadiri_sample_dicts = sadiri.sample_sadiri_texts()
     else:
         log_and_flush("Running in test mode")
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
