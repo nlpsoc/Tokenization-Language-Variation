@@ -65,6 +65,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
     bookcorpus_files = []
     for folder in subfolders:
         bookcorpus_files.extend(list(folder.glob('**/*.txt')))
+    log_and_flush(f"Found {len(bookcorpus_files)} files in BooksCorpus")
     if test:
         bookcorpus_files = bookcorpus_files[:5]
     word_per_file = target_word_count // len(bookcorpus_files)
