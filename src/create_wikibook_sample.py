@@ -80,6 +80,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
             text = f.read()
 
         tokens = re.findall(r'\S+|\s+', text)
+        print(f"Words in file is {len(tokens) // 2}")
 
         # get num_excerpts random starting points that do not overlap in 512 token chunks
         possible_starts = list(range(0, len(tokens) - COUNT_PER_ROW * 2, COUNT_PER_ROW * 2))
@@ -95,7 +96,7 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
             sampled_texts.append(text_entry)
             current_word_count += COUNT_PER_ROW
         log_and_flush(f"Extracted {current_word_count} words")
-        return sampled_texts, current_word_count
+    return sampled_texts, current_word_count
 
 
 def create_balanced_dataset(total_word_count, test=False):
@@ -141,9 +142,9 @@ def main(word_count=3_300_000_000, test=False):
     save_to_huggingface_format(balanced_dataset, output_path)
 
     # Print out some information about the resulting dataset
-    print(f"Total word count: {word_count}")
-    print(f"Number of examples: {len(balanced_dataset)}")
-    print(f"Sample entry: {balanced_dataset[0]}")  # Show the first dictionary entry
+    log_and_flush(f"Target word count was: {word_count}")
+    log_and_flush(f"Number of examples: {len(balanced_dataset)}")
+    log_and_flush(f"Sample entry: {balanced_dataset[0]}")  # Show the first dictionary entry
 
     return
 
