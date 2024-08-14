@@ -74,11 +74,14 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                         else:
                             text = ''.join(tokens[:individual_text_length * 2])
                             text_word_count = individual_text_length
+
+                        sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
+                                              "source": pile_set_name})
                     else:
                         text_word_count = len(text.split())
 
-                    sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
-                                          "domain": pile_set_name, "source": "thePile"})
+                        sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
+                                              "domain": pile_set_name, "source": "thePile"})
                     current_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
                 log_and_flush("decode error")
