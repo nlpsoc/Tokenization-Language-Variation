@@ -91,17 +91,17 @@ def create_balanced_dataset(total_word_count, test=False):
     # Sample texts from each dataset
     sampled_bookcorpus_texts, bookcorpus_actual_word_count = (
         sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, test=test))
-    sampled_wiki_texts, wiki_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
+    sampled_web_texts, web_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
 
     # Combine sampled texts into a single list
-    combined_texts = sampled_wiki_texts + sampled_bookcorpus_texts
+    combined_texts = sampled_web_texts + sampled_bookcorpus_texts
 
     # shuffle the list of dicts
 
     random.shuffle(combined_texts)
 
     # Print actual word counts achieved
-    print(f"Actual word count from OpenWebText: {wiki_actual_word_count}")
+    print(f"Actual word count from OpenWebText: {web_actual_word_count}")
     print(f"Actual word count from BooksCorpus: {bookcorpus_actual_word_count}")
 
     return combined_texts
@@ -109,7 +109,7 @@ def create_balanced_dataset(total_word_count, test=False):
 
 def main(word_count=3_300_000_000, test=False):
     balanced_dataset = create_balanced_dataset(word_count, test=test)
-    output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
+    output_path = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
     if test:
         output_path += "_test"
     save_to_huggingface_format(balanced_dataset, output_path)
