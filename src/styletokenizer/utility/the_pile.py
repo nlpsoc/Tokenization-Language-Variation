@@ -2,6 +2,7 @@ import os
 import zstandard as zstd
 import json
 from styletokenizer.utility.custom_logger import log_and_flush
+import re
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
@@ -29,7 +30,7 @@ def read_lines_from_zst(file_path):
                     yield line
 
 
-def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False):
+def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None):
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
     log_and_flush(zst_files)
@@ -65,7 +66,16 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                 if (pile_set_name in pile_set_names) and (
                         current_word_counts[pile_set_name] < word_counts_dict[pile_set_name]):
                     text = data.get('text', '')
-                    text_word_count = len(text.split())
+                    if individual_text_length:  # we need samples of an exact length
+                        tokens = re.findall(r'\S+|\s+', text)
+                        text_word_count = int(len(tokens) / 2)
+                        if text_word_count < individual_text_length:
+                            continue
+                        else:
+                            text = ''.join(tokens[:individual_text_length * 2])
+                            text_word_count = individual_text_length
+                    else:
+                        text_word_count = len(text.split())
 
                     sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                           "domain": pile_set_name, "source": "thePile"})

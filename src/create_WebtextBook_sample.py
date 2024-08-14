@@ -2,8 +2,6 @@ import argparse
 import os
 import re
 
-
-
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
@@ -14,50 +12,23 @@ from styletokenizer.utility.bookcorpus import BOOK3CORPUS_PATH
 from datasets import load_dataset
 import random
 from pathlib import Path
+import styletokenizer.utility.the_pile as the_pile
 
 COUNT_PER_ROW = 512
 
 
-def sample_texts_from_wiki_dataset(target_word_count, source_name, use_id=False):
-    log_and_flush("Sampling from Wikipedia")
-    # Load datasets
-    dataset = load_dataset("wikipedia", "20220301.en", split="train")
+def sample_texts_from_webtext_dataset(target_word_count):
+    log_and_flush("Sampling from The Pile's OpenWebText")
 
-    # Keep only the 'text' and 'id' columns for Wikipedia
-    dataset = dataset.remove_columns([col for col in dataset.column_names if col != "text" and col != "id"])
-
-    sampled_texts = []
-    current_word_count = 0
-
-    indices = list(range(len(dataset)))
-    random.shuffle(indices)  # Shuffle to ensure randomness
-
-    for i in indices:
-        text = dataset[i]['text']
-        # Match words and preserve whitespaces
-        #   divides string in all consecutive non-whitespace characters and all whitespace characters
-        tokens = re.findall(r'\S+|\s+', text)
-        text_word_count = int(len(tokens) / 2)
-
-        if (current_word_count < target_word_count) and text_word_count >= COUNT_PER_ROW:
-            text_entry = {
-                'id': dataset[i]['id'] if use_id else i,  # Use 'id' if available, else use index
-                'text': ''.join(tokens[:COUNT_PER_ROW * 2]),
-                'word_count': COUNT_PER_ROW,
-                'source': source_name
-            }
-            sampled_texts.append(text_entry)
-            current_word_count += text_word_count
-
-        if current_word_count >= target_word_count:
-            break
-
+    sampled_texts = the_pile.sample_pile_texts(['OpenWebText2'], [target_word_count],
+                                               individual_text_length=COUNT_PER_ROW)
+    current_word_count = sum([entry['word_count'] for entry in sampled_texts])
     log_and_flush(f"Extracted {current_word_count} words")
 
     return sampled_texts, current_word_count
 
 
-def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=False, test=False):
+def sample_texts_from_bookcorpus_dataset(target_word_count, test=False):
     bookcorpus_path = BOOK3CORPUS_PATH
     base_path = Path(bookcorpus_path)
     subfolders = [f for f in base_path.iterdir() if f.is_dir() and f.name != '0_Other']
@@ -91,10 +62,10 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
 
         for start in possible_starts[:num_excerpts]:
             text_entry = {
-                'id': file.name if use_id else file,
+                'id': file.name + "_" + str(start),
                 'text': ''.join(tokens[start:start + COUNT_PER_ROW * 2]),
                 'word_count': COUNT_PER_ROW,
-                'source': source_name
+                'source': "books3"
             }
             sampled_texts.append(text_entry)
             current_word_count += COUNT_PER_ROW
@@ -104,24 +75,23 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, source_name, use_id=
 
 def create_balanced_dataset(total_word_count, test=False):
     if test:
-        total_word_count = 512*10
+        total_word_count = 512 * 10
     # Define the word ratio
-    wiki_ratio = 3.125  # Wikipedia to BooksCorpus ratio
+    webtext_ratio = 1  # WebText to BooksCorpus ratio, wikipedia was 3.125
 
     # Calculate target word counts
-    wiki_word_count = int(total_word_count * (wiki_ratio / (1 + wiki_ratio)))
-    bookcorpus_word_count = total_word_count - wiki_word_count
+    webtext_word_count = int(total_word_count * (webtext_ratio / (1 + webtext_ratio)))
+    bookcorpus_word_count = total_word_count - webtext_word_count
 
     log_and_flush(f"Target word count for BooksCorpus: {bookcorpus_word_count}")
-    log_and_flush(f"Target word count for Wikipedia: {wiki_word_count}")
+    log_and_flush(f"Target word count for OpenWebText2: {webtext_word_count}")
 
     random.seed(42)
 
     # Sample texts from each dataset
     sampled_bookcorpus_texts, bookcorpus_actual_word_count = (
-        sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, "bookcorpus", use_id=True, test=test))
-    sampled_wiki_texts, wiki_actual_word_count = sample_texts_from_wiki_dataset(wiki_word_count, "wikipedia",
-                                                                                use_id=True)
+        sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, test=test))
+    sampled_wiki_texts, wiki_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
 
     # Combine sampled texts into a single list
     combined_texts = sampled_wiki_texts + sampled_bookcorpus_texts
@@ -131,7 +101,7 @@ def create_balanced_dataset(total_word_count, test=False):
     random.shuffle(combined_texts)
 
     # Print actual word counts achieved
-    print(f"Actual word count from Wikipedia: {wiki_actual_word_count}")
+    print(f"Actual word count from OpenWebText: {wiki_actual_word_count}")
     print(f"Actual word count from BooksCorpus: {bookcorpus_actual_word_count}")
 
     return combined_texts
