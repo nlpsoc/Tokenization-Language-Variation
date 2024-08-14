@@ -30,51 +30,53 @@ def load_train_dataset(test=False):
     return train_data
 
 
-def load_tokenizer(tokenizer_name):
+def load_tokenizer(tokenizer_path):
+    """
+        Load tokenizer from local path or, if it does not exist,from the Huggingface model hub
+        Attention: for local path it expects the tokenizers tokenizer.json file
+    :param tokenizer_path:
+    :return:
+    """
     # check if tokenizer_name is a local path
-    if os.path.exists(tokenizer_name):
-        if "tokenizer.json" not in tokenizer_name:
+    if os.path.exists(tokenizer_path):
+        if "tokenizer.json" not in tokenizer_path:
             # add tokenizer.json to path
-            tokenizer_name = os.path.join(tokenizer_name, "tokenizer.json")
-        log_and_flush(f"Loading previously fitted tokenizer from local path: {tokenizer_name}")
+            tokenizer_path = os.path.join(tokenizer_path, "tokenizer.json")
+        log_and_flush(f"Loading previously fitted tokenizer from local path: {tokenizer_path}")
         try:
-            # tokenizer = Tokenizer.from_file(tokenizer_name)
-            # tokenizer = PreTrainedTokenizerFast(tokenizer_object=tokenizer)
-            # load the tokenizers.Tokenizer as a transformers.Tokenizer
-            tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_name,
+            # loading tokenizers tokenizer as a transformers tokenizer
+            tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path,
                                                 unk_token="[UNK]",
                                                 cls_token="[CLS]",
                                                 sep_token="[SEP]",
                                                 pad_token="[PAD]",
                                                 mask_token="[MASK]")
         except Exception as e:
-            raise ValueError(f"Invalid tokenizer path: {tokenizer_name}")
+            raise ValueError(f"Invalid tokenizer path: {tokenizer_path}")
     else:
-        log_and_flush(f"Loading tokenizer from Huggingface model hub: {tokenizer_name}")
+        log_and_flush(f"Loading tokenizer from Huggingface model hub: {tokenizer_path}")
         try:
-            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
         except Exception as e:
-            raise ValueError(f"Invalid tokenizer name: {tokenizer_name}")
+            raise ValueError(f"Invalid tokenizer name: {tokenizer_path}")
         tokenizer.add_special_tokens({'pad_token': '[PAD]', 'mask_token': '[MASK]'})
     return tokenizer
 
 
-def load_model(tokenizer, keep_weights=False):
-    if not keep_weights:
-        # Load the configuration of 'prajjwal1/bert-tiny'
-        config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
-        log_and_flush(f"Configuration loaded: {config}")
-        # Initialize the model with the configuration, this will use random weights
-        model = BertForMaskedLM(config)
-        model.resize_token_embeddings(len(tokenizer))
-        log_and_flush(f"Model initialized with random weights and resized token embedding matrix: {model}")
-    else:
-        model = BertForMaskedLM.from_pretrained('prajjwal1/bert-tiny')  # sequence len still 512
-        model.resize_token_embeddings(len(tokenizer))
-        # Reinitialize the token embeddings
-        model.get_input_embeddings().weight.data.normal_(mean=0.0, std=model.config.initializer_range)
-        # Verify the reset (optional)
-        print(model.get_input_embeddings().weight)
+def create_tinybert_architecture(tokenizer):
+    """
+        create a tiny BERT architecture according to https://huggingface.co/prajjwal1/bert-tiny
+            with random weights and resizing the embedding layer to match the tokenizer size
+    :param tokenizer:
+    :return:
+    """
+    # Load the configuration of 'prajjwal1/bert-tiny'
+    config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
+    log_and_flush(f"Configuration loaded: {config}")
+    # Initialize the model with the configuration, this will use random weights
+    model = BertForMaskedLM(config)
+    model.resize_token_embeddings(len(tokenizer))
+    log_and_flush(f"Model initialized with random weights and resized token embedding matrix: {model}")
     return model
 
 
@@ -90,6 +92,10 @@ def main(tokenizer_name, random_seed, test=False):
     tokenizer = load_tokenizer(tokenizer_name)
     log_and_flush(f"Tokenizer loaded: {tokenizer_name}")
 
+    # set seed
+    seed.set_global(random_seed)
+    log_and_flush(f"Seed set to: {random_seed}")
+
     # set parameters
     batch_size = 32
     max_steps = 250000
@@ -99,44 +105,25 @@ def main(tokenizer_name, random_seed, test=False):
         max_steps), os.path.basename(os.path.dirname(tokenizer_name)))
     log_and_flush(f"Output directory: {output_dir}")
 
-    # REMOVED: save tokenized dataset in-between
-    # tokenized_data_path = f"{output_base_folder}tokenized_data/{tokenizer_name.split('/')[-1]}-{percentage}.json"
-    # tokenized_datasets = load_from_disk(tokenized_data_path)
-
     dataset = load_train_dataset(test=test)
-    # print dataset size
     log_and_flush(f"Dataset size: {len(dataset)}")
+    log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
-    # Apply tokenization and encoding
+    # Apply tokenization
     #   DANGER: map is creating cache files that potentially
     #       will be loaded even when specifying a different tokenizer later on, to be sure, delete after use
     # Tokenize the dataset with cache file names specified
-    def tokenize_with_cache(dataset, tokenizer):
-        cache_file_name = f"cache-{split_name}.arrow"
+    tokenized_dataset = dataset.map(
+        lambda examples: tokenize_and_encode(tokenizer, examples),
+        batched=True,
+        remove_columns=["text"],
+        load_from_cache_file=False,  # Do NOT load from cache file to avoid potential conflicts
+        keep_in_memory=True  # Do not create cache files at all
+        # (potentially have to remove later, depending on RAM impact)
+    )
 
-        # Tokenizing the dataset
-        tokenized_dataset = dataset.map(
-            lambda examples: tokenize_and_encode(tokenizer, examples),
-            batched=True,
-            remove_columns=["text"],
-            cache_file_name=cache_file_name  # Specify custom cache file name
-        )
-
-        print(f"Cache file created for {split_name}: {cache_file_name}")
-        return tokenized_dataset, cache_file_name
-
-    # tokenized_datasets = dataset.map(lambda examples: tokenize_and_encode(tokenizer, examples),
-    #                                  batched=True, remove_columns=["text"])  # keep_in_memory=True
-    tokenized_datasets, cache_file_name = tokenize_with_cache(dataset, "train", tokenizer)
-
-    # # Save the tokenized dataset to disk --> REMOVED for now, check if needed
-    # dataset.save_to_disk(tokenized_data_path)
-
-    # set seed
-    seed.set_global(random_seed)
-
-    # create a randomized tiny BERT model that fits the tokenizer
-    model = load_model(tokenizer, keep_weights=False)
+    # initialize a tiny BERT model that fits the tokenizer size
+    model = create_tinybert_architecture(tokenizer)
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=True, mlm_probability=0.15
@@ -146,7 +133,6 @@ def main(tokenizer_name, random_seed, test=False):
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Training arguments
-
     training_args = TrainingArguments(
         output_dir=output_dir,
         overwrite_output_dir=True,
@@ -166,7 +152,7 @@ def main(tokenizer_name, random_seed, test=False):
     trainer = Trainer(
         model=model,
         args=training_args,
-        train_dataset=tokenized_datasets,
+        train_dataset=tokenized_dataset,
         data_collator=data_collator,
     )
 
@@ -186,30 +172,6 @@ def main(tokenizer_name, random_seed, test=False):
     log_and_flush(f"Model saved to: {output_dir}")
 
     log_and_flush(f"Deleting cache files at data dir {os.path.join(TRAIN_DATASET_PATH, 'train')}")
-
-
-    import sys
-    # add STEL folder to path
-    sys.path.append('../../../STEL/src/')
-    import torch
-
-    from STEL import STEL
-    from STEL.similarity import Similarity, cosine_sim
-    from sentence_transformers import SentenceTransformer
-
-    class SBERTSimilarity(Similarity):
-        def __init__(self):
-            super().__init__()
-            self.model = SentenceTransformer(output_dir)
-            self.model.to("cuda" if torch.cuda.is_available() else "cpu")
-
-        def similarities(self, sentences_1, sentences_2):
-            with torch.no_grad():
-                sentence_emb_1 = self.model.encode(sentences_1, show_progress_bar=False)
-                sentence_emb_2 = self.model.encode(sentences_2, show_progress_bar=False)
-            return [cosine_sim(sentence_emb_1[i], sentence_emb_2[i]) for i in range(len(sentences_1))]
-
-    STEL.eval_on_STEL(style_objects=[SBERTSimilarity()])
 
 
 if __name__ == '__main__':
