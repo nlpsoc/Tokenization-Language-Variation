@@ -103,8 +103,8 @@ def main(tokenizer_path, random_seed, test=False):
     max_steps = 250000
     if test:
         max_steps = 100
-    output_dir = os.path.join(output_base_folder, str(
-        max_steps), tokenizer_name, f"seed-{random_seed}")
+    output_dir = os.path.join(output_base_folder, tokenizer_name, str(
+        max_steps), f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
     dataset = load_train_dataset(test=test)
