@@ -8,7 +8,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
-output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/tiny-BERT/"
+
 
 from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
                           Trainer, TrainingArguments, PreTrainedTokenizerFast)
@@ -87,7 +87,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, random_seed, test=False):
+def main(tokenizer_path, random_seed, output_base_folder, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -103,8 +103,7 @@ def main(tokenizer_path, random_seed, test=False):
     max_steps = 250000
     if test:
         max_steps = 100
-    output_dir = os.path.join(output_base_folder, tokenizer_name, str(
-        max_steps), f"seed-{random_seed}")
+    output_dir = os.path.join(output_base_folder, tokenizer_name, f"steps-{max_steps}", f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
     dataset = load_train_dataset(test=test)
@@ -178,6 +177,17 @@ def main(tokenizer_path, random_seed, test=False):
 if __name__ == '__main__':
     # get cuda from command line
     parser = argparse.ArgumentParser(description="pre-train bert with specified tokenizer")
+
+    # either uu or umich basefolder
+    # Create a mutually exclusive group
+    group = parser.add_mutually_exclusive_group(required=True)
+    # Add options to the mutually exclusive group
+    group.add_argument("--uu", action="store_true", help="Use UMich cluster.")
+    group.add_argument("--umich", action="store_true", help="Use UU cluster.")
+
+
+
+
     # load the tokenizer, either by downloading it from huggingface hub, or calling it from the local path
     #   /shared/3/project/hiatus/TOKENIZER_wegmann/tokenizer
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
@@ -193,9 +203,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    if args.uu:
+        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/"
+    elif args.umich:
+        output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/tiny-BERT/"
+
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
-    main(tokenizer_path=args.tokenizer, random_seed=args.seed, test=args.test)
+    main(tokenizer_path=args.tokenizer, random_seed=args.seed, output_base_folder=output_base_folder, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
