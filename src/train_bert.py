@@ -51,16 +51,18 @@ def load_tokenizer(tokenizer_path):
                                                 sep_token="[SEP]",
                                                 pad_token="[PAD]",
                                                 mask_token="[MASK]")
+            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
         except Exception as e:
             raise ValueError(f"Invalid tokenizer path: {tokenizer_path}")
     else:
         log_and_flush(f"Loading tokenizer from Huggingface model hub: {tokenizer_path}")
         try:
             tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+            tokenizer_name = tokenizer_path
         except Exception as e:
             raise ValueError(f"Invalid tokenizer name: {tokenizer_path}")
         tokenizer.add_special_tokens({'pad_token': '[PAD]', 'mask_token': '[MASK]'})
-    return tokenizer
+    return tokenizer, tokenizer_name
 
 
 def create_tinybert_architecture(tokenizer):
@@ -85,12 +87,12 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_name, random_seed, test=False):
+def main(tokenizer_path, random_seed, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
-    tokenizer = load_tokenizer(tokenizer_name)
-    log_and_flush(f"Tokenizer loaded: {tokenizer_name}")
+    tokenizer, tokenizer_name = load_tokenizer(tokenizer_path)
+    log_and_flush(f"Tokenizer loaded: {tokenizer_path}")
 
     # set seed
     seed.set_global(random_seed)
@@ -102,7 +104,7 @@ def main(tokenizer_name, random_seed, test=False):
     if test:
         max_steps = 100
     output_dir = os.path.join(output_base_folder, str(
-        max_steps), os.path.basename(os.path.dirname(tokenizer_name)))
+        max_steps), tokenizer_name, f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
     dataset = load_train_dataset(test=test)
@@ -194,7 +196,7 @@ if __name__ == '__main__':
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
-    main(tokenizer_name=args.tokenizer, random_seed=args.seed, test=args.test)
+    main(tokenizer_path=args.tokenizer, random_seed=args.seed, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
