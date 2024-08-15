@@ -9,7 +9,6 @@ cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
 
-
 from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
                           Trainer, TrainingArguments, PreTrainedTokenizerFast)
 from datasets import load_from_disk
@@ -17,12 +16,12 @@ from styletokenizer.utility import seed
 import torch
 from create_webbook_sample import COUNT_PER_ROW
 
-TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
+UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
+UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/wikibook"
 
 
-def load_train_dataset(test=False, train_size=330_000_000):
+def load_train_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False, train_size=330_000_000):
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
-    train_path = TRAIN_DATASET_PATH
     train_data = load_from_disk(train_path)["train"]
     # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
     if train_size:
@@ -89,7 +88,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, random_seed, output_base_folder, test=False):
+def main(tokenizer_path, random_seed, output_base_folder, data_path, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -108,7 +107,7 @@ def main(tokenizer_path, random_seed, output_base_folder, test=False):
     output_dir = os.path.join(output_base_folder, tokenizer_name, f"steps-{max_steps}", f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
-    dataset = load_train_dataset(test=test)
+    dataset = load_train_dataset(data_path, test=test)
     log_and_flush(f"Dataset size: {len(dataset)}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
@@ -173,7 +172,7 @@ def main(tokenizer_path, random_seed, output_base_folder, test=False):
     tokenizer.save_pretrained(output_dir)
     log_and_flush(f"Model saved to: {output_dir}")
 
-    log_and_flush(f"Deleting cache files at data dir {os.path.join(TRAIN_DATASET_PATH, 'train')}")
+    log_and_flush(f"Deleting cache files at data dir {os.path.join(UMICH_TRAIN_DATASET_PATH, 'train')}")
 
 
 if __name__ == '__main__':
@@ -186,9 +185,6 @@ if __name__ == '__main__':
     # Add options to the mutually exclusive group
     group.add_argument("--uu", action="store_true", help="Use UMich cluster.")
     group.add_argument("--umich", action="store_true", help="Use UU cluster.")
-
-
-
 
     # load the tokenizer, either by downloading it from huggingface hub, or calling it from the local path
     #   /shared/3/project/hiatus/TOKENIZER_wegmann/tokenizer
@@ -207,12 +203,17 @@ if __name__ == '__main__':
 
     if args.uu:
         output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/"
+        train_path = UU_TRAIN_DATASET_PATH
     elif args.umich:
         output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/tiny-BERT/"
+        train_path = UMICH_TRAIN_DATASET_PATH
+    else:
+        raise ValueError("Please specify a cluster to use")
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
-    main(tokenizer_path=args.tokenizer, random_seed=args.seed, output_base_folder=output_base_folder, test=args.test)
+    main(tokenizer_path=args.tokenizer, random_seed=args.seed, output_base_folder=output_base_folder,
+         data_path=train_path, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
