@@ -91,17 +91,26 @@ def main(tokenizer_path, random_seed, output_base_folder, data_path, test=False)
     seed.set_global(random_seed)
     log_and_flush(f"Seed set to: {random_seed}")
 
+    dataset = load_train_dataset(data_path, test=test)
+    log_and_flush(f"Dataset size: {len(dataset)}")
+
     # set parameters
     batch_size = 32
-    max_steps = 250000
+
+    # calculate the number of steps for one epoch
+    epoch_steps = len(dataset) // batch_size
+    log_and_flush(f"Number of steps for one epoch: {epoch_steps}")
+
+    # set number of steps to a maximum of 20 epochs
+    max_steps = min(20 * epoch_steps, 250000)
     if test:
         max_steps = 100
+    log_and_flush(f"Maximum number of steps: {max_steps}")
+    log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
+
     output_dir = os.path.join(output_base_folder, tokenizer_name, f"steps-{max_steps}", f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
-    dataset = load_train_dataset(data_path, test=test)
-    log_and_flush(f"Dataset size: {len(dataset)}")
-    log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
     # Apply tokenization
     #   DANGER: map is creating cache files that potentially
