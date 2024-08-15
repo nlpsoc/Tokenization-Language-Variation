@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/PRETRAIN_bert-wikibook_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_bert-wikibook_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -26,4 +26,4 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-python train_bert.py --uu --test --seed 42 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/wikipedia-gpt2-32000
+python train_bert.py --uu --seed 42 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/wikipedia-gpt2-32000
