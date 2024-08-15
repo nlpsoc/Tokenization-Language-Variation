@@ -24,6 +24,6 @@
 #SBARCH --gres=tmpspace:100G
 
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
-conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_style_dev
+conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 python train_bert.py --uu --test --seed 42 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/wikipedia-gpt2-32000
