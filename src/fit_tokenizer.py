@@ -26,9 +26,7 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
     tokenizer = init_tokenizer_with_regex(pre_tokenizer)
     # test if save works
     save_dir = f"{dir_name}/tokenizer.json"
-    print(f"Saving tokenizer to: {save_dir}")
-    os.makedirs(dir_name, exist_ok=True)
-    tokenizer.save(save_dir)
+    print(f"Will save tokenizer to: {save_dir}")
 
     # Initialize the BPE trainer with VOCAB_SIZE
     trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size)
@@ -38,6 +36,7 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
     # TRAIN the tokenizer on the corpus
     tokenizer.train_from_iterator(text_generator, trainer=trainer)
 
+    os.makedirs(dir_name, exist_ok=True)
     # SAVE the tokenizer to the specified directory
     tokenizer.save(save_dir)
     return tokenizer

@@ -12,11 +12,9 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 
 from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
                           Trainer, TrainingArguments, PreTrainedTokenizerFast)
-from datasets import concatenate_datasets, load_dataset, load_from_disk
-import torch
-import tokenizers
-from tokenizers import Tokenizer
+from datasets import load_from_disk
 from styletokenizer.utility import seed
+import torch
 
 TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
 
