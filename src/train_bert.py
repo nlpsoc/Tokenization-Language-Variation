@@ -15,14 +15,18 @@ from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMa
 from datasets import load_from_disk
 from styletokenizer.utility import seed
 import torch
+from create_webbook_sample import COUNT_PER_ROW
 
 TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
 
 
-def load_train_dataset(test=False):
+def load_train_dataset(test=False, train_size=330_000_000):
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
     train_path = TRAIN_DATASET_PATH
     train_data = load_from_disk(train_path)["train"]
+    # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
+    if train_size:
+        train_data = train_data.select(range(train_size // COUNT_PER_ROW))
     if test:
         train_data = train_data.select(range(100))
     return train_data
