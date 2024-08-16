@@ -67,13 +67,13 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                 if (pile_set_name in pile_set_names) and (
                         current_word_counts[pile_set_name] < word_counts_dict[pile_set_name]):
                     text = data.get('text', '')
-                    if pile_set_name == 'OpenWebText2':
-                        if detect(text) != 'en':
-                            continue
+
                     if individual_text_length:  # we need samples of an exact length
                         tokens = re.findall(r'\S+|\s+', text)
                         text_word_count = int(len(tokens) / 2)
                         if text_word_count < individual_text_length:
+                            continue
+                        elif (pile_set_name == 'OpenWebText2') and (detect(text) != 'en'):
                             continue
                         else:
                             text = ''.join(tokens[:individual_text_length * 2])
