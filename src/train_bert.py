@@ -99,7 +99,7 @@ def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path,
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
-    batch_size = 32
+    batch_size = 64
 
     # calculate the number of steps for one epoch
     epoch_steps = len(dataset) // batch_size
@@ -147,7 +147,7 @@ def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path,
         per_device_train_batch_size=batch_size,
         save_strategy="no",
         logging_dir=output_base_folder + 'logs',
-        logging_steps=500,
+        logging_steps=10_000,
         report_to="wandb",  # Enables WandB integration
         warmup_steps=1000,
         weight_decay=0.01,

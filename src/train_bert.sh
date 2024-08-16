@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ### Job name
-#SBATCH --job-name=TRAIN-bert
+#SBATCH --job-name=TRAIN-3.3B
 
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_bert-wikibook_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_bert-wikibook_3.3B_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
