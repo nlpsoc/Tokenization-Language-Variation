@@ -21,7 +21,7 @@ def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_P
     log_and_flush(f"Using {nbr_rows*COUNT_PER_ROW} words for pre-training.")
     # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
     if test:
-        train_data = train_data.select(range(100))
+        train_data = train_data.select(range(256))
     else:
         train_data = train_data.select(range(nbr_rows))
     return train_data
@@ -99,7 +99,7 @@ def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path,
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
-    batch_size = 64
+    batch_size = 256
     log_and_flush(f"Batch size: {batch_size}")
 
     # calculate the number of steps for one epoch
