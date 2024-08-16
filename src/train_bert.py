@@ -12,14 +12,18 @@ UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/tra
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/wikibook"
 
 
-def load_train_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False, train_size=330_000_000):
+def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
-    train_data = load_from_disk(train_path)["train"]
+    train_data = load_from_disk(data_path)["train"]
+    # for COUNT_PER_ROW get the number of rows to sample for word_count
+    nbr_rows = int(word_count // COUNT_PER_ROW)
+    nbr_rows = min(nbr_rows, len(train_data))
+    log_and_flush(f"Using {nbr_rows*COUNT_PER_ROW} words for pre-training.")
     # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
-    if train_size:
-        train_data = train_data.select(range(train_size // COUNT_PER_ROW))
     if test:
         train_data = train_data.select(range(100))
+    else:
+        train_data = train_data.select(range(nbr_rows))
     return train_data
 
 
@@ -80,7 +84,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, random_seed, output_base_folder, data_path, test=False):
+def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -91,7 +95,7 @@ def main(tokenizer_path, random_seed, output_base_folder, data_path, test=False)
     seed.set_global(random_seed)
     log_and_flush(f"Seed set to: {random_seed}")
 
-    dataset = load_train_dataset(data_path, test=test)
+    dataset = load_train_dataset(word_count, data_path, test=test)
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
@@ -108,7 +112,7 @@ def main(tokenizer_path, random_seed, output_base_folder, data_path, test=False)
     log_and_flush(f"Maximum number of steps: {max_steps}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
-    output_dir = os.path.join(output_base_folder, tokenizer_name, f"steps-{max_steps}", f"seed-{random_seed}")
+    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(word_count/1_000_000)}M", f"steps-{max_steps}", f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
 
@@ -187,6 +191,10 @@ if __name__ == '__main__':
     group.add_argument("--uu", action="store_true", help="Use UMich cluster.")
     group.add_argument("--umich", action="store_true", help="Use UU cluster.")
 
+    # number of words
+    parser.add_argument("--word_count", type=int, default=3_300_000_000,
+                        help="number of words to train on")
+
     # load the tokenizer, either by downloading it from huggingface hub, or calling it from the local path
     #   /shared/3/project/hiatus/TOKENIZER_wegmann/tokenizer
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
@@ -226,7 +234,7 @@ if __name__ == '__main__':
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
-    main(tokenizer_path=args.tokenizer, random_seed=args.seed, output_base_folder=output_base_folder,
+    main(tokenizer_path=args.tokenizer, word_count=args.word_count, random_seed=args.seed, output_base_folder=output_base_folder,
          data_path=train_path, test=args.test)
 
     # example call:
