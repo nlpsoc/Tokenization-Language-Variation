@@ -71,6 +71,9 @@ def create_tinybert_architecture(tokenizer):
     """
     # Load the configuration of 'prajjwal1/bert-tiny'
     config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
+    # DROPOUT in config is already set to 0.1, otherwise set
+    # config.hidden_dropout_prob = 0.1
+    # config.attention_probs_dropout_prob = 0.1
     log_and_flush(f"Configuration loaded: {config}")
     # Initialize the model with the configuration, this will use random weights
     model = BertForMaskedLM(config)
@@ -151,9 +154,12 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
         logging_dir=output_base_folder + 'logs',
         logging_steps=10_000,
         report_to="wandb",  # Enables WandB integration
-        warmup_steps=1000,
-        weight_decay=0.01,
-        learning_rate=4e-4,
+        warmup_steps=10_000,  # as in original BERT pretraining
+        weight_decay=0.01,  # as in original BERT pretraining
+        learning_rate=1e-4,  # as in original BERT pretraining
+        lr_scheduler_type="linear",  # as in original BERT pretraining
+        adam_beta1=0.9,  # as in original BERT pretraining
+        adam_beta2=0.999,  # as in original BERT pretraining
     )
 
     # Initialize the trainer
