@@ -3,6 +3,7 @@ import zstandard as zstd
 import json
 from styletokenizer.utility.custom_logger import log_and_flush
 import re
+from langdetect import detect
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
@@ -66,6 +67,9 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                 if (pile_set_name in pile_set_names) and (
                         current_word_counts[pile_set_name] < word_counts_dict[pile_set_name]):
                     text = data.get('text', '')
+                    if pile_set_name == 'OpenWebText2':
+                        if detect(text) != 'en':
+                            continue
                     if individual_text_length:  # we need samples of an exact length
                         tokens = re.findall(r'\S+|\s+', text)
                         text_word_count = int(len(tokens) / 2)
