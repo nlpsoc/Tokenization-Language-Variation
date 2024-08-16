@@ -113,7 +113,8 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     log_and_flush(f"Maximum number of steps: {max_steps}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
-    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(word_count/1_000_000)}M", f"steps-{max_steps}", f"seed-{random_seed}")
+    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(word_count/1_000_000)}M", f"steps-{max_steps}",
+                              f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
 
@@ -238,6 +239,8 @@ if __name__ == '__main__':
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
+    log_and_flush(f"Word count: {args.word_count}")
+    log_and_flush(f"Epochs: {args.epochs}")
     main(tokenizer_path=args.tokenizer, word_count=args.word_count, epochs=args.epochs, random_seed=args.seed, output_base_folder=output_base_folder,
          data_path=train_path, test=args.test)
 
