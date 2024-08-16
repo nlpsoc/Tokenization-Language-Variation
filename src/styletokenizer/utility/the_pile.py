@@ -3,7 +3,7 @@ import zstandard as zstd
 import json
 from styletokenizer.utility.custom_logger import log_and_flush
 import re
-from langdetect import detect
+
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
@@ -32,6 +32,7 @@ def read_lines_from_zst(file_path):
 
 
 def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None):
+    from langdetect import detect
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
     log_and_flush(zst_files)
