@@ -84,7 +84,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path, test=False):
+def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, data_path, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -107,7 +107,7 @@ def main(tokenizer_path, word_count, random_seed, output_base_folder, data_path,
     log_and_flush(f"Number of steps for one epoch: {epoch_steps}")
 
     # set number of steps to a maximum of 20 epochs
-    max_steps = min(20 * epoch_steps, 250000)
+    max_steps = min(epochs * epoch_steps, 250_000)
     if test:
         max_steps = 100
     log_and_flush(f"Maximum number of steps: {max_steps}")
@@ -200,6 +200,9 @@ if __name__ == '__main__':
     #   /shared/3/project/hiatus/TOKENIZER_wegmann/tokenizer
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
 
+    # add epoch argument
+    parser.add_argument("--epochs", type=int, default=10, help="number of epochs to train")
+
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
     parser.add_argument("--test", action="store_true", help="use a tiny dataset for testing purposes")
@@ -235,7 +238,7 @@ if __name__ == '__main__':
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
-    main(tokenizer_path=args.tokenizer, word_count=args.word_count, random_seed=args.seed, output_base_folder=output_base_folder,
+    main(tokenizer_path=args.tokenizer, word_count=args.word_count, epochs=args.epochs, random_seed=args.seed, output_base_folder=output_base_folder,
          data_path=train_path, test=args.test)
 
     # example call:
