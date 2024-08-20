@@ -98,9 +98,9 @@ def create_balanced_dataset(total_word_count, test=False):
     random.seed(42)
 
     # Sample texts from each dataset
-    sampled_web_texts, web_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
     sampled_bookcorpus_texts, bookcorpus_actual_word_count = (
         sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, test=test))
+    sampled_web_texts, web_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
 
 
     # Combine sampled texts into a single list
