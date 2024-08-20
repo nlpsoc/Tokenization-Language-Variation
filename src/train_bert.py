@@ -99,6 +99,7 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     log_and_flush(f"Seed set to: {random_seed}")
 
     dataset = load_train_dataset(word_count, data_path, test=test)
+    actual_word_count = len(dataset) * COUNT_PER_ROW
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
@@ -113,10 +114,11 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     max_steps = min(epochs * epoch_steps, 250_000)
     if test:
         max_steps = 100
+    warm_up_steps = max_steps * 0.01  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
     log_and_flush(f"Maximum number of steps: {max_steps}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
-    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(word_count/1_000_000)}M", f"steps-{max_steps}",
+    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(actual_word_count/1_000_000)}M", f"steps-{max_steps}",
                               f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
@@ -152,9 +154,9 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
         per_device_train_batch_size=batch_size,
         save_strategy="no",
         logging_dir=output_base_folder + 'logs',
-        logging_steps=10_000,
+        logging_steps=1_000,
         report_to="wandb",  # Enables WandB integration
-        warmup_steps=10_000,  # as in original BERT pretraining
+        warmup_steps=warm_up_steps,  # as in original BERT pretraining
         weight_decay=0.01,  # as in original BERT pretraining
         learning_rate=1e-4,  # as in original BERT pretraining
         lr_scheduler_type="linear",  # as in original BERT pretraining
