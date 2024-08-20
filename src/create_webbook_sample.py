@@ -30,6 +30,7 @@ def sample_texts_from_webtext_dataset(target_word_count):
 
 def sample_texts_from_bookcorpus_dataset(target_word_count, test=False):
     from langdetect import detect
+    from langdetect.lang_detect_exception import LangDetectException
     bookcorpus_path = BOOK3CORPUS_PATH
     base_path = Path(bookcorpus_path)
     subfolders = [f for f in base_path.iterdir() if f.is_dir() and f.name != '0_Other']
@@ -42,9 +43,14 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, test=False):
         with open(file, 'r') as f:
             text = f.read()
         sample = text[6000:16000]
-        if detect(sample) != 'en':
-            log_and_flush(f"Removing {file.name} from BooksCorpus because it is probably not English")
+        try:
+            if detect(sample) != 'en':
+                log_and_flush(f"Removing {file.name} from BooksCorpus because it is probably not English")
+                bookcorpus_files.remove(file)
+        except LangDetectException:
+            log_and_flush(f"Removing {file.name} from BooksCorpus because langdetect failed")
             bookcorpus_files.remove(file)
+
     log_and_flush(f"Found {len(bookcorpus_files)} files in BooksCorpus")
     if test:
         bookcorpus_files = bookcorpus_files[:5]
