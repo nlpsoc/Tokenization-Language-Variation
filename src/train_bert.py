@@ -114,7 +114,8 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     max_steps = min(epochs * epoch_steps, 250_000)
     if test:
         max_steps = 100
-    warm_up_steps = max_steps * 0.01  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
+    warm_up_steps = int(max_steps * 0.01)  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
+    log_and_flush(f"Number of warm-up steps: {warm_up_steps}")
     log_and_flush(f"Maximum number of steps: {max_steps}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
