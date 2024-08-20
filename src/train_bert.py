@@ -4,9 +4,7 @@ import os
 import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
-
-UMICH_CACHE_DIR = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
-UU_CACHE_DIR = "/hpc/uu_cs_nlpsoc/02-awegmann/huggingface"
+from utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/wikibook"
@@ -243,7 +241,6 @@ if __name__ == '__main__':
                               Trainer, TrainingArguments, PreTrainedTokenizerFast)
     from datasets import load_from_disk
     from styletokenizer.utility import seed
-    import torch
     from create_webbook_sample import COUNT_PER_ROW
 
     log_and_flush(f"Tokenizer: {args.tokenizer}")

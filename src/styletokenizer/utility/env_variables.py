@@ -1,5 +1,9 @@
+import os
+
 import torch
 import logging
+
+from styletokenizer.utility.custom_logger import log_and_flush
 
 
 def set_torch_device():
@@ -32,3 +36,17 @@ def set_logging():
     fmt = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
     hdlr.setFormatter(fmt)
 
+
+UMICH_CACHE_DIR = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
+UU_CACHE_DIR = "/hpc/uu_cs_nlpsoc/02-awegmann/huggingface"
+
+
+def set_cache():
+    if "uu_cs_nlpsoc" in os.getcwd():
+        log_and_flush("Using UU cluster cache")
+        os.environ["TRANSFORMERS_CACHE"] = UU_CACHE_DIR
+        os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
+    else:
+        log_and_flush("Using UMich cluster cache")
+        os.environ["TRANSFORMERS_CACHE"] = UMICH_CACHE_DIR
+        os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
