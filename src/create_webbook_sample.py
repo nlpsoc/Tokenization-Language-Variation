@@ -38,8 +38,12 @@ def sample_texts_from_bookcorpus_dataset(target_word_count, test=False):
     for folder in subfolders:
         bookcorpus_files.extend(list(folder.glob('**/*.txt')))
     for file in bookcorpus_files:
-        if detect(file.name) != 'en':
-            log_and_flush(f"Removing {file.name} from BooksCorpus because it is not English")
+        # read a random 512 words from the file
+        with open(file, 'r') as f:
+            text = f.read()
+        sample = text[6000:16000]
+        if detect(sample) != 'en':
+            log_and_flush(f"Removing {file.name} from BooksCorpus because it is probably not English")
             bookcorpus_files.remove(file)
     log_and_flush(f"Found {len(bookcorpus_files)} files in BooksCorpus")
     if test:
