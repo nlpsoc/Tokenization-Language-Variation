@@ -21,7 +21,7 @@ def sample_texts_from_webtext_dataset(target_word_count):
     log_and_flush("Sampling from The Pile's OpenWebText")
 
     sampled_texts = the_pile.sample_pile_texts(['OpenWebText2'], [target_word_count],
-                                               individual_text_length=COUNT_PER_ROW)
+                                               individual_text_length=COUNT_PER_ROW, ensure_en=True)
     current_word_count = sum([entry['word_count'] for entry in sampled_texts])
     log_and_flush(f"Extracted {current_word_count} words")
 
@@ -89,9 +89,10 @@ def create_balanced_dataset(total_word_count, test=False):
     random.seed(42)
 
     # Sample texts from each dataset
+    sampled_web_texts, web_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
     sampled_bookcorpus_texts, bookcorpus_actual_word_count = (
         sample_texts_from_bookcorpus_dataset(bookcorpus_word_count, test=test))
-    sampled_web_texts, web_actual_word_count = sample_texts_from_webtext_dataset(webtext_word_count)
+
 
     # Combine sampled texts into a single list
     combined_texts = sampled_web_texts + sampled_bookcorpus_texts

@@ -31,8 +31,10 @@ def read_lines_from_zst(file_path):
                     yield line
 
 
-def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None):
+def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None, ensure_en=False):
     from langdetect import detect
+    if ensure_en:
+        log_and_flush("Ensuring English language with langdetect")
     dir_path = "/shared/4/datasets/thepile/pile/train"
     zst_files = [f for f in os.listdir(dir_path) if f.endswith('.jsonl.zst')]
     log_and_flush(zst_files)
@@ -72,14 +74,14 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                     if individual_text_length:  # we need samples of an exact length
                         tokens = re.findall(r'\S+|\s+', text)
                         text_word_count = int(len(tokens) / 2)
+
                         if text_word_count < individual_text_length:
                             continue
-                        elif (pile_set_name == 'OpenWebText2') and (detect(text) != 'en'):
-                            continue
-                        else:
-                            text = ''.join(tokens[:individual_text_length * 2])
-                            text_word_count = individual_text_length
 
+                        text = ''.join(tokens[:individual_text_length * 2])
+                        text_word_count = individual_text_length
+                        if ensure_en and (detect(text) != 'en'):
+                            continue
                         sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                               "source": pile_set_name})
                     else:
