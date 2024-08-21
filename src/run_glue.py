@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
-
+from styletokenizer.utility.custom_logger import log_and_flush
 
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 """
@@ -593,6 +593,7 @@ def main():
             if task is not None and "mnli" in task:
                 combined.update(metrics)
 
+            log_and_flush(f"*** Eval results {task} with seed {training_args.seed}***")
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
 
