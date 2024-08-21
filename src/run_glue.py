@@ -510,7 +510,8 @@ def main():
         raw_datasets = raw_datasets.map(
             preprocess_function,
             batched=True,
-            load_from_cache_file=not data_args.overwrite_cache,
+            load_from_cache_file=False,
+            keep_in_memory=True,
             desc="Running tokenizer on dataset",
         )
     if training_args.do_train:
