@@ -4,7 +4,7 @@ import os
 import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
-from utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
+from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/wikibook"
