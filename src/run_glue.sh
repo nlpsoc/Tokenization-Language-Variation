@@ -25,7 +25,15 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-export MODEL_NAME=prajjwal1/bert-tiny
+# export MODEL_NAME=prajjwal1/bert-tiny
+export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/1564M/steps-71592/seed-42
+# export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/1564M/steps-71592/seed-43
+# export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/1564M/steps-71592/seed-44
+# export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/329M/steps-25170/seed-42
+# export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/329M/steps-25170/seed-43
+# export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/329M/steps-25170/seed-44
+
+# #########################################################################################
 #
 export TASK_NAME=mrpc
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
