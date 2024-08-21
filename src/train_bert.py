@@ -16,13 +16,20 @@ def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_P
     # for COUNT_PER_ROW get the number of rows to sample for word_count
     nbr_rows = int(word_count // COUNT_PER_ROW)
     nbr_rows = min(nbr_rows, len(train_data))
-    log_and_flush(f"Using {nbr_rows*COUNT_PER_ROW} words for pre-training.")
+    log_and_flush(f"Using {nbr_rows * COUNT_PER_ROW} words for pre-training.")
     # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
     if test:
         train_data = train_data.select(range(256))
     else:
         train_data = train_data.select(range(nbr_rows))
     return train_data
+
+
+def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
+    dev_data = load_from_disk(data_path)["validation"]
+    if test:
+        dev_data = dev_data.select(range(256))
+    return dev_data
 
 
 def load_tokenizer(tokenizer_path):
@@ -117,10 +124,10 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     log_and_flush(f"Maximum number of steps: {max_steps}")
     log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
 
-    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(actual_word_count/1_000_000)}M", f"steps-{max_steps}",
+    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(actual_word_count / 1_000_000)}M",
+                              f"steps-{max_steps}",
                               f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
-
 
     # Apply tokenization
     #   DANGER: map is creating cache files that potentially
@@ -186,7 +193,32 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     tokenizer.save_pretrained(output_dir)
     log_and_flush(f"Model saved to: {output_dir}")
 
-    log_and_flush(f"Deleting cache files at data dir {os.path.join(UMICH_TRAIN_DATASET_PATH, 'train')}")
+    # masked LM perplexity calculation
+    dev_dataset = load_dev_dataset(data_path, test=test)
+    tokenized_dev_dataset = dev_dataset.map(
+        lambda examples: tokenize_and_encode(tokenizer, examples),
+        batched=True,
+        remove_columns=["text"],
+        load_from_cache_file=False,  # Do NOT load from cache file to avoid potential conflicts
+        keep_in_memory=True  # Do not create cache files at all
+    )
+    # Initialize the trainer for evaluation
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        eval_dataset=tokenized_dev_dataset,
+        data_collator=data_collator,
+    )
+    # Perform evaluation
+    eval_results = trainer.evaluate()
+    # Extract the evaluation loss
+    eval_loss = eval_results["eval_loss"]
+    # Compute perplexity
+    import math
+    perplexity = math.exp(eval_loss)
+
+    log_and_flush(f"Evaluation loss: {eval_loss}")
+    log_and_flush(f"Perplexity: {perplexity}")
 
 
 if __name__ == '__main__':
@@ -247,7 +279,8 @@ if __name__ == '__main__':
     log_and_flush(f"Seed: {args.seed}")
     log_and_flush(f"Word count: {args.word_count}")
     log_and_flush(f"Epochs: {args.epochs}")
-    main(tokenizer_path=args.tokenizer, word_count=args.word_count, epochs=args.epochs, random_seed=args.seed, output_base_folder=output_base_folder,
+    main(tokenizer_path=args.tokenizer, word_count=args.word_count, epochs=args.epochs, random_seed=args.seed,
+         output_base_folder=output_base_folder,
          data_path=train_path, test=args.test)
 
     # example call:
