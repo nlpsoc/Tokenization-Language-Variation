@@ -34,7 +34,7 @@ set_cache()
 import datasets
 import evaluate
 import numpy as np
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 
 import transformers
 from transformers import (
@@ -328,7 +328,7 @@ def main():
     if data_args.task_name == "sadiri":
         # Load the raw dataset from the specified path
         log_and_flush("Loading SADIRI dataset")
-        raw_datasets = load_dataset("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+        raw_datasets = load_from_disk("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
                                     cache_dir=model_args.cache_dir)
         log_and_flush(raw_datasets)
     elif data_args.task_name is not None:
