@@ -36,7 +36,7 @@ export MODEL_NAME=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed
 # #########################################################################################
 #
 export TASK_NAME=mrpc
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -47,7 +47,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=sst2
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -58,7 +58,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=qqp
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -69,7 +69,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=mnli
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -80,7 +80,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=qnli
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -91,7 +91,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=rte
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -102,7 +102,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=cola
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -113,7 +113,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=wnli
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
@@ -124,7 +124,7 @@ python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/44/ --seed 44
 
 export TASK_NAME=sstb
-python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_NAME --overwrite_cache --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$TASK_NAME/42/ --seed 42
 python run_glue.py --model_name_or_path $MODEL_NAME --task_name $TASK_NAME --do_train --do_eval \

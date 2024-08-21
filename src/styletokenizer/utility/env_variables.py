@@ -46,7 +46,10 @@ def set_cache():
         log_and_flush("Using UU cluster cache")
         os.environ["HF_HOME"] = UU_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
-    else:
-        log_and_flush("Using UMich cluster cache")
-        os.environ["HF_HOME"] = UMICH_CACHE_DIR
-        os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
+
+        return UU_CACHE_DIR
+
+    log_and_flush("Using UMich cluster cache")
+    os.environ["HF_HOME"] = UMICH_CACHE_DIR
+    os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
+    return UMICH_CACHE_DIR
