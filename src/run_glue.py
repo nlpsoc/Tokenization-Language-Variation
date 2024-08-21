@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
-
+from styletokenizer.utility.custom_logger import log_and_flush
 
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 """
@@ -30,7 +30,6 @@ from typing import Optional
 from styletokenizer.utility.env_variables import set_cache
 
 set_cache()
-
 
 import datasets
 import evaluate
@@ -54,7 +53,7 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
-
+from styletokenizer.utility.sadiri_train import SupConLoss_positive
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.45.0.dev0")
@@ -71,6 +70,7 @@ task_to_keys = {
     "sst2": ("sentence", None),
     "stsb": ("sentence1", "sentence2"),
     "wnli": ("sentence1", "sentence2"),
+    "sadiri": ("query_text", "candidate_text"),
 }
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ class DataTrainingArguments:
         },
     )
     overwrite_cache: bool = field(
-        default=False, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
+        default=True, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
     )
     pad_to_max_length: bool = field(
         default=True,
@@ -166,7 +166,7 @@ class DataTrainingArguments:
             assert train_extension in ["csv", "json"], "`train_file` should be a csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
-                validation_extension == train_extension
+                    validation_extension == train_extension
             ), "`validation_file` should have the same extension (csv or json) as `train_file`."
 
 
@@ -220,6 +220,37 @@ class ModelArguments:
         default=False,
         metadata={"help": "Will enable to load a pretrained model whose head dimensions are different."},
     )
+
+
+class CustomTrainer(Trainer):
+    def compute_loss(self, model, inputs, return_outputs=False):
+        # Forward pass through the model
+        outputs = model(**inputs)
+
+        # Extract the last hidden state (embeddings for all tokens)
+        hidden_states = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
+
+        # Split into two halves: z1 and z2 (query_text and candidate_text)
+        batch_size = hidden_states.size(0) // 2
+        z1 = hidden_states[:batch_size]  # First half corresponds to query_text
+        z2 = hidden_states[batch_size:]  # Second half corresponds to candidate_text
+
+        # Pool the hidden states (mean pooling)
+        attention_mask = inputs.get("attention_mask", None)
+        if attention_mask is not None:
+            attention_mask = attention_mask.unsqueeze(-1)
+            z1 = z1 * attention_mask[:batch_size]  # Apply attention mask to z1
+            z2 = z2 * attention_mask[batch_size:]  # Apply attention mask to z2
+            z1 = z1.sum(dim=1) / attention_mask[:batch_size].sum(dim=1)  # Mean pooling
+            z2 = z2.sum(dim=1) / attention_mask[batch_size:].sum(dim=1)  # Mean pooling
+        else:
+            z1 = z1.mean(dim=1)  # Mean pooling
+            z2 = z2.mean(dim=1)  # Mean pooling
+
+        # Calculate SupConLoss_positive using the pooled representations
+        loss = SupConLoss_positive(z1, z2, temperature=0.05)
+
+        return (loss, outputs) if return_outputs else loss
 
 
 def main():
@@ -294,7 +325,11 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.task_name is not None:
+    if data_args.task_name == "sadiri":
+        # Load the raw dataset from the specified path
+        raw_datasets = load_dataset("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
+                                    cache_dir=model_args.cache_dir)
+    elif data_args.task_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
             "nyu-mll/glue",
@@ -323,7 +358,7 @@ def main():
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
-                    test_extension == train_extension
+                        test_extension == train_extension
                 ), "`test_file` should have the same extension (csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
@@ -427,9 +462,9 @@ def main():
     # Some models have set the order of the labels to use, so let's make sure we do use it.
     label_to_id = None
     if (
-        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-        and data_args.task_name is not None
-        and not is_regression
+            model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
+            and data_args.task_name is not None
+            and not is_regression
     ):
         # Some have all caps in their config, some don't.
         label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
@@ -533,8 +568,14 @@ def main():
     else:
         data_collator = None
 
+    # Determine which trainer to use
+    if data_args.task_name == "sadiri":
+        trainer_class = CustomTrainer
+    else:
+        trainer_class = Trainer
+
     # Initialize our Trainer
-    trainer = Trainer(
+    trainer = trainer_class(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
@@ -593,6 +634,7 @@ def main():
             if task is not None and "mnli" in task:
                 combined.update(metrics)
 
+            log_and_flush(f"*** Eval results {task} with seed {training_args.seed}***")
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
 
