@@ -327,9 +327,10 @@ def main():
     # download the dataset.
     if data_args.task_name == "sadiri":
         # Load the raw dataset from the specified path
+        log_and_flush("Loading SADIRI dataset")
         raw_datasets = load_dataset("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
                                     cache_dir=model_args.cache_dir)
-        print(raw_datasets)
+        log_and_flush(raw_datasets)
     elif data_args.task_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
