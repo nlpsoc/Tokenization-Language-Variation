@@ -544,6 +544,8 @@ def main():
             logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     # Get the metric function
+    if data_args.task_name =="sadiri":
+        metric = evaluate.load("accuracy", cache_dir=model_args.cache_dir)  # TODO: how to continue?
     if data_args.task_name is not None:
         metric = evaluate.load("glue", data_args.task_name, cache_dir=model_args.cache_dir)
     elif is_regression:
