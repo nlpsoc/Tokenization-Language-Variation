@@ -33,6 +33,7 @@ def read_lines_from_zst(file_path):
 
 def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None, ensure_en=False):
     from langdetect import detect
+    from langdetect.lang_detect_exception import LangDetectException
     if ensure_en:
         log_and_flush("Ensuring English language with langdetect")
     dir_path = "/shared/4/datasets/thepile/pile/train"
@@ -80,8 +81,13 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
 
                         text = ''.join(tokens[:individual_text_length * 2])
                         text_word_count = individual_text_length
-                        if ensure_en and (detect(text) != 'en'):
-                            continue
+                        if ensure_en:
+                            try:
+                                if (detect(text) != 'en'):
+                                    continue
+                            except LangDetectException:
+                                log_and_flush(f"LangDetect failed for {text}.")
+                                continue
                         sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                               "source": pile_set_name})
                     else:
