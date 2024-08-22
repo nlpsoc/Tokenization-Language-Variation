@@ -227,11 +227,11 @@ class TrainingArguments(HFTrainingArguments):
     def __init__(self, **kwargs):
         # Override the defaults you care about
         kwargs.setdefault('resume_from_checkpoint', False)
+        kwargs.setdefault('save_strategy', 'no')
         # kwargs.setdefault('per_device_train_batch_size', 16)
         # kwargs.setdefault('num_train_epochs', 5)
         # kwargs.setdefault('learning_rate', 3e-5)
         # kwargs.setdefault('logging_steps', 200)
-        kwargs.setdefault('save_steps', 0)
 
         # Call the parent class's initializer with the updated arguments
         super().__init__(**kwargs)
@@ -310,20 +310,11 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
-    # Detecting last checkpoint.
-    last_checkpoint = None
-    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
-        last_checkpoint = get_last_checkpoint(training_args.output_dir)
-        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
-            raise ValueError(
-                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-                "Use --overwrite_output_dir to overcome."
-            )
-        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
-            logger.info(
-                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
-                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
-            )
+    if len(os.listdir(training_args.output_dir)) > 0:
+        raise ValueError(
+            f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+            "Use --overwrite_output_dir to overcome."
+        )
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -606,14 +597,7 @@ def main():
 
     # Training
     if training_args.do_train:
-        checkpoint = None
-        if training_args.resume_from_checkpoint is not None:
-            checkpoint = training_args.resume_from_checkpoint
-        elif last_checkpoint is not None:
-            checkpoint = last_checkpoint
-        if checkpoint is not None:
-            logger.info(f"WARNING: Resuming training from checkpoint {checkpoint}. You probably do not want that.")
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
+        train_result = trainer.train()
         metrics = train_result.metrics
         max_train_samples = (
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
