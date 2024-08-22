@@ -50,7 +50,6 @@ from transformers import (
     default_data_collator,
     set_seed,
 )
-from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 from styletokenizer.utility.sadiri_train import SupConLoss_positive
@@ -228,6 +227,8 @@ class TrainingArguments(HFTrainingArguments):
         # Override the defaults you care about
         kwargs.setdefault('resume_from_checkpoint', False)
         kwargs.setdefault('save_strategy', 'no')
+        kwargs.setdefault('save_steps', 0)  # No intermediate saving
+        kwargs.setdefault('save_total_limit', 0)  # No limit on saved checkpoints (but none will be saved)
         # kwargs.setdefault('per_device_train_batch_size', 16)
         # kwargs.setdefault('num_train_epochs', 5)
         # kwargs.setdefault('learning_rate', 3e-5)
@@ -291,6 +292,7 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
+    logging.info(f"Training/evaluation parameters {training_args}")
 
     if training_args.should_log:
         # The default of training_args.log_level is passive, so we set log level at info here to have that default.
