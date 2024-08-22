@@ -222,13 +222,13 @@ class ModelArguments:
     )
 
 
-class TrainingArguments(HFTrainingArguments):
+class MyTrainingArguments(TrainingArguments):
     def __init__(self, **kwargs):
         # Override the defaults you care about
         kwargs.setdefault('resume_from_checkpoint', False)
         kwargs.setdefault('save_strategy', 'no')
-        kwargs.setdefault('save_steps', 0)  # No intermediate saving
-        kwargs.setdefault('save_total_limit', 0)  # No limit on saved checkpoints (but none will be saved)
+        # kwargs.setdefault('save_steps', 0)  # No intermediate saving
+        # kwargs.setdefault('save_total_limit', 0)  # No limit on saved checkpoints (but none will be saved)
         # kwargs.setdefault('per_device_train_batch_size', 16)
         # kwargs.setdefault('num_train_epochs', 5)
         # kwargs.setdefault('learning_rate', 3e-5)
@@ -274,7 +274,7 @@ def main():
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, MyTrainingArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
