@@ -225,9 +225,12 @@ class ModelArguments:
 class MyTrainingArguments(HFTrainingArguments):
     def __init__(self, **kwargs):
         # Override the defaults you care about
-        kwargs.setdefault('resume_from_checkpoint', False)
-        kwargs.setdefault('save_strategy', 'no')
-        kwargs.setdefault('save_steps', 0)  # No intermediate saving
+        kwargs['save_strategy'] = kwargs.get('save_strategy', 'no')
+        kwargs['resume_from_checkpoint'] = kwargs.get('resume_from_checkpoint', False)
+        kwargs['save_steps'] = kwargs.get('save_steps', 0)
+        # kwargs.setdefault('resume_from_checkpoint', False)
+        # kwargs.setdefault('save_strategy', 'no')
+        # kwargs.setdefault('save_steps', 0)  # No intermediate saving
         # kwargs.setdefault('save_total_limit', 0)  # No limit on saved checkpoints (but none will be saved)
         # kwargs.setdefault('per_device_train_batch_size', 16)
         # kwargs.setdefault('num_train_epochs', 5)
