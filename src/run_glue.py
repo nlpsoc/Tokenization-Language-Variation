@@ -222,7 +222,7 @@ class ModelArguments:
     )
 
 
-class MyTrainingArguments(TrainingArguments):
+class MyTrainingArguments(HFTrainingArguments):
     def __init__(self, **kwargs):
         # Override the defaults you care about
         kwargs.setdefault('resume_from_checkpoint', False)
