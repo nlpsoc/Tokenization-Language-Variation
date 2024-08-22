@@ -6,8 +6,8 @@ import datetime
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
 
-UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/wikibook"
-UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/wikibook"
+UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
+UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
 
 
 def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
@@ -92,7 +92,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, data_path, test=False):
+def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -115,17 +115,15 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     epoch_steps = len(dataset) // batch_size
     log_and_flush(f"Number of steps for one epoch: {epoch_steps}")
 
-    # set number of steps to a maximum of 20 epochs
-    max_steps = min(epochs * epoch_steps, 250_000)
     if test:
-        max_steps = 100
-    warm_up_steps = int(max_steps * 0.01)  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
+        steps = 100
+    warm_up_steps = int(steps * 0.01)  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
     log_and_flush(f"Number of warm-up steps: {warm_up_steps}")
-    log_and_flush(f"Maximum number of steps: {max_steps}")
-    log_and_flush(f"Number of Epochs: {max_steps / len(dataset) * batch_size}")
+    log_and_flush(f"Number of steps: {steps}")
+    log_and_flush(f"Number of Epochs: {steps / len(dataset) * batch_size}")
 
     output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(actual_word_count / 1_000_000)}M",
-                              f"steps-{max_steps}",
+                              f"steps-{steps}",
                               f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
 
@@ -156,7 +154,7 @@ def main(tokenizer_path, word_count, epochs, random_seed, output_base_folder, da
     training_args = TrainingArguments(
         output_dir=output_dir,
         overwrite_output_dir=True,
-        max_steps=max_steps,
+        max_steps=steps,
         per_device_train_batch_size=batch_size,
         save_strategy="no",
         logging_dir=output_base_folder + 'logs',
@@ -241,7 +239,7 @@ if __name__ == '__main__':
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
 
     # add epoch argument
-    parser.add_argument("--epochs", type=int, default=10, help="number of epochs to train")
+    parser.add_argument("--steps", type=int, default=75000, help="number of steps to train")
 
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
@@ -278,8 +276,8 @@ if __name__ == '__main__':
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
     log_and_flush(f"Word count: {args.word_count}")
-    log_and_flush(f"Epochs: {args.epochs}")
-    main(tokenizer_path=args.tokenizer, word_count=args.word_count, epochs=args.epochs, random_seed=args.seed,
+    log_and_flush(f"Steps: {args.steps}")
+    main(tokenizer_path=args.tokenizer, word_count=args.word_count, steps=args.steps, random_seed=args.seed,
          output_base_folder=output_base_folder,
          data_path=train_path, test=args.test)
 
