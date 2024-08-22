@@ -226,7 +226,6 @@ class MyTrainingArguments(HFTrainingArguments):
     def __init__(self, **kwargs):
         # Override the defaults you care about
         kwargs['save_strategy'] = 'no'  # kwargs.get('save_strategy', 'no')
-        kwargs['save_steps'] = kwargs.get('save_steps', 0)
         # kwargs.setdefault('resume_from_checkpoint', False)
 
         # Call the parent class's initializer with the updated arguments
