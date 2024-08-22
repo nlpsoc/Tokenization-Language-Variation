@@ -231,7 +231,7 @@ class TrainingArguments(HFTrainingArguments):
         # kwargs.setdefault('num_train_epochs', 5)
         # kwargs.setdefault('learning_rate', 3e-5)
         # kwargs.setdefault('logging_steps', 200)
-        # kwargs.setdefault('save_steps', 1000)
+        kwargs.setdefault('save_steps', 0)
 
         # Call the parent class's initializer with the updated arguments
         super().__init__(**kwargs)
@@ -694,11 +694,6 @@ def main():
         kwargs["dataset_tags"] = "glue"
         kwargs["dataset_args"] = data_args.task_name
         kwargs["dataset"] = f"GLUE {data_args.task_name.upper()}"
-
-    if training_args.push_to_hub:
-        trainer.push_to_hub(**kwargs)
-    else:
-        trainer.create_model_card(**kwargs)
 
 
 def _mp_fn(index):
