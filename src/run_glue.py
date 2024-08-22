@@ -320,6 +320,9 @@ def main():
             f"Output directory ({training_args.output_dir}) already exists and is not empty. "
             "Use --overwrite_output_dir to overcome."
         )
+    else:
+        # create output dir
+        os.makedirs(training_args.output_dir, exist_ok=True)
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
