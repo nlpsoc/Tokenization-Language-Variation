@@ -134,7 +134,7 @@ class SADIRITrainer(object):
             for i, (batchA, batchB) in tqdm(enumerate(train_dataloader)):
                 with accelerator.accumulate(encoder):
                     encoder.train()
-                    if re.search(r'RWKV', self.args.pretrained_model):
+                    if re.search(r'RWKV', self.args.model):
                         del batchA['attention_mask']
                         del batchB['attention_mask']
 
