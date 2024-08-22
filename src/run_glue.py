@@ -54,6 +54,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 from styletokenizer.utility.sadiri_train import SupConLoss_positive
+from transformers import TrainingArguments as HFTrainingArguments
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.45.0.dev0")
@@ -97,7 +98,7 @@ class DataTrainingArguments:
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
     max_seq_length: int = field(
-        default=128,
+        default=512,  # changed from 128
         metadata={
             "help": (
                 "The maximum total input sequence length after tokenization. Sequences longer "
@@ -220,6 +221,20 @@ class ModelArguments:
         default=False,
         metadata={"help": "Will enable to load a pretrained model whose head dimensions are different."},
     )
+
+
+class TrainingArguments(HFTrainingArguments):
+    def __init__(self, **kwargs):
+        # Override the defaults you care about
+        kwargs.setdefault('resume_from_checkpoint', False)
+        # kwargs.setdefault('per_device_train_batch_size', 16)
+        # kwargs.setdefault('num_train_epochs', 5)
+        # kwargs.setdefault('learning_rate', 3e-5)
+        # kwargs.setdefault('logging_steps', 200)
+        # kwargs.setdefault('save_steps', 1000)
+
+        # Call the parent class's initializer with the updated arguments
+        super().__init__(**kwargs)
 
 
 class CustomTrainer(Trainer):
@@ -544,7 +559,7 @@ def main():
             logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     # Get the metric function
-    if data_args.task_name =="sadiri":
+    if data_args.task_name == "sadiri":
         metric = evaluate.load("accuracy", cache_dir=model_args.cache_dir)  # TODO: how to continue?
     if data_args.task_name is not None:
         metric = evaluate.load("glue", data_args.task_name, cache_dir=model_args.cache_dir)
@@ -596,6 +611,8 @@ def main():
             checkpoint = training_args.resume_from_checkpoint
         elif last_checkpoint is not None:
             checkpoint = last_checkpoint
+        if checkpoint is not None:
+            logger.info(f"WARNING: Resuming training from checkpoint {checkpoint}. You probably do not want that.")
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
         metrics = train_result.metrics
         max_train_samples = (
@@ -603,11 +620,12 @@ def main():
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+        # uncomment to save model
+        # trainer.save_model()
+        # trainer.save_state()
 
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
-        trainer.save_state()
 
     # Evaluation
     if training_args.do_eval:
