@@ -307,14 +307,14 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
+    # create output dir
+    os.makedirs(training_args.output_dir, exist_ok=True)
     if len(os.listdir(training_args.output_dir)) > 0:
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty. "
             "Use --overwrite_output_dir to overcome."
         )
-    else:
-        # create output dir
-        os.makedirs(training_args.output_dir, exist_ok=True)
+
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
