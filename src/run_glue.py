@@ -551,7 +551,7 @@ def main():
     # Get the metric function
     if data_args.task_name == "sadiri":
         metric = evaluate.load("accuracy", cache_dir=model_args.cache_dir)  # TODO: how to continue?
-    if data_args.task_name is not None:
+    elif data_args.task_name is not None:
         metric = evaluate.load("glue", data_args.task_name, cache_dir=model_args.cache_dir)
     elif is_regression:
         metric = evaluate.load("mse", cache_dir=model_args.cache_dir)
