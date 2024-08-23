@@ -168,8 +168,12 @@ class Trainer(object):
                             best_perf = results['MRR']
 
         if self.args.validate:
-            results = self.evaluate(encoder, dev_loader)
+            if not self.args.multivector:
+                results = self.evaluate(encoder, dev_loader)
+            else:
+                results = self.evaluate_multivector(encoder, dev_loader)
             logging.info("====== Validating results:\n", results)
+            print("====== Validating results:\n", results)
 
     def run_train_without_model_update(self, encoder, train_data, train_collator):
         encoder.to(device)
