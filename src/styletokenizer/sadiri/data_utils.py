@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Union
 import torch
 import pandas as pd
 from transformers import AutoTokenizer
-from mask import masking, load_top_tokens
+from styletokenizer.sadiri.mask import masking, load_top_tokens
 from tqdm import tqdm
 from styletokenizer.sadiri.cluster_batches import ClusterData
 
