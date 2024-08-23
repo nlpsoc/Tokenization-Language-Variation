@@ -26,10 +26,10 @@ def main(task, model_path, seed, output_dir):
             "--epochs", "5",
             "--max_length", "512",
             "--grad_acc", "1",
-            "--gradient_checkpointing", False,
+            "--gradient_checkpointing", "False",
             "--saving_step", "100",
             "--mask", "0",
-            "--seed", seed,
+            "--seed", str(seed),
             "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
             "--loss", "SupConLoss"
         ]
