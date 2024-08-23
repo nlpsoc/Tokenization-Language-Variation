@@ -3,7 +3,7 @@ import re
 import torch
 import wandb
 import numpy as np
-from losses import *
+from styletokenizer.sadiri.losses import *
 from tqdm import tqdm
 from torch.optim import AdamW
 import torch.nn.functional as F
