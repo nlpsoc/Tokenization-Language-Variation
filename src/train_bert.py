@@ -7,7 +7,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
-UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
+UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/_webbook"
 
 
 def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
