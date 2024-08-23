@@ -193,7 +193,9 @@ if __name__ == "__main__":
     parser.add_argument('--eval_batch_size', default=128, type=int)
     parser.add_argument('--grad_acc', default=1, type=int)
     parser.add_argument('--device', default='cuda', type=str)
-    parser.add_argument('--saving_step', default=200, type=int)
+    parser.add_argument('--saving_step', default=200, type=int)  # note that this is currently tied to
+    # the eval steps, i.e., if saving_steps is set to 0, then the model is never evaluated on the dev set,
+    # this only ever saves the best model
     parser.add_argument('--weight_decay', default=1e-2, type=float)
     parser.add_argument('--max_length', default=350, type=int)
     parser.add_argument('--loss', default='contrastive_full', type=str)
@@ -201,7 +203,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_warmup_steps', default=1000, type=int)
     parser.add_argument('--num_training_samples', default=-1, type=int)
     parser.add_argument('--num_eval_samples', default=-1, type=int)
-    parser.add_argument('--multivector', action='store_true')
+    parser.add_argument('--multivector', action='store_true')  # never used for this project
     parser.add_argument('--sparse', action='store_true')
 
     parser.add_argument('--eval_name', type=str, default='reddit')

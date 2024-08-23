@@ -17,7 +17,6 @@ import logging
 
 from accelerate import DistributedDataParallelKwargs
 
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -28,7 +27,8 @@ class Trainer(object):
     def __init__(self, args):
         super(Trainer, self).__init__()
         self.args = args
-                            #AATrainData
+        # AATrainData
+
     def train(self, encoder, train_data, dev_loader, train_collator):
 
         ########## Set Loss Functions ##########
@@ -49,10 +49,9 @@ class Trainer(object):
         elif self.args.loss == 'SupConLoss':
             loss_fn = SupConLoss
         logging.info("Using the %s loss" % self.args.loss)
-        
-                
-        #encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
-        
+
+        # encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
+
         encoder.to(device)
 
         ########## Set Training Params ##########
@@ -64,15 +63,13 @@ class Trainer(object):
                           weight_decay=self.args.weight_decay)
         scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=self.args.num_warmup_steps,
                                                     num_training_steps=len(train_data) * self.args.epochs, num_cycles=1)
-        
-        
-        #encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
-    
+
+        # encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
+
         # comment temporarily because current no distributed 
         ####################################################
         # encoder, optimizer,  train_loader, scheduler = accelerator.prepare(
         #     encoder, optimizer, train_dataloader, scheduler)
-        
 
         ########## Set WANDB to monitor ##########
         if self.args.wandb:
@@ -82,22 +79,19 @@ class Trainer(object):
         running_loss = 0
         running_decoder_loss = 0
 
-
-        
         for epoch in range(self.args.epochs):
             if (self.args.cluster):
                 if (epoch == 0):
                     logging.info("generating representation without model update...")
                     self.run_train_without_model_update(encoder, train_data, train_collator)
                 train_data.on_epoch()
-            
+
             train_dataloader = DataLoader(
                 train_data.dataloader,
                 batch_size=train_data.batch_size,
                 shuffle=False,
                 collate_fn=train_collator)
-            
-            
+
             for i, (batchA, batchB) in tqdm(enumerate(train_dataloader)):
                 with accelerator.accumulate(encoder):
                     encoder.train()
@@ -120,14 +114,14 @@ class Trainer(object):
                             z1, z2, metric=self.args.metric) / self.args.grad_acc
                         if self.args.regularization == 'l1':
                             loss = loss + 0.1 * \
-                                (0.5 * l1_loss(z1) + 0.5 * l1_loss(z2))
-                    
+                                   (0.5 * l1_loss(z1) + 0.5 * l1_loss(z2))
+
                     else:
                         z1 = accelerator.unwrap_model(encoder)(**batchA.to(device)).pooler_output
                         z2 = accelerator.unwrap_model(encoder)(**batchB.to(device)).pooler_output
-                
-                        loss = loss_fn(z1, z2) / self.args.grad_acc 
-                        
+
+                        loss = loss_fn(z1, z2) / self.args.grad_acc
+
                     model_output = torch.cat([z1, z2])
                     train_data.clustering.add(model_output)
                     accelerator.backward(loss)
@@ -135,7 +129,6 @@ class Trainer(object):
                     optimizer.step()
                     scheduler.step()
                     optimizer.zero_grad()
-
 
                 if i % self.args.grad_acc == 0:
                     if self.args.wandb:
@@ -147,8 +140,6 @@ class Trainer(object):
 
                     running_loss = 0
 
-                # if i % (self.args.saving_step * self.args.grad_acc) == 0:
-                
                 if i != 0 and i % (self.args.saving_step * self.args.grad_acc) == 0:
                     ############# CREATE DIRS ############
                     if not os.path.exists(self.args.out_dir):
@@ -159,14 +150,6 @@ class Trainer(object):
                         os.mkdir(self.args.out_dir + "/best_model")
 
                     model = accelerator.unwrap_model(encoder)
-
-                    ###### Save trained model per saving_steps ######
-                    # if hasattr(model, 'save_pretrained'):
-                    #     print(f"=== Saving pretrained model at step {i}==")
-                    #     model.save_pretrained(self.args.out_dir + f"/last_model/pytorch_model_e{epoch}_i{i}")
-                    # else:
-                    #     print(f"=== Saving torch save model at step {i}==")
-                    #     torch.save(model.state_dict(), self.args.out_dir + f"/last_model/pytorch_model_e{epoch}_i{i}.pth")
 
                     ###### If validated, save the best model ######
                     if self.args.validate:
@@ -183,25 +166,26 @@ class Trainer(object):
                             else:
                                 torch.save(model.state_dict(), self.args.out_dir + "/best_model/pytorch_model.pth")
                             best_perf = results['MRR']
-            
-            
+
+        if self.args.validate:
+            results = self.evaluate(encoder, dev_loader)
+            logging.info("====== Validating results:\n", results)
+
     def run_train_without_model_update(self, encoder, train_data, train_collator):
         encoder.to(device)
         train_dataloader = DataLoader(
-                train_data.dataloader,
-                batch_size=train_data.batch_size,
-                shuffle=False,
-        collate_fn=train_collator)
-        
+            train_data.dataloader,
+            batch_size=train_data.batch_size,
+            shuffle=False,
+            collate_fn=train_collator)
+
         for i, (batchA, batchB) in tqdm(enumerate(train_dataloader)):
             with torch.no_grad():
-                    z1 = encoder(**batchA.to(device)).pooler_output.detach()
-                    z2 = encoder(**batchB.to(device)).pooler_output.detach()
-                                        
-                    model_output = torch.cat([z1, z2])
-                    train_data.clustering.add(model_output)
-                    
-                    
+                z1 = encoder(**batchA.to(device)).pooler_output.detach()
+                z2 = encoder(**batchB.to(device)).pooler_output.detach()
+
+                model_output = torch.cat([z1, z2])
+                train_data.clustering.add(model_output)
 
     def evaluate(self, encoder, dev_loader):
 
@@ -232,7 +216,6 @@ class Trainer(object):
                     all_query_authors += query_authors
                     all_target_authors += target_authors
 
-
         all_target_authors = np.array(all_target_authors)
         all_query_authors = np.array(all_query_authors)
         queries = np.concatenate(queries, axis=0)
@@ -248,8 +231,6 @@ class Trainer(object):
             wandb.log({"Eval R@100": results['R@100']})
 
         return results
-
-
 
     def evaluate_multivector(self, model, dataloader):
         model.eval()
@@ -303,8 +284,6 @@ class Trainer(object):
 
         return results
 
-
-
     def _compute_ranking_metrics(
             self,
             queries,
@@ -343,18 +322,16 @@ class Trainer(object):
         }
         return return_dict
 
-
-
     def _compute_ranking_metrics_multivector(
-        self,
-        queries,
-        targets,
-        query_lens,
-        target_mask,
-        query_authors,
-        target_authors,
-        metric='cosine',
-        ):
+            self,
+            queries,
+            targets,
+            query_lens,
+            target_mask,
+            query_authors,
+            target_authors,
+            metric='cosine',
+    ):
         num_queries = len(query_authors)
         ranks = np.zeros((num_queries), dtype=np.float32)
         reciprocal_ranks = np.zeros((num_queries), dtype=np.float32)
