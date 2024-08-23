@@ -3,6 +3,8 @@ import re
 import json
 import wandb
 import argparse
+from styletokenizer.utility.env_variables import set_cache
+set_cache()
 from datasets import load_from_disk
 from datasets import Dataset
 import pandas as pd
