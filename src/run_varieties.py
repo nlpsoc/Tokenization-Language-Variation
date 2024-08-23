@@ -22,7 +22,7 @@ def main(task, model_path, seed, output_dir):
             "--max_length", "512",
             "--grad_acc", "1",
             "--gradient_checkpointing", False,
-            "--saving_step", "1000",
+            "--saving_step", "100",
             "--mask", "0",
             "--seed", seed,
             "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
