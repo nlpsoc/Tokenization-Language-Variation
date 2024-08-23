@@ -64,8 +64,7 @@ def main(args):
     ############# LOAD DATASET ############
     if args.train:
         print("loading training data...")
-        df = pd.read_json(args.train_data, lines=True)
-        train_dataset = Dataset.from_pandas(df)
+        train_dataset = load_from_disk(args.train_data, keep_in_memory=True)
 
         if args.num_training_samples > 1:
             train_dataset = train_dataset.select(
