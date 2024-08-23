@@ -13,6 +13,7 @@ from sklearn.metrics import pairwise_distances
 from transformers import AutoTokenizer, T5Tokenizer, GPT2LMHeadModel, GPT2Config
 from transformers import get_cosine_schedule_with_warmup
 from torch.utils.data import DataLoader
+import logging
 
 from accelerate import DistributedDataParallelKwargs
 
@@ -47,7 +48,7 @@ class Trainer(object):
             loss_fn = cosine_similarity
         elif self.args.loss == 'SupConLoss':
             loss_fn = SupConLoss
-        print("Using the %s loss" % self.args.loss)
+        logging.info("Using the %s loss" % self.args.loss)
         
                 
         #encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
@@ -86,7 +87,7 @@ class Trainer(object):
         for epoch in range(self.args.epochs):
             if (self.args.cluster):
                 if (epoch == 0):
-                    print("generating representation without model update...")
+                    logging.info("generating representation without model update...")
                     self.run_train_without_model_update(encoder, train_data, train_collator)
                 train_data.on_epoch()
             
@@ -173,10 +174,10 @@ class Trainer(object):
                             results = self.evaluate(encoder, dev_loader)
                         else:
                             results = self.evaluate_multivector(encoder, dev_loader)
-                        print("====== Validating results:\n", results)
+                        logging.info("====== Validating results:\n", results)
 
                         if best_perf < results['MRR']:
-                            print("===== saving model =====")
+                            logging.info("===== saving model =====")
                             if hasattr(model, 'save_pretrained'):
                                 model.save_pretrained(self.args.out_dir + "/best_model")
                             else:
