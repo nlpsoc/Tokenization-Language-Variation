@@ -25,13 +25,7 @@ def print_trainable_parameters(model):
 
 
 def load_model(args, tokenizer=None, evaluate=False):
-    if re.search(r"deberta", args.tokenizer):
-        model = DebertaV2ForSequence.from_pretrained(args.pretrained_model)
-        if hasattr(args, 'gradient_checkpointing'):
-            if args.gradient_checkpointing:
-                model.deberta.encoder.gradient_checkpointing = True
-
-    elif args.sparse:
+    if args.sparse:
         model = AutoModelForMaskedLM.from_pretrained(args.pretrained_model)
         # use gradient checkpointing to save memory (this can slow training by ~20%)
         print('Using Learned Sparse Retrieval')
@@ -46,7 +40,6 @@ def load_model(args, tokenizer=None, evaluate=False):
             if args.gradient_checkpointing:
                 #model.encoder.gradient_checkpointing = True
                 model.gradient_checkpointing_enable()
-
 
     return model
 
