@@ -1,13 +1,18 @@
 import argparse
 import subprocess
+from styletokenizer.utility.custom_logger import log_and_flush
 
-tasks = ["sadiri"]
+tasks = ["sadiri", "stel"]
 
 
 def main(task, model_path, seed, output_dir):
+    # print all set vars
+    log_and_flush(f"task: {task}")
+    log_and_flush(f"model_path: {model_path}")
+    log_and_flush(f"seed: {seed}")
+    log_and_flush(f"output_dir: {output_dir}")
 
     if task == "sadiri":
-
         command = [
             "python", "sadiri_main.py",
             "--train",
