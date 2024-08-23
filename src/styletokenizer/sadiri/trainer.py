@@ -48,7 +48,7 @@ class Trainer(object):
             loss_fn = cosine_similarity
         elif self.args.loss == 'SupConLoss':
             loss_fn = SupConLoss
-        logging.info("Using the %s loss" % self.args.loss)
+        print("Using the %s loss" % self.args.loss)
 
         # encoder = DDP(encoder, device_ids=[accelerator.local_process_index], find_unused_parameters=True)
 
@@ -82,7 +82,7 @@ class Trainer(object):
         for epoch in range(self.args.epochs):
             if (self.args.cluster):
                 if (epoch == 0):
-                    logging.info("generating representation without model update...")
+                    print("generating representation without model update...")
                     self.run_train_without_model_update(encoder, train_data, train_collator)
                 train_data.on_epoch()
 
@@ -157,10 +157,10 @@ class Trainer(object):
                             results = self.evaluate(encoder, dev_loader)
                         else:
                             results = self.evaluate_multivector(encoder, dev_loader)
-                        logging.info("====== Validating results:\n", results)
+                        print("====== Validating results:\n", results)
 
                         if best_perf < results['MRR']:
-                            logging.info("===== saving model =====")
+                            print("===== saving model =====")
                             if hasattr(model, 'save_pretrained'):
                                 model.save_pretrained(self.args.out_dir + "/best_model")
                             else:
@@ -172,7 +172,6 @@ class Trainer(object):
                 results = self.evaluate(encoder, dev_loader)
             else:
                 results = self.evaluate_multivector(encoder, dev_loader)
-            logging.info("====== Validating results:\n", results)
             print("====== Validating results:\n", results)
 
     def run_train_without_model_update(self, encoder, train_data, train_collator):

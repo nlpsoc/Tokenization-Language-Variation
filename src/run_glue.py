@@ -232,37 +232,6 @@ class MyTrainingArguments(HFTrainingArguments):
         super().__init__(**kwargs)
 
 
-# class CustomTrainer(Trainer):
-#     def compute_loss(self, model, inputs, return_outputs=False):
-#         # Forward pass through the model
-#         outputs = model(**inputs)
-#
-#         # Extract the last hidden state (embeddings for all tokens)
-#         hidden_states = outputs.last_hidden_state  # Shape: (batch_size, sequence_length, hidden_size)
-#
-#         # Split into two halves: z1 and z2 (query_text and candidate_text)
-#         batch_size = hidden_states.size(0) // 2
-#         z1 = hidden_states[:batch_size]  # First half corresponds to query_text
-#         z2 = hidden_states[batch_size:]  # Second half corresponds to candidate_text
-#
-#         # Pool the hidden states (mean pooling)
-#         attention_mask = inputs.get("attention_mask", None)
-#         if attention_mask is not None:
-#             attention_mask = attention_mask.unsqueeze(-1)
-#             z1 = z1 * attention_mask[:batch_size]  # Apply attention mask to z1
-#             z2 = z2 * attention_mask[batch_size:]  # Apply attention mask to z2
-#             z1 = z1.sum(dim=1) / attention_mask[:batch_size].sum(dim=1)  # Mean pooling
-#             z2 = z2.sum(dim=1) / attention_mask[batch_size:].sum(dim=1)  # Mean pooling
-#         else:
-#             z1 = z1.mean(dim=1)  # Mean pooling
-#             z2 = z2.mean(dim=1)  # Mean pooling
-#
-#         # Calculate SupConLoss_positive using the pooled representations
-#         loss = SupConLoss_positive(z1, z2, temperature=0.05)
-#
-#         return (loss, outputs) if return_outputs else loss
-
-
 def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
