@@ -26,7 +26,7 @@ def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_P
 
 
 def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
-    dev_data = load_from_disk(data_path)["validation"]
+    dev_data = load_from_disk(data_path)["dev"]
     if test:
         dev_data = dev_data.select(range(256))
     return dev_data
