@@ -30,6 +30,6 @@ SEED=42
 MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
 out_put_root=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/SADIRI/$MODEL_NAME/$SEED
 
-python run_varieties.py --model_name_or_path $MODEL_PATH --task_name sadiri --seed $SEED --output_dir $out_put_root
+python run_varieties.py --model_path $MODEL_PATH --task sadiri --seed $SEED --output_dir $out_put_root
 
 
