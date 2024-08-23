@@ -4,6 +4,7 @@ import json
 import wandb
 import argparse
 from styletokenizer.utility.env_variables import set_cache
+
 set_cache()
 from datasets import load_from_disk
 from datasets import Dataset
@@ -15,8 +16,6 @@ from styletokenizer.sadiri.cluster_batches import ClusterData
 from styletokenizer.sadiri.load_model import load_model
 from styletokenizer.sadiri.trainer import Trainer
 from styletokenizer.sadiri.losses import *
-
-
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -41,10 +40,10 @@ def main(args):
                            "pretrained_model": args.pretrained_model,
                            "gradient_accumulation": args.grad_acc})
         wandb.run.name = args.run_name
-        
+
     ############# SET SEED ############
     set_seed(args.seed)
-    
+
     ############# LOAD TOKENIZER ############
     if not args.tokenizer:
         print("intialize the tokenizer...")
@@ -82,18 +81,17 @@ def main(args):
             batch_size=args.batch_size,
             shuffle=True,
             collate_fn=train_collator)
-        
+
         cluster = ClusterData(
-            batch_size = args.batch_size,
+            batch_size=args.batch_size,
             batch_count=len(train_dataloader),
-            shuffle= True,
+            shuffle=True,
             seed=args.seed
         )
         print("training data loaded")
 
         print('loading dev data...')
-        dev_dataset = load_from_disk(args.dev_data, keep_in_memory=True)[
-            'train'].shuffle(seed=args.seed)
+        dev_dataset = load_from_disk(args.dev_data, keep_in_memory=True).shuffle(seed=args.seed)
 
         if args.num_eval_samples > 1:
             dev_dataset = dev_dataset.select(
@@ -118,9 +116,8 @@ def main(args):
         print("There are %s evaluation batches" % len(dev_dataloader))
         print("initialize the model with pretrained weights...")
 
-
     if args.evaluate:
- 
+
         print('loading test data...')
         test_dataset = load_from_disk(args.test_data, keep_in_memory=True)['train'].shuffle(seed=args.seed)
 
@@ -142,12 +139,9 @@ def main(args):
             collate_fn=test_collator)
         print("test data loaded")
 
-
         print("There are %s test batches." % len(test_dataloader))
 
-
     trainer = Trainer(args)
-
 
     ############# START TRAINING ############
     print('\t-----------------------------------------------------------------------')
@@ -156,13 +150,12 @@ def main(args):
     if args.train:
         train_data = AATrainData(
             dataloader=train_dataset,
-            clustering=cluster, 
+            clustering=cluster,
             batch_size=args.batch_size
         )
         print("#######################")
         print(args.top)
         trainer.train(model, train_data, dev_dataloader, train_collator)
-
 
     ############# START EVALUATION ############
     if args.evaluate:
@@ -178,10 +171,7 @@ def main(args):
             json.dump(converted_data, f)
 
 
-
-
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--train_data', default='/shared/3/projects/hiatus/pretraining/data/train', type=str)
@@ -219,7 +209,7 @@ if __name__ == "__main__":
     parser.add_argument('--regularization', default='l1', type=str)
     parser.add_argument('--decoder', action='store_true')
     parser.add_argument('--cluster', default=False, action='store_true')
-    
+
     # the following arguments are only relevant if you hope to log results in wandb
     parser.add_argument('--wandb', action='store_true')
     parser.add_argument('--entity', default="sadiri-michigan", type=str)
@@ -230,11 +220,12 @@ if __name__ == "__main__":
     # parameters for masking
     parser.add_argument('--mask', default=0.8, type=float)
     parser.add_argument('--top', default=200, type=int)
-    parser.add_argument('--corpus', type=str, default="/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1_shuffle/aggregate")
-    
+    parser.add_argument('--corpus', type=str,
+                        default="/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/down_1_shuffle/aggregate")
+
     # parameters for seed
     parser.add_argument('--seed', default=42, type=int)
-    
+
     args = parser.parse_args()
 
     main(args)
