@@ -33,7 +33,7 @@ def main(task, model_path, seed, output_dir):
             "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
             "--loss", "SupConLoss"
         ]
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command)
 
 
 if __name__ == "__main__":
