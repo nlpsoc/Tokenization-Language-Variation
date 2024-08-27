@@ -1,6 +1,7 @@
 import argparse
-import wandb
 import os
+os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
+import wandb
 import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
