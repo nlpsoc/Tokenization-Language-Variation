@@ -37,6 +37,8 @@ def main(task, model_path, seed, output_dir):
         result = subprocess.run(command)
 
     if task == "stel":
+        from styletokenizer.utility.env_variables import set_cache
+        set_cache()
         import sys
         # add STEL folder to path
         sys.path.append('../../STEL/src/')
@@ -44,6 +46,7 @@ def main(task, model_path, seed, output_dir):
         from STEL import STEL
         from STEL.similarity import Similarity, cosine_sim
         from sentence_transformers import SentenceTransformer
+
         class SBERTSimilarity(Similarity):
             def __init__(self):
                 super().__init__()
