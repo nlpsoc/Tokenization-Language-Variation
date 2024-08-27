@@ -30,9 +30,14 @@ export MODEL_PATH=prajjwal1/bert-tiny
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3247M/steps-75000/seed-42
 SEED=42
 MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
-TASK_NAME=sadiri
 out_put_root=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
+
+TASK_NAME=age
 python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir $out_put_root
 
-
+#TASK_NAME=sadiri
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir $out_put_root
+#
+#TASK_NAME=stel
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir $out_put_root
