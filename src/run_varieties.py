@@ -1,3 +1,4 @@
+import os
 import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush

@@ -141,6 +141,7 @@ def main(args):
 
         print("There are %s test batches." % len(test_dataloader))
 
+    os.makedirs(args.out_dir, exist_ok=True)
     trainer = Trainer(args)
 
     ############# START TRAINING ############
