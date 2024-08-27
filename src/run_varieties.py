@@ -36,6 +36,28 @@ def main(task, model_path, seed, output_dir):
         ]
         result = subprocess.run(command)
 
+    if task == "stel":
+        import sys
+        # add STEL folder to path
+        sys.path.append('../../STEL/src/')
+        import torch
+        from STEL import STEL
+        from STEL.similarity import Similarity, cosine_sim
+        from sentence_transformers import SentenceTransformer
+        class SBERTSimilarity(Similarity):
+            def __init__(self):
+                super().__init__()
+                self.model = SentenceTransformer(output_dir)
+                self.model.to("cuda" if torch.cuda.is_available() else "cpu")
+
+            def similarities(self, sentences_1, sentences_2):
+                with torch.no_grad():
+                    sentence_emb_1 = self.model.encode(sentences_1, show_progress_bar=False)
+                    sentence_emb_2 = self.model.encode(sentences_2, show_progress_bar=False)
+                return [cosine_sim(sentence_emb_1[i], sentence_emb_2[i]) for i in range(len(sentences_1))]
+
+        STEL.eval_on_STEL(style_objects=[SBERTSimilarity()])
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
