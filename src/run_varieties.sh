@@ -41,3 +41,5 @@ python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED 
 #
 #TASK_NAME=stel
 #python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir $out_put_root
+TASK_NAME=value
+python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir $out_put_root

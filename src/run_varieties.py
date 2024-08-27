@@ -3,7 +3,7 @@ import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
 
-tasks = ["sadiri", "stel", "age"]
+tasks = ["sadiri", "stel", "age", "value"]
 
 
 def main(task, model_path, seed, output_dir):
@@ -70,6 +70,27 @@ def main(task, model_path, seed, output_dir):
             "--metric_name", "f1",
             "--text_column_name", "text",
             "--label_column_name", "age",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "512",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--max_train_samples", "200000",  # use only 200k samples, which is roughly 10% of the dataset
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+        ]
+        result = subprocess.run(command)
+    elif task == "value":
+        command = [
+            "python", "run_value.py",
+            "--model_name_or_path", model_path,
+            "--dataset_name", 'barilan/blog_authorship_corpus',
+            "--trust_remote_code", "True",
+            "--shuffle_train_dataset",
+            "--metric_name", "f1",
+            "--text_column_name", "text",
+            "--label_column_name", "value",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
