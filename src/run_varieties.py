@@ -50,7 +50,7 @@ def main(task, model_path, seed, output_dir):
         class SBERTSimilarity(Similarity):
             def __init__(self):
                 super().__init__()
-                self.model = SentenceTransformer(output_dir)
+                self.model = SentenceTransformer(model_path)
                 self.model.to("cuda" if torch.cuda.is_available() else "cpu")
 
             def similarities(self, sentences_1, sentences_2):
