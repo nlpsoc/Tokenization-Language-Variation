@@ -3,7 +3,7 @@ import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
 
-tasks = ["sadiri", "stel"]
+tasks = ["sadiri", "stel", "age"]
 
 
 def main(task, model_path, seed, output_dir):
@@ -36,7 +36,7 @@ def main(task, model_path, seed, output_dir):
         ]
         result = subprocess.run(command)
 
-    if task == "stel":
+    elif task == "stel":
         from styletokenizer.utility.env_variables import set_cache
         set_cache()
         import sys
@@ -60,6 +60,26 @@ def main(task, model_path, seed, output_dir):
                 return [cosine_sim(sentence_emb_1[i], sentence_emb_2[i]) for i in range(len(sentences_1))]
 
         STEL.eval_on_STEL(style_objects=[SBERTSimilarity()])
+    elif task == "age":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--dataset_name", 'barilan/blog_authorship_corpus',
+            "--trust_remote_code", "True",
+            "--shuffle_train_dataset",
+            "--metric_name", "f1",
+            "--text_column_name", "text",
+            "--label_column_name", "age",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "512",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+        ]
+        result = subprocess.run(command)
 
 
 if __name__ == "__main__":
