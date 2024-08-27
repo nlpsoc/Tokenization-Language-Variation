@@ -52,7 +52,6 @@ from transformers import (
 )
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
-from styletokenizer.utility.sadiri_train import SADIRITrainer
 from transformers import TrainingArguments as HFTrainingArguments
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
