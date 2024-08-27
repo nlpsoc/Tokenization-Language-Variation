@@ -13,13 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from styletokenizer.utility.env_variables import set_cache
-set_cache()
 """Finetuning the library models for text classification."""
+# You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 """
     copied from https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_classification.py
 """
-# You can also adapt this script on your own text classification task. Pointers for this are left as comments.
+from styletokenizer.utility.env_variables import set_cache
+
+set_cache()
 
 import logging
 import os
@@ -35,16 +36,16 @@ from datasets import Value, load_dataset
 
 import transformers
 from transformers import (
-   AutoConfig,
-   AutoModelForSequenceClassification,
-   AutoTokenizer,
-   DataCollatorWithPadding,
-   EvalPrediction,
-   HfArgumentParser,
-   Trainer,
-   TrainingArguments,
-   default_data_collator,
-   set_seed,
+    AutoConfig,
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    DataCollatorWithPadding,
+    EvalPrediction,
+    HfArgumentParser,
+    Trainer,
+    TrainingArguments,
+    default_data_collator,
+    set_seed,
 )
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
@@ -62,7 +63,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class DataTrainingArguments:
-   """
+    """
     Arguments pertaining to what data we are going to input our model for training and eval.
 
     Using `HfArgumentParser` we can turn this class
