@@ -4,6 +4,7 @@ import json
 from styletokenizer.utility.custom_logger import log_and_flush
 import re
 
+from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
 WORD_COUNTS = [50000000,
@@ -91,7 +92,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                         sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                               "source": pile_set_name})
                     else:
-                        text_word_count = len(text.split())
+                        text, text_word_count = make_text_fit_word_max(text)
 
                         sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                               "domain": pile_set_name, "source": "thePile"})

@@ -32,6 +32,12 @@ import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.nytimes as nytimes
 import styletokenizer.utility.amazon as amazon
+import styletokenizer.utility.goodreads as goodreads
+import styletokenizer.utility.gmane as gmane
+import styletokenizer.utility.blogcorpus as blogcorpus
+import styletokenizer.utility.realnews as realnews
+import styletokenizer.utility.reddit as reddit
+import styletokenizer.utility.sfu_socc as sfusocc
 import styletokenizer.utility.youtube_commons as youtube_commons
 from styletokenizer.fitting_corpora import CORPORA_MIXED
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
@@ -41,6 +47,18 @@ from styletokenizer.utility.custom_logger import log_and_flush
 def main(save_path=CORPORA_MIXED, test=False):
     log_and_flush("Creating mixed dataset")
     if not test:
+        log_and_flush(f"Sampling from sfu-socc")
+        sfu_socc_sample_dicts = sfusocc.sample_sfusocc_texts()
+        log_and_flush(f"Sampling from reddit")
+        reddit_sample_dicts = reddit.sample_reddit_texts()
+        log_and_flush(f"Sampling from realnews")
+        realnews_sample_dicts = realnews.sample_realnews_texts()
+        log_and_flush(f"Sampling from blogcorpus")
+        blogcorpus_sample_dicts = blogcorpus.sample_blogcorpus_texts()
+        log_and_flush(f"Sampling from gmane")
+        gmane_sample_dicts = gmane.sample_gmane_texts()
+        log_and_flush(f"Sampling from goodreads")
+        goodreads_sample_dicts = goodreads.sample_goodreads_texts()
         log_and_flush(f"Sampling from amazon")
         amazon_sample_dicts = amazon.sample_amazon_texts()
         log_and_flush(f"Sampling from nytimes-articles-and-comments")
@@ -58,6 +76,18 @@ def main(save_path=CORPORA_MIXED, test=False):
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         log_and_flush(f"Saving to {save_path}")
 
+        log_and_flush("Sampling from sfu-socc")
+        sfu_socc_sample_dicts = sfusocc.sample_sfusocc_texts(test=True)
+        log_and_flush("Sampling from reddit")
+        reddit_sample_dicts = reddit.sample_reddit_texts(test=True)
+        log_and_flush("Sampling from realnews")
+        realnews_sample_dicts = realnews.sample_realnews_texts(test=True)
+        log_and_flush("Sampling from blogcorpus")
+        blogcorpus_sample_dicts = blogcorpus.sample_blogcorpus_texts(test=True)
+        log_and_flush("Sampling from gmane")
+        gmane_sample_dicts = gmane.sample_gmane_texts(test=True)
+        log_and_flush("Sampling from goodreads")
+        goodreads_sample_dicts = goodreads.sample_goodreads_texts(test=True)
         log_and_flush("Sampling from amazon")
         amazon_sample_dicts = amazon.sample_amazon_texts(test=True)
         log_and_flush("Sampling from nytimes-articles-and-comments")
@@ -76,7 +106,9 @@ def main(save_path=CORPORA_MIXED, test=False):
         log_and_flush(youtube_sample_dicts)
 
     # combine list of dicts into a single list
-    all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts + nytimes_sample_dicts
+    all_dicts_list = (s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts +
+                      nytimes_sample_dicts + amazon_sample_dicts + goodreads_sample_dicts + gmane_sample_dicts
+                      + blogcorpus_sample_dicts + realnews_sample_dicts + reddit_sample_dicts)
     if test:
         log_and_flush(all_dicts_list)
 
@@ -86,29 +118,6 @@ def main(save_path=CORPORA_MIXED, test=False):
     random.shuffle(all_dicts_list)
 
     save_to_huggingface_format(all_dicts_list, save_path)
-
-    # Convert dictionaries to pandas DataFrames
-    # sadiri_df = pd.DataFrame.from_dict(sadiri_sample_dict)
-    # s2orc_df = pd.DataFrame.from_dict(s2orc_sample_dict)
-    # pile_df = pd.DataFrame.from_dict(pile_sample_dict)
-    # youtube_df = pd.DataFrame.from_dict(youtube_sample_dict)
-
-    # Convert DataFrames to Hugging Face Datasets
-    # sadiri_dataset = Dataset.from_pandas(sadiri_df)
-    # s2orc_dataset = Dataset.from_pandas(s2orc_df)
-    # pile_dataset = Dataset.from_pandas(pile_df)
-    # youtube_dataset = Dataset.from_pandas(youtube_df)
-
-    # Concatenate the datasets
-    # combined_dataset = concatenate_datasets([sadiri_dataset, s2orc_dataset, pile_dataset, youtube_dataset])
-
-    # Shuffle the combined dataset
-    # shuffled_dataset = combined_dataset.shuffle(seed=42)
-
-    # Save the combined dataset to the specified path
-    # shuffled_dataset.save_to_disk(save_path)
-
-    # log_and_flush(f"Dataset saved to {save_path}")
 
 
 if __name__ == "__main__":

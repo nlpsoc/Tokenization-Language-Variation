@@ -2,13 +2,14 @@ import os
 import pandas as pd
 from collections import defaultdict
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
-SET_PATHS = [# "reddit",
-             "ao3",
-             # "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
-             # "amazon", "gmane", "blogcorpus"
-             ]  # "bookcorpus"
+SET_PATHS = [  # "reddit",
+    "ao3",
+    # "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
+    # "amazon", "gmane", "blogcorpus"
+]  # "bookcorpus"
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
 WORD_COUNTS = [  # 249000000,
     150000000,  # increase by 50M because bookcorpus was removed
@@ -22,7 +23,8 @@ WORD_COUNTS = [  # 249000000,
 ]  # 50000000
 
 
-def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=False):
+def sample_texts_from_dataframe(data_df, target_word_count, dataset_name,
+                                document_id='documentID', text_id='fullText', test=False):
     sampeled_items = []
     sampled_texts = []
     document_ids = []
@@ -30,14 +32,13 @@ def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=F
     current_word_count = 0
     data_df = data_df.sample(frac=1).reset_index(drop=True)  # Shuffle the texts
     for idx, row in data_df.iterrows():
-        text = row['fullText']
-        words = text.split()
-        word_count = len(words)
+        text = row[text_id]
+        text, word_count = make_text_fit_word_max(text)
         sampeled_items.append({
-            "text": text, "word_count": word_count, "id": row['documentID'], "source": "SADIRI",
+            "text": text, "word_count": word_count, "id": row[document_id], "source": "SADIRI",
             "domain": dataset_name})
         sampled_texts.append(text)
-        document_ids.append(row['documentID'])
+        document_ids.append(row[document_id])
         sampled_word_counts.append(word_count)
         current_word_count += word_count
         if (current_word_count >= target_word_count) or test:
@@ -45,7 +46,8 @@ def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=F
     return sampeled_items, current_word_count
 
 
-def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=False):
+def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=False,
+                        extract_from_jsonl=['train_queries.jsonl', 'train_candidates.jsonl']):
     sampled_items = []
 
     for dataset_path, word_count in zip(dataset_paths, word_samples):
@@ -55,8 +57,8 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         log_and_flush(f"Loading data from {dataset_path}")
         # Combine both JSONL files into one dataframe
-        for file_name in ['train_queries.jsonl',
-                          'train_candidates.jsonl']:  # 'corpus.jsonl' does not exist for all datasets
+
+        for file_name in extract_from_jsonl:  # 'corpus.jsonl' does not exist for all datasets
             file_path = os.path.join(dataset_path, file_name)
             if os.path.exists(file_path):
                 data_df = pd.read_json(file_path, lines=True)

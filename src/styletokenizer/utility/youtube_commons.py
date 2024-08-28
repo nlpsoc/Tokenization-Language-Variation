@@ -1,5 +1,6 @@
 import dask.dataframe as dd
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 WORD_COUNT = 100_000_000
 
@@ -32,11 +33,12 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
 
     # Iterate through the shuffled dataframe and sample texts until the required word count is reached
     for _, row in filtered_df.iterrows():
+        text, text_word_count = make_text_fit_word_max(row['text'])
         sampled_items.append({
-            "text": row['text'], "word_count": row['word_count'], "id": row['video_id'], "source": "YouTubeCommons",
+            "text": text, "word_count": text_word_count, "id": row['video_id'], "source": "YouTubeCommons",
             "domain": "YouTubeCommons"
         })
-        total_word_count += row['word_count']
+        total_word_count += text_word_count
         if (total_word_count >= required_word_count) or test:
             break
 

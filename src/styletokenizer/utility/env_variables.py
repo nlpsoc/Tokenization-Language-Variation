@@ -1,12 +1,31 @@
 import os
-
-import torch
 import logging
+import re
 
 from styletokenizer.utility.custom_logger import log_and_flush
 
+MAX_WORD_COUNT = 512 * 4
+
+
+def make_text_fit_word_max(text, max_word_count=MAX_WORD_COUNT):
+    """
+    Cut off text to fit the maximum word count
+    :param max_word_count:
+    :param text: text to be cut off
+    :return: cut off text
+    """
+    tokens = re.findall(r'\S+|\s+', text)
+    text_word_count = int(len(tokens) / 2)
+
+    if text_word_count > max_word_count:
+        text = ''.join(tokens[:max_word_count * 2])
+        text_word_count = max_word_count
+    return text, text_word_count
+
 
 def set_torch_device():
+    import torch
+
     global device
     # If there's a GPU available...
     if torch.cuda.is_available():
