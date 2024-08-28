@@ -1,32 +1,30 @@
 """
 
-    SOURCE			GENRE					DOMAIN 								TOTAL 				 SAMPLE
+    SOURCE			GENRE					DOMAIN 								TOTAL
 
 
-    SADIRI			forum					reddit	 						  446,769,021 		   249,000,000
-    SADIRI			literature				ao3					  			  573,926,907 		   100,000,000
-    SADIRI			literature				BookCorpus2 					   57,367,225 			50,000,000
-    ThePile			literature 				Gutenberg before 1919 					?				50,000,000
-    SADIRI			news					realnews						  272,933,709 		   169,000,000
-    SADIRI			news/comments			nytimes-articles-and-comments:     24,131,163 			24,131,163
-    SADIRI			news/comments			sfu-socc 							3,007,117 			 3,007,117
-    ThePile			Q&A 					stackexchange 				  	  		? 		   	   200,000,000
-    SADIRI			reviews					goodreads 					  	   53,683,977  			53,683,977
-    SADIRI			reviews					amazon	 						   31,650,279 			31,650,279
-    SADIRI			mails					gmane 						      141,837,101  		   141,837,101
-    YouTubeCommons	transcripts 			YouTubeCommons 					  	  				   100,000,000
-    ThePile			transcripts				OpenSubtitles 											50,000,000
-    ThePile			code				 	Github													50,000,000
-    s2orc			science					s2orc					  	    				       100,000,000
-    SADIRI			blogs					blogcorpus	 						 			 		 8,189,607
-    ThePile			raw text webpages 		CommonCrawl 								    	   100,000,000
-    ThePile			Mathematics 			DM Mathematics  										20,000,000
-                                                                            --------------- 	---------------
-                                            TOTAL: 						   		 				 1,500,499,244
+    SADIRI			forum					reddit	 			 		   		250,000,000
+    SADIRI			literature				ao3					   		   		150,000,000
+    ThePile			literature 				Gutenberg before 1919 				 50,000,000
+    SADIRI			news					realnews						  	150,000,000
+    SADIRI			news/comments			nytimes-articles-and-comments:       25,000,000
+    SADIRI			news/comments			sfu-socc 							  3,000,000
+    ThePile			Q&A 					stackexchange 				  	  	200,000,000
+    SADIRI			reviews					goodreads 					  	     50,000,000
+    SADIRI			reviews					amazon	 						   	 50,000,000
+    SADIRI			mails					gmane 						      	150,000,000
+    YouTubeCommons	transcripts 			YouTubeCommons 					  	100,000,000
+    ThePile			transcripts				OpenSubtitles 						 50,000,000
+    ThePile			code				 	Github								 50,000,000
+    s2orc			science					s2orc					  	    	100,000,000
+    SADIRI			blogs					blogcorpus	 						 10,000,000
+    ThePile			raw text webpages 		CommonCrawl 						100,000,000
+    ThePile			Mathematics 			DM Mathematics  					 20,000,000
+                                                                            ---------------
+                                            TOTAL: 						   	  1,508,000,000
 
 """
 import argparse
-import styletokenizer.utility.bookcorpus as bookcorpus
 import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
