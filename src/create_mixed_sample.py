@@ -66,7 +66,7 @@ def main(save_path=CORPORA_MIXED, test=False):
         log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts()
         log_and_flush("Sampling from the pile")
-        pile_sample_dicts = the_pile.sample_pile_texts()
+        pile_sample_dicts = the_pile.sample_pile_texts(ensure_en=True)
         log_and_flush("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts()
         log_and_flush("Sampling from YouTubeCommons")
@@ -96,7 +96,7 @@ def main(save_path=CORPORA_MIXED, test=False):
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
         log_and_flush(sadiri_sample_dicts)
         log_and_flush("Sampling from the pile")
-        pile_sample_dicts = the_pile.sample_pile_texts(test=True)
+        pile_sample_dicts = the_pile.sample_pile_texts(ensure_en=True, test=True)
         log_and_flush(pile_sample_dicts)
         log_and_flush("Sampling from s2orc")
         s2orc_sample_dicts = s2orc.sample_s2orc_texts(test=True)
@@ -108,7 +108,7 @@ def main(save_path=CORPORA_MIXED, test=False):
     # combine list of dicts into a single list
     all_dicts_list = (s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts +
                       nytimes_sample_dicts + amazon_sample_dicts + goodreads_sample_dicts + gmane_sample_dicts
-                      + blogcorpus_sample_dicts + realnews_sample_dicts + reddit_sample_dicts)
+                      + blogcorpus_sample_dicts + realnews_sample_dicts + reddit_sample_dicts + sfu_socc_sample_dicts)
     if test:
         log_and_flush(all_dicts_list)
 

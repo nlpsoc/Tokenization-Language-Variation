@@ -7,12 +7,12 @@ import re
 from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
-WORD_COUNTS = [50000000,
-               200000000,
-               50000000,
-               50000000,
-               100000000,
-               20000000]
+WORD_COUNTS = [50_000_000,
+               200_000_000,
+               50_000_000,
+               50_000_000,
+               100_000_000,
+               20_000_000]
 
 
 def read_lines_from_zst(file_path):
@@ -82,20 +82,23 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
 
                         text = ''.join(tokens[:individual_text_length * 2])
                         text_word_count = individual_text_length
-                        if ensure_en:
-                            try:
-                                if (detect(text) != 'en'):
-                                    continue
-                            except LangDetectException:
-                                log_and_flush(f"LangDetect failed for {text}.")
-                                continue
-                        sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
-                                              "source": pile_set_name})
+                        source = pile_set_name
+                        domain = None
+
                     else:
                         text, text_word_count = make_text_fit_word_max(text)
+                        source = "thePile"
+                        domain = pile_set_name
 
-                        sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
-                                              "domain": pile_set_name, "source": "thePile"})
+                    if ensure_en:
+                        try:
+                            if detect(text) != 'en':
+                                continue
+                        except LangDetectException:
+                            log_and_flush(f"LangDetect failed for {text}.")
+                            continue
+                    sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
+                                          "source": source, "domain": domain})
                     current_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
                 log_and_flush("decode error")

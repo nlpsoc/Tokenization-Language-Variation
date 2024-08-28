@@ -5,7 +5,7 @@ import random
 from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 AMAZON_PATH = "/shared/3/datasets/amazon-reviews/All_Amazon_Review.json.gz"
-WORD_COUNT = 35_000_000
+WORD_COUNT = 50_000_000
 
 
 def sample_amazon_texts(word_count=WORD_COUNT, test=False):

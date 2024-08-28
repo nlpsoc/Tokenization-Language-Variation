@@ -12,7 +12,7 @@ SET_PATHS = [  # "reddit",
 ]  # "bookcorpus"
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
 WORD_COUNTS = [  # 249000000,
-    150000000,  # increase by 50M because bookcorpus was removed
+    150_000_000,  # increase by 50M because bookcorpus was removed
     # 169000000,
     # 24131163,
     # 3007117,

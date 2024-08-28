@@ -3,6 +3,7 @@ import json
 import random
 
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.env_variables import make_text_fit_word_max
 
 s2orc_path = "/shared/3/projects/citation-context/s2orc/s2orc"
 
@@ -43,17 +44,17 @@ def read_files_and_sample(path, target_word_count, test=False):
                 text = line.get('content', {}).get('text', "")
                 if not type(text) == str:
                     continue
-                words = text.split()
+                text, cur_word_count = make_text_fit_word_max(text)
 
                 sampled_items.append({
                     "id": corpusid,
                     "text": text,
-                    "word_count": len(words),
+                    "word_count": cur_word_count,
                     "domain": "s2orc",
                     "source": "s2orc"
                 })
-                word_count += len(words)
-                total_word_count += len(words)
+                word_count += cur_word_count
+                total_word_count += cur_word_count
                 if test:
                     break
 
