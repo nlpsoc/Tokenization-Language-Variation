@@ -4,18 +4,22 @@ from collections import defaultdict
 from styletokenizer.utility.custom_logger import log_and_flush
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
-SET_PATHS = ["reddit", "ao3", "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
-             "amazon", "gmane", "blogcorpus"]  # "bookcorpus"
+SET_PATHS = [# "reddit",
+             "ao3",
+             # "realnews", "nytimes-articles-and-comments", "sfu-socc", "goodreads",
+             # "amazon", "gmane", "blogcorpus"
+             ]  # "bookcorpus"
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
-WORD_COUNTS = [249000000,
-               150000000,  # increase by 50M because bookcorpus was removed
-               169000000,
-               24131163,
-               3007117,
-               53683977,
-               31650279,
-               141837101,
-               8189607]  # 50000000
+WORD_COUNTS = [  # 249000000,
+    150000000,  # increase by 50M because bookcorpus was removed
+    # 169000000,
+    # 24131163,
+    # 3007117,
+    # 53683977,
+    # 31650279,
+    # 141837101,
+    # 8189607
+]  # 50000000
 
 
 def sample_texts_from_dataframe(data_df, target_word_count, dataset_name, test=False):
@@ -51,7 +55,8 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         log_and_flush(f"Loading data from {dataset_path}")
         # Combine both JSONL files into one dataframe
-        for file_name in ['train_queries.jsonl', 'train_candidates.jsonl']:  # 'corpus.jsonl' does not exist for all datasets
+        for file_name in ['train_queries.jsonl',
+                          'train_candidates.jsonl']:  # 'corpus.jsonl' does not exist for all datasets
             file_path = os.path.join(dataset_path, file_name)
             if os.path.exists(file_path):
                 data_df = pd.read_json(file_path, lines=True)

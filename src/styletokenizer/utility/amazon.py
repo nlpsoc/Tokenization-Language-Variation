@@ -1,0 +1,1 @@
+AMAZON_PATH = "/shared/3/datasets/amazon-reviews/All_Amazon_Review.json.gz"

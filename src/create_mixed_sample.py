@@ -30,6 +30,7 @@ import styletokenizer.utility.bookcorpus as bookcorpus
 import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
+import styletokenizer.utility.nytimes as nytimes
 import styletokenizer.utility.youtube_commons as youtube_commons
 from styletokenizer.fitting_corpora import CORPORA_MIXED
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
@@ -39,6 +40,8 @@ from styletokenizer.utility.custom_logger import log_and_flush
 def main(save_path=CORPORA_MIXED, test=False):
     log_and_flush("Creating mixed dataset")
     if not test:
+        log_and_flush(f"Sampling from nytimes-articles-and-comments")
+        nytimes_sample_dicts = nytimes.sample_nytimes_texts()
         log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts()
         log_and_flush("Sampling from the pile")
@@ -52,9 +55,8 @@ def main(save_path=CORPORA_MIXED, test=False):
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         log_and_flush(f"Saving to {save_path}")
 
-        # log_and_flush("Sampling from bookcorpus")
-        # bookcorpus_sample_dicts = bookcorpus.sample_bookcorpus_texts(test=True)
-
+        log_and_flush("Sampling from nytimes-articles-and-comments")
+        nytimes_sample_dicts = nytimes.sample_nytimes_texts(test=True)
         log_and_flush("Sampling from sadiri")
         sadiri_sample_dicts = sadiri.sample_sadiri_texts(test=True)
         log_and_flush(sadiri_sample_dicts)
@@ -69,7 +71,7 @@ def main(save_path=CORPORA_MIXED, test=False):
         log_and_flush(youtube_sample_dicts)
 
     # combine list of dicts into a single list
-    all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts
+    all_dicts_list = s2orc_sample_dicts + youtube_sample_dicts + sadiri_sample_dicts + pile_sample_dicts + nytimes_sample_dicts
     if test:
         log_and_flush(all_dicts_list)
 
