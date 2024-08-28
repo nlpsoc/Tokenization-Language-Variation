@@ -31,6 +31,7 @@ import styletokenizer.utility.s2orc as s2orc
 import styletokenizer.utility.sadiri as sadiri
 import styletokenizer.utility.the_pile as the_pile
 import styletokenizer.utility.nytimes as nytimes
+import styletokenizer.utility.amazon as amazon
 import styletokenizer.utility.youtube_commons as youtube_commons
 from styletokenizer.fitting_corpora import CORPORA_MIXED
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
@@ -40,6 +41,8 @@ from styletokenizer.utility.custom_logger import log_and_flush
 def main(save_path=CORPORA_MIXED, test=False):
     log_and_flush("Creating mixed dataset")
     if not test:
+        log_and_flush(f"Sampling from amazon")
+        amazon_sample_dicts = amazon.sample_amazon_texts()
         log_and_flush(f"Sampling from nytimes-articles-and-comments")
         nytimes_sample_dicts = nytimes.sample_nytimes_texts()
         log_and_flush("Sampling from sadiri")
@@ -55,6 +58,8 @@ def main(save_path=CORPORA_MIXED, test=False):
         save_path = '/shared/3/projects/hiatus/TOKENIZER_wegmann/data/fitting-corpora/mixed_test'
         log_and_flush(f"Saving to {save_path}")
 
+        log_and_flush("Sampling from amazon")
+        amazon_sample_dicts = amazon.sample_amazon_texts(test=True)
         log_and_flush("Sampling from nytimes-articles-and-comments")
         nytimes_sample_dicts = nytimes.sample_nytimes_texts(test=True)
         log_and_flush("Sampling from sadiri")
