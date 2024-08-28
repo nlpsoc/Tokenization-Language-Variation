@@ -45,6 +45,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 def main(save_path=CORPORA_MIXED, test=False):
     log_and_flush("Creating mixed dataset")
     if not test:
+        log_and_flush(f"Saving to {save_path}")
         log_and_flush(f"Sampling from sfu-socc")
         sfu_socc_sample_dicts = sfusocc.sample_sfusocc_texts()
         log_and_flush(f"Sampling from reddit")
