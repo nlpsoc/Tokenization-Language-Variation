@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ Finetuning the library models for sequence classification on GLUE."""
-"""
-    copied from https://github.com/SALT-NLP/value/blob/master/run_glue.py
-"""
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
+"""
+    copied from https://github.com/SALT-NLP/multi-value/blob/main/run_glue.py
+"""
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
 
@@ -32,7 +32,7 @@ import pickle as pkl
 import datasets
 import numpy as np
 from datasets import load_dataset, load_metric
-from src.Dialects import AfricanAmericanVernacular
+from multivalue.Dialects import AfricanAmericanVernacular
 
 import transformers
 from transformers import (
