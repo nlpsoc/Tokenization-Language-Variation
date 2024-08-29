@@ -93,7 +93,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                             if detect(text) != 'en':
                                 continue
                         except LangDetectException:
-                            log_and_flush(f"LangDetect failed for {text[:3]} ...")
+                            # log_and_flush(f"LangDetect failed for {text[:3]} ...")
                             continue
                     sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                           "source": source, "domain": domain})
