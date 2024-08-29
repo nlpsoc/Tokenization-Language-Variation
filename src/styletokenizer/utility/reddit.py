@@ -1,6 +1,6 @@
 from styletokenizer.utility.sadiri import sample_sadiri_texts
 
-REDDIT_DIR_PATH = "/shared/3/projects/hiatus/data/raw_data/english/reddit/"
+REDDIT_DIR_PATH = "/shared/3/projects/hiatus/data/raw_data/english/reddit"
 WORD_COUNT = 250_000_000
 
 

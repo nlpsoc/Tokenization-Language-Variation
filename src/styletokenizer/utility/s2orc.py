@@ -17,15 +17,13 @@ def count_words(text):
 def read_files_and_sample(path, target_word_count, test=False):
     total_word_count = 0
     sampled_items = []
-    # sampled_ids = []
-    # sampled_texts = []
-    # samled_word_counts = []
 
     files = [os.path.join(path, f) for f in os.listdir(path) if f.startswith('s2orc_')]
     num_files = len(files)
     words_per_file = target_word_count // num_files
     words_per_file = max(words_per_file, 1)  # at least 1 word per file for test purposes
     log_and_flush(f"Sampling {words_per_file} words from each of {num_files} files")
+    domain_name = "s2orc"
 
     for file_path in files:
         word_count = 0
@@ -50,8 +48,8 @@ def read_files_and_sample(path, target_word_count, test=False):
                     "id": corpusid,
                     "text": text,
                     "word_count": cur_word_count,
-                    "domain": "s2orc",
-                    "source": "s2orc"
+                    "domain": domain_name,
+                    "source": domain_name
                 })
                 word_count += cur_word_count
                 total_word_count += cur_word_count
@@ -62,6 +60,7 @@ def read_files_and_sample(path, target_word_count, test=False):
 
         if test:
             break
+    log_and_flush(f"Total sampled word count: {total_word_count}")
 
     return sampled_items
 

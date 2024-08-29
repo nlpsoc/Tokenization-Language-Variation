@@ -1,6 +1,6 @@
 import styletokenizer.utility.sadiri as sadiri
 
-nytimes_path = '/shared/3/projects/hiatus/data/raw_data/english/nytimes-articles-and-comments/'
+nytimes_path = '/shared/3/projects/hiatus/data/raw_data/english/nytimes-articles-and-comments'
 word_count = 25_000_000
 
 

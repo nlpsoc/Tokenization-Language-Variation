@@ -56,6 +56,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
         combined_df = pd.DataFrame()
 
         log_and_flush(f"Loading data from {dataset_path}")
+        log_and_flush(f"Aiming to sample {word_count} words from {dataset_name}")
         # Combine both JSONL files into one dataframe
 
         for file_name in extract_from_jsonl:  # 'corpus.jsonl' does not exist for all datasets
@@ -69,7 +70,7 @@ def sample_sadiri_texts(dataset_paths=SET_PATHS, word_samples=WORD_COUNTS, test=
 
         current_sample, current_word_count = sample_texts_from_dataframe(combined_df, word_count, dataset_name,
                                                                          test=test)
-        log_and_flush(f"Sampled {len(current_sample)} words from {dataset_name}")
+        log_and_flush(f"Sampled {current_word_count} words from {dataset_name}")
         sampled_items += current_sample
 
     return sampled_items

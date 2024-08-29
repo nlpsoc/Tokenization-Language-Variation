@@ -3,6 +3,7 @@ import json
 import random
 
 from styletokenizer.utility.env_variables import make_text_fit_word_max
+from styletokenizer.utility.custom_logger import log_and_flush
 
 AMAZON_PATH = "/shared/3/datasets/amazon-reviews/All_Amazon_Review.json.gz"
 WORD_COUNT = 50_000_000
@@ -17,15 +18,16 @@ def sample_amazon_texts(word_count=WORD_COUNT, test=False):
     return sample_from_gz_file_w_langdetect(word_count, gz_path, id_column, text_column, source, test=test)
 
 
-def sample_from_gz_file_w_langdetect(word_count, gz_path, id_column, text_column, source, test=False):
+def sample_from_gz_file_w_langdetect(target_word_count, gz_path, id_column, text_column, source, test=False):
     from langdetect import detect
     from langdetect.lang_detect_exception import LangDetectException
 
     if test:
-        word_count = 100
+        target_word_count = 100
 
+    log_and_flush(f"Loading data from {gz_path}")
     all_reviews = []
-    current_word_count = 0
+    actual_word_count = 0
     try:
         # Load entire file into memory
         with gzip.open(gz_path, 'rt') as f:
@@ -51,6 +53,7 @@ def sample_from_gz_file_w_langdetect(word_count, gz_path, id_column, text_column
     # Shuffle the entire dataset
     random.shuffle(all_reviews)
 
+    log_and_flush(f"Aiming to sample {target_word_count} words from {gz_path}")
     sampled_items = []
 
     # Process the shuffled data and sample based on word count
@@ -68,13 +71,14 @@ def sample_from_gz_file_w_langdetect(word_count, gz_path, id_column, text_column
                                       "source": source})
 
                 # Accumulate the word count
-                current_word_count += cur_word_count
+                actual_word_count += cur_word_count
 
                 # Stop if the target word count is reached
-                if current_word_count >= word_count:
+                if actual_word_count >= target_word_count:
                     break
         except LangDetectException:
             # Skip if language detection fails
             continue
+    log_and_flush(f"Sampled word count: {actual_word_count}")
 
     return sampled_items

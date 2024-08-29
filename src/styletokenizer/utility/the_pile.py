@@ -44,17 +44,15 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
     sampled_items = []
 
     # Dictionary to keep track of the word count for each pile set name
-    word_counts_dict = dict(zip(pile_set_names, word_counts))
-    log_and_flush(word_counts_dict)
-    current_word_counts = {name: 0 for name in pile_set_names}
-    log_and_flush(current_word_counts)
-    log_and_flush(pile_set_names)
+    target_word_counts_dict = dict(zip(pile_set_names, word_counts))
+    log_and_flush(f"Target word counts: {target_word_counts_dict}")
+    actual_word_counts = {name: 0 for name in pile_set_names}
 
     line_counter = 0
 
     def should_continue_sampling():
         """Check if we need to continue sampling, so ANY requirement not yet fulfilled"""
-        return any(current_word_counts[name] < word_counts_dict[name] for name in pile_set_names)
+        return any(actual_word_counts[name] < target_word_counts_dict[name] for name in pile_set_names)
 
     for filename in zst_files:
         if not should_continue_sampling():
@@ -70,7 +68,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                 data = json.loads(line)
                 pile_set_name = data.get('meta', {}).get('pile_set_name')
                 if (pile_set_name in pile_set_names) and (
-                        current_word_counts[pile_set_name] < word_counts_dict[pile_set_name]):
+                        actual_word_counts[pile_set_name] < target_word_counts_dict[pile_set_name]):
                     text = data.get('text', '')
 
                     if individual_text_length:  # we need samples of an exact length
@@ -95,11 +93,11 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
                             if detect(text) != 'en':
                                 continue
                         except LangDetectException:
-                            log_and_flush(f"LangDetect failed for {text}.")
+                            log_and_flush(f"LangDetect failed for {text[:3]} ...")
                             continue
                     sampled_items.append({"id": line_counter, "text": text, "word_count": text_word_count,
                                           "source": source, "domain": domain})
-                    current_word_counts[pile_set_name] += text_word_count
+                    actual_word_counts[pile_set_name] += text_word_count
             except json.JSONDecodeError:
                 log_and_flush("decode error")
                 continue
@@ -107,7 +105,7 @@ def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, te
 
             if test:
                 break
-        log_and_flush(f"Sampled {current_word_counts} total")
+        log_and_flush(f"Sampled {actual_word_counts} total")
 
     # Return the sampled data
     return sampled_items

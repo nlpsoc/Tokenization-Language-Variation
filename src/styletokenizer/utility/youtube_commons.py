@@ -27,6 +27,7 @@ def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):
     # Compute the shuffled dataset
     filtered_df = shuffled_dataset.compute()
 
+    log_and_flush(f"Target word count: {required_word_count}")
     # Initialize variables to store the sampled texts and the accumulated word count
     total_word_count = 0
     sampled_items = []
