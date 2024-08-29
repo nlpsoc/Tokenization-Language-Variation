@@ -51,9 +51,17 @@ MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
 #SEED=44
 #python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
+#TASK_NAME=CORE
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#SEED=43
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#SEED=44
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+
 
 TASK_NAME=value
-conda decativate aw_tokenizer
+conda decativate
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
 cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
 export VALUE_TASK_NAME=mrpc
