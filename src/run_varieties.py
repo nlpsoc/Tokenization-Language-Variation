@@ -102,6 +102,26 @@ def main(task, model_path, seed, output_dir):
         ]
         result = subprocess.run(command)
 
+    elif task == "CORE":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--train_file", "True",
+            "--shuffle_train_dataset",
+            "--metric_name", "f1",
+            "--text_column_name", "text",
+            "--label_column_name", "value",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "512",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+        ]
+        result = subprocess.run(command)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
