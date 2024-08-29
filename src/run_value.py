@@ -19,6 +19,7 @@
     copied from https://github.com/SALT-NLP/multi-value/blob/main/run_glue.py
 """
 from styletokenizer.utility.env_variables import set_cache
+
 set_cache()
 
 import logging
@@ -32,7 +33,7 @@ import pickle as pkl
 import datasets
 import numpy as np
 from datasets import load_dataset, load_metric
-from multivalue.Dialects import AfricanAmericanVernacular
+from multivalue.Dialects import AfricanAmericanVernacular, IndianDialect
 
 import transformers
 from transformers import (
@@ -88,7 +89,7 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": "The name of the task to train on: "
-            + ", ".join(task_to_keys.keys())
+                    + ", ".join(task_to_keys.keys())
         },
     )
     dataset_name: Optional[str] = field(
@@ -119,7 +120,7 @@ class DataTrainingArguments:
         default=128,
         metadata={
             "help": "The maximum total input sequence length after tokenization. Sequences longer "
-            "than this will be truncated, sequences shorter will be padded."
+                    "than this will be truncated, sequences shorter will be padded."
         },
     )
     overwrite_cache: bool = field(
@@ -130,28 +131,28 @@ class DataTrainingArguments:
         default=True,
         metadata={
             "help": "Whether to pad all samples to `max_seq_length`. "
-            "If False, will pad the samples dynamically when batching to the maximum length in the batch."
+                    "If False, will pad the samples dynamically when batching to the maximum length in the batch."
         },
     )
     max_train_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of training examples to this "
-            "value if set."
+                    "value if set."
         },
     )
     max_eval_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of evaluation examples to this "
-            "value if set."
+                    "value if set."
         },
     )
     max_predict_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of prediction examples to this "
-            "value if set."
+                    "value if set."
         },
     )
     train_file: Optional[str] = field(
@@ -189,7 +190,7 @@ class DataTrainingArguments:
             ], "`train_file` should be a csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
-                validation_extension == train_extension
+                    validation_extension == train_extension
             ), "`validation_file` should have the same extension (csv or json) as `train_file`."
 
 
@@ -238,7 +239,7 @@ class ModelArguments:
         default=False,
         metadata={
             "help": "Will use the token generated when running `transformers-cli login` (necessary to use this script "
-            "with private models)."
+                    "with private models)."
         },
     )
 
@@ -284,8 +285,8 @@ def main():
     # Detecting last checkpoint.
     last_checkpoint = None
     if (
-        os.path.isdir(training_args.output_dir)
-        and not training_args.overwrite_output_dir
+            os.path.isdir(training_args.output_dir)
+            and not training_args.overwrite_output_dir
     ):
         last_checkpoint = get_last_checkpoint(training_args.output_dir)
         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
@@ -294,7 +295,7 @@ def main():
                 "Use --overwrite_output_dir to overcome."
             )
         elif (
-            last_checkpoint is not None and training_args.resume_from_checkpoint is None
+                last_checkpoint is not None and training_args.resume_from_checkpoint is None
         ):
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
@@ -346,7 +347,7 @@ def main():
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
-                    test_extension == train_extension
+                        test_extension == train_extension
                 ), "`test_file` should have the same extension (csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
@@ -452,8 +453,8 @@ def main():
             name for name in raw_datasets["train"].column_names if name != "label"
         ]
         if (
-            "sentence1" in non_label_column_names
-            and "sentence2" in non_label_column_names
+                "sentence1" in non_label_column_names
+                and "sentence2" in non_label_column_names
         ):
             sentence1_key, sentence2_key = "sentence1", "sentence2"
         else:
@@ -465,9 +466,9 @@ def main():
     # Some models have set the order of the labels to use, so let's make sure we do use it.
     label_to_id = None
     if (
-        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-        and data_args.task_name is not None
-        and not is_regression
+            model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
+            and data_args.task_name is not None
+            and not is_regression
     ):
         # Some have all caps in their config, some don't.
         label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
@@ -496,7 +497,7 @@ def main():
             f"The max_seq_length passed ({data_args.max_seq_length}) is larger than the maximum length for the"
             f"model ({tokenizer.model_max_length}). Using max_seq_length={tokenizer.model_max_length}."
         )
-    mapping = {}
+    mapping = {}  # this seems to be not used legacy code
     if os.path.exists(data_args.lexical_mapping):
         with open(data_args.lexical_mapping, "rb") as infile:
             mapping = pkl.load(infile)
@@ -510,7 +511,7 @@ def main():
         dialect = None
 
     def preprocess_function_factory(
-        dialect, tokenizer, max_seq_length, padding, label_to_id
+            dialect, tokenizer, max_seq_length, padding, label_to_id
     ):
         def preprocess_function(examples):
             # Tokenize the texts
@@ -566,8 +567,8 @@ def main():
 
     if training_args.do_eval:
         if (
-            "validation" not in raw_datasets
-            and "validation_matched" not in raw_datasets
+                "validation" not in raw_datasets
+                and "validation_matched" not in raw_datasets
         ):
             raise ValueError("--do_eval requires a validation dataset")
         eval_dataset = raw_datasets[
@@ -577,9 +578,9 @@ def main():
             eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
 
     if (
-        training_args.do_predict
-        or data_args.task_name is not None
-        or data_args.test_file is not None
+            training_args.do_predict
+            or data_args.task_name is not None
+            or data_args.test_file is not None
     ):
         if "test" not in raw_datasets and "test_matched" not in raw_datasets:
             raise ValueError("--do_predict requires a test dataset")
