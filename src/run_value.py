@@ -502,11 +502,9 @@ def main():
         with open(data_args.lexical_mapping, "rb") as infile:
             mapping = pkl.load(infile)
     if data_args.dialect == "aave":
-        dialect = AfricanAmericanVernacular(
-            mapping, morphosyntax=data_args.morphosyntax
-        )
+        dialect = AfricanAmericanVernacular(morphosyntax=data_args.morphosyntax)
     elif data_args.dialect == "indian":
-        dialect = IndianDialect(mapping, morphosyntax=data_args.morphosyntax)
+        dialect = IndianDialect(morphosyntax=data_args.morphosyntax)
     else:
         dialect = None
 
