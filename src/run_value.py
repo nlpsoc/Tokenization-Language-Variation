@@ -497,10 +497,10 @@ def main():
             f"The max_seq_length passed ({data_args.max_seq_length}) is larger than the maximum length for the"
             f"model ({tokenizer.model_max_length}). Using max_seq_length={tokenizer.model_max_length}."
         )
-    mapping = {}  # this seems to be not used legacy code
-    if os.path.exists(data_args.lexical_mapping):
-        with open(data_args.lexical_mapping, "rb") as infile:
-            mapping = pkl.load(infile)
+    # mapping = {}  # this seems to be not used legacy code
+    # if os.path.exists(data_args.lexical_mapping):
+    #     with open(data_args.lexical_mapping, "rb") as infile:
+    #         mapping = pkl.load(infile)
     if data_args.dialect == "aave":
         dialect = AfricanAmericanVernacular(morphosyntax=data_args.morphosyntax)
     elif data_args.dialect == "indian":
