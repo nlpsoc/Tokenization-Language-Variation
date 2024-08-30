@@ -85,7 +85,7 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": (
-                "The name of the text column in the input dataset or a CSV/JSON file. "
+                "The name of the text column in the input dataset or a TSV/CSV/JSON file. "
                 'If not specified, will use the "sentence" column for single/multi-label classification task.'
             )
         },
@@ -123,7 +123,7 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": (
-                "The name of the label column in the input dataset or a CSV/JSON file. "
+                "The name of the label column in the input dataset or a TSV/CSV/JSON file. "
                 'If not specified, will use the "label" column for single/multi-label classification task'
             )
         },
@@ -188,12 +188,12 @@ class DataTrainingArguments:
     )
     metric_name: Optional[str] = field(default=None, metadata={"help": "The metric to use for evaluation."})
     train_file: Optional[str] = field(
-        default=None, metadata={"help": "A csv or a json file containing the training data."}
+        default=None, metadata={"help": "A tsv, csv or a json file containing the training data."}
     )
     validation_file: Optional[str] = field(
-        default=None, metadata={"help": "A csv or a json file containing the validation data."}
+        default=None, metadata={"help": "A tsv, csv or a json file containing the validation data."}
     )
-    test_file: Optional[str] = field(default=None, metadata={"help": "A csv or a json file containing the test data."})
+    test_file: Optional[str] = field(default=None, metadata={"help": "A tsv, csv or a json file containing the test data."})
 
     def __post_init__(self):
         if self.dataset_name is None:
@@ -201,11 +201,11 @@ class DataTrainingArguments:
                 raise ValueError(" training/validation file or a dataset name.")
 
             train_extension = self.train_file.split(".")[-1]
-            assert train_extension in ["csv", "json"], "`train_file` should be a csv or a json file."
+            assert train_extension in ["tsv", "csv", "json"], "`train_file` should be a tsv, csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
                     validation_extension == train_extension
-            ), "`validation_file` should have the same extension (csv or json) as `train_file`."
+            ), "`validation_file` should have the same extension (tsv, csv or json) as `train_file`."
 
 
 @dataclass
@@ -336,7 +336,7 @@ def main():
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    # Get the datasets: you can either provide your own CSV/JSON training and evaluation files, or specify a dataset name
+    # Get the datasets: you can either provide your own TSV/CSV/JSON training and evaluation files, or specify a dataset name
     # to load from huggingface/datasets. In ether case, you can specify a the key of the column(s) containing the text and
     # the key of the column containing the label. If multiple columns are specified for the text, they will be joined together
     # for the actual text value.
@@ -356,17 +356,17 @@ def main():
         logger.info(raw_datasets)
     else:
         # Loading a dataset from your local files.
-        # CSV/JSON training and evaluation files are needed.
+        # TSV/CSV/JSON training and evaluation files are needed.
         data_files = {"train": data_args.train_file, "validation": data_args.validation_file}
 
-        # Get the test dataset: you can provide your own CSV/JSON test file
+        # Get the test dataset: you can provide your own TSV/CSV/JSON test file
         if training_args.do_predict:
             if data_args.test_file is not None:
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
                         test_extension == train_extension
-                ), "`test_file` should have the same extension (csv or json) as `train_file`."
+                ), "`test_file` should have the same extension (tsv, csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
                 raise ValueError("Need either a dataset name or a test file for `do_predict`.")
@@ -379,6 +379,15 @@ def main():
             raw_datasets = load_dataset(
                 "csv",
                 data_files=data_files,
+                cache_dir=model_args.cache_dir,
+                token=model_args.token,
+            )
+        elif data_args.train_file.endswith(".tsv"):
+            # Loading a dataset from local tsv files
+            raw_datasets = load_dataset(
+                "csv",
+                data_files=data_files,
+                delimiter="\t",
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )

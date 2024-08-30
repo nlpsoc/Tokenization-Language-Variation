@@ -82,7 +82,7 @@ def main(task, model_path, seed, output_dir):
             "--seed", str(seed),
         ]
         result = subprocess.run(command)
-    elif task == "value":
+    elif task == "value":  # currently not in use, as value seems to need different code / env
         command = [
             "python", "run_value.py",
             "--model_name_or_path", model_path,
