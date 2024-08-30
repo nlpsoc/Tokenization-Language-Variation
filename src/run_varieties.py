@@ -113,7 +113,7 @@ def main(task, model_path, seed, output_dir):
             "--shuffle_train_dataset",
             "--metric_name", "f1",
             "--text_column_name", "text",
-            "--label_column_name", "value",
+            "--label_column_name", "label",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
