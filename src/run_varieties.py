@@ -109,7 +109,7 @@ def main(task, model_path, seed, output_dir):
             "--model_name_or_path", model_path,
             "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/cleaned_train.tsv",
             "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/cleaned_dev.tsv",
-            "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/cleaned_test.tsv",
+            # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/cleaned_test.tsv",
             "--shuffle_train_dataset",
             "--metric_name", "f1",
             "--text_column_name", "text",
