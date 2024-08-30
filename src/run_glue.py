@@ -298,12 +298,7 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.task_name == "age":
-        # Load the raw dataset from the specified path
-        log_and_flush("Loading Blog corpus")
-        raw_datasets = load_from_disk("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/")
-        log_and_flush(raw_datasets)
-    elif data_args.task_name is not None:
+    if data_args.task_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
             "nyu-mll/glue",

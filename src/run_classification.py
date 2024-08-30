@@ -51,12 +51,10 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.45.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/text-classification/requirements.txt")
-
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +204,7 @@ class DataTrainingArguments:
             assert train_extension in ["csv", "json"], "`train_file` should be a csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
-                validation_extension == train_extension
+                    validation_extension == train_extension
             ), "`validation_file` should have the same extension (csv or json) as `train_file`."
 
 
@@ -275,12 +273,22 @@ def get_label_list(raw_dataset, split="train") -> List[str]:
     return label_list
 
 
+class MyTrainingArguments(TrainingArguments):
+    def __init__(self, **kwargs):
+        # Override the defaults you care about
+        kwargs['save_strategy'] = 'no'  # kwargs.get('save_strategy', 'no')
+        # kwargs.setdefault('resume_from_checkpoint', False)
+
+        # Call the parent class's initializer with the updated arguments
+        super().__init__(**kwargs)
+
+
 def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, MyTrainingArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
@@ -317,20 +325,13 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
-    # Detecting last checkpoint.
-    last_checkpoint = None
-    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
-        last_checkpoint = get_last_checkpoint(training_args.output_dir)
-        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
-            raise ValueError(
-                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-                "Use --overwrite_output_dir to overcome."
-            )
-        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
-            logger.info(
-                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
-                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
-            )
+    # create output dir
+    os.makedirs(training_args.output_dir, exist_ok=True)
+    if len(os.listdir(training_args.output_dir)) > 0:
+        raise ValueError(
+            f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+            "Use --overwrite_output_dir to overcome."
+        )
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -364,7 +365,7 @@ def main():
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
-                    test_extension == train_extension
+                        test_extension == train_extension
                 ), "`test_file` should have the same extension (csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
@@ -584,7 +585,8 @@ def main():
             preprocess_function,
             batched=True,
             num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=not data_args.overwrite_cache,
+            load_from_cache_file=False,
+            keep_in_memory=True,
             desc="Running tokenizer on dataset",
         )
 
@@ -659,7 +661,11 @@ def main():
             result = metric.compute(predictions=preds, references=p.label_ids, average="micro")
         else:
             preds = np.argmax(preds, axis=1)
-            result = metric.compute(predictions=preds, references=p.label_ids)
+            print(f"DEBUG: p.label_ids: {p.label_ids}")
+            if len(p.label_ids) > 1:
+                result = metric.compute(predictions=preds, references=p.label_ids, average="macro")
+            else:
+                result = metric.compute(predictions=preds, references=p.label_ids)
         if len(result) > 1:
             result["combined_score"] = np.mean(list(result.values())).item()
         return result
