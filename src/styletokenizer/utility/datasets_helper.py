@@ -37,13 +37,14 @@ def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01)
 
     # Create datasets for each split
     def create_dataset(data):
-        # Create the dataset dictionary with inline type conversion for 'id'
+        # get all keys that can appear (should be the same for all data entries,
+        #   but there might be some issues with domain/source)
         keys = data[0].keys()
+        # Create the dataset dictionary with inline type conversion for 'id'
         dataset_dict = {
-            key: [str(item[key]) if key == 'id' else item[key] for item in data]
+            key: [str(item[key]) if key == 'id' else item.get(key, "") for item in data]
             for key in keys
         }
-
         try:
             return Dataset.from_dict(dataset_dict)
         except pa.lib.ArrowInvalid as e:

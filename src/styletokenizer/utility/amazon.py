@@ -68,7 +68,7 @@ def sample_from_gz_file_w_langdetect(target_word_count, gz_path, id_column, text
                 # Add the sample to the list
                 sampled_items.append({"id": review["id"], "text": cur_text,
                                       "word_count": cur_word_count,
-                                      "source": source})
+                                      "source": source, "domain": source})
 
                 # Accumulate the word count
                 actual_word_count += cur_word_count

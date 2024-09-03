@@ -49,7 +49,8 @@ def sample_from_json(target_word_count, json_path, id_column, text_column, sourc
                 "id": line_id,
                 "text": text,
                 "word_count": cur_word_count,
-                "source": source
+                "source": source,
+                "domain": source
             })
             actual_word_count += cur_word_count
 
