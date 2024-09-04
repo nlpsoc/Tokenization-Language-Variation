@@ -67,7 +67,8 @@ def main(task, model_path, seed, output_dir):
             "--dataset_name", 'barilan/blog_authorship_corpus',
             "--trust_remote_code", "True",
             "--shuffle_train_dataset",
-            "--metric_name", "f1",  # "f1"
+            "--do_regression", "True",
+            # "--metric_name", "mse",  # "mse" is default for regression
             "--text_column_name", "text",
             "--label_column_name", "age",
             "--remove_columns", "date,gender,horoscope,job",

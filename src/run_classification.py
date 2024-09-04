@@ -706,10 +706,10 @@ def main():
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+        # trainer.save_model()  # Saves the tokenizer too for easy upload
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
-        trainer.save_state()
+        # trainer.save_state()
 
     # Evaluation
     if training_args.do_eval:
