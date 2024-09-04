@@ -85,6 +85,7 @@ def create_tinybert_architecture(tokenizer):
     model = BertForMaskedLM(config)
     model.resize_token_embeddings(len(tokenizer))
     log_and_flush(f"Model initialized with random weights and resized token embedding matrix: {model}")
+    log_and_flush(f"Number of parameters: {model.num_parameters()}")
     return model
 
 
