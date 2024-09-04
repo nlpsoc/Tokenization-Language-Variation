@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_tiny-bert_AGE_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_tiny-bert_VALUE_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -43,9 +43,9 @@ MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
 #SEED=44
 #python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 #
-TASK_NAME=age
-SEED=42
-python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#TASK_NAME=age
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 #SEED=43
 #python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 #SEED=44
@@ -60,105 +60,105 @@ python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED 
 #python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
 
-#TASK_NAME=value
-#MAPPING_FILE='/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value/resources/sae_aave_mapping_dict.pkl'
-#conda deactivate
-#conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
-#cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
-#export VALUE_TASK_NAME=mrpc
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax --do_train --seed $SEED
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#VALUE_TASK_NAME=sst2
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#VALUE_TASK_NAME=qqp
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#VALUE_TASK_NAME=mnli
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#VALUE_TASK_NAME=qnli
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#VALUE_TASK_NAME=rte
-#SEED=42
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=43
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
-#SEED=44
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
-#--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+TASK_NAME=value
+MAPPING_FILE='/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value/resources/sae_aave_mapping_dict.pkl'
+conda deactivate
+conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
+cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
+export VALUE_TASK_NAME=mrpc
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax --do_train --seed $SEED
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+VALUE_TASK_NAME=sst2
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+VALUE_TASK_NAME=qqp
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+VALUE_TASK_NAME=mnli
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+VALUE_TASK_NAME=qnli
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+VALUE_TASK_NAME=rte
+SEED=42
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=43
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
+SEED=44
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--seed $SEED  --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax
 
