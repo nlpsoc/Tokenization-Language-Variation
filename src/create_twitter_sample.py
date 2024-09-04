@@ -2,6 +2,7 @@ import argparse
 import bz2
 import json
 import os
+import random
 
 from styletokenizer.fitting_corpora import CORPORA_TWITTER
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
@@ -14,21 +15,39 @@ def count_words(text):
 
 def process_file(file_path, target_word_count_per_file, data):
     cumulative_word_count = 0
+    appended_texts = set()  # To store texts that have already been appended
+    all_lines = []
+
+    # Load all lines into memory
     with bz2.open(file_path, 'rt') as file:
         for line in file:
-            tweet = json.loads(line)
-            lang = tweet.get("lang", "")
-            if lang != "en":  # Only consider English tweets
-                continue
-            text = tweet.get("text", "")
-            tweet_id = tweet.get("id", "")
-            word_count = count_words(text)
+            all_lines.append(line)
 
+    # Generate a list of indices and shuffle them
+    indices = list(range(len(all_lines)))
+    random.shuffle(indices)
+
+    # Process the lines in shuffled order
+    for idx in indices:
+        line = all_lines[idx]
+        tweet = json.loads(line)
+        lang = tweet.get("lang", "")
+        if lang != "en":  # Only consider English tweets
+            continue
+        text = tweet.get("text", "")
+        tweet_id = tweet.get("id", "")
+        word_count = count_words(text)
+
+        # Only append if text is unique
+        if text not in appended_texts:
+            appended_texts.add(text)
             cumulative_word_count += word_count
             data.append({"id": tweet_id, "text": text, "word_count": word_count})
 
-            if cumulative_word_count >= target_word_count_per_file:
-                return data, cumulative_word_count
+        # Stop if the cumulative word count has reached the target
+        if cumulative_word_count >= target_word_count_per_file:
+            return data, cumulative_word_count
+
     return data, cumulative_word_count
 
 
