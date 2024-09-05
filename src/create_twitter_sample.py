@@ -15,38 +15,29 @@ def count_words(text):
 
 def process_file(file_path, target_word_count_per_file, data):
     cumulative_word_count = 0
-    appended_texts = set()  # To store texts that have already been appended
-    all_lines = []
+    appended_texts = set()  # To store hashes of texts that have already been appended
 
-    # Load all lines into memory
+    # Open and process the file line by line
     with bz2.open(file_path, 'rt') as file:
         for line in file:
-            all_lines.append(line)
+            tweet = json.loads(line)
+            lang = tweet.get("lang", "")
+            if lang != "en":  # Only consider English tweets
+                continue
+            text = tweet.get("text", "")
+            tweet_id = tweet.get("id", "")
+            text_hash = hash(text)  # Create a hash of the text for quicker lookups
 
-    # Generate a list of indices and shuffle them
-    indices = list(range(len(all_lines)))
-    random.shuffle(indices)
+            # Only append if hash of text is unique
+            if text_hash not in appended_texts:
+                appended_texts.add(text_hash)  # Add the hash, not the whole text
+                word_count = count_words(text)
+                cumulative_word_count += word_count
+                data.append({"id": tweet_id, "text": text, "word_count": word_count})
 
-    # Process the lines in shuffled order
-    for idx in indices:
-        line = all_lines[idx]
-        tweet = json.loads(line)
-        lang = tweet.get("lang", "")
-        if lang != "en":  # Only consider English tweets
-            continue
-        text = tweet.get("text", "")
-        tweet_id = tweet.get("id", "")
-        word_count = count_words(text)
-
-        # Only append if text is unique
-        if text not in appended_texts:
-            appended_texts.add(text)
-            cumulative_word_count += word_count
-            data.append({"id": tweet_id, "text": text, "word_count": word_count})
-
-        # Stop if the cumulative word count has reached the target
-        if cumulative_word_count >= target_word_count_per_file:
-            return data, cumulative_word_count
+            # Stop if the cumulative word count has reached the target
+            if cumulative_word_count >= target_word_count_per_file:
+                return data, cumulative_word_count
 
     return data, cumulative_word_count
 
