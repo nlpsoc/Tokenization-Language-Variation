@@ -5,6 +5,7 @@ set_cache()
 import pandas as pd
 import os
 from datasets import load_dataset
+import csv
 
 # Load the Blog Authorship Corpus dataset from Hugging Face
 dataset = load_dataset('barilan/blog_authorship_corpus')
@@ -43,9 +44,14 @@ for split in dataset:
         print(f"Invalid ages in {split}: {df[~valid_ages]['age'].unique()}")
     df = df[valid_ages]
 
+    # check for invalid texts
+    valid_texts = df['text'].notnull()
+    if len(valid_texts) != len(df):
+        print(f"Invalid texts in {split}: {df[~valid_texts]['text'].unique()}")
+
     # Save the DataFrame to a TSV file
     output_path = os.path.join(output_dir, f"{split}.csv")
-    df.to_csv(output_path, index=False)
+    df.to_csv(output_path, index=False, quotechar='"', quoting=csv.QUOTE_MINIMAL)
     print(f"Saved {split} to {output_path}")
 
     # Verify unique ages
