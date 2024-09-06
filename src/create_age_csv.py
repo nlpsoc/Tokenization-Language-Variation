@@ -54,6 +54,11 @@ for split in dataset:
     df.to_csv(output_path, index=False, quotechar='"', quoting=csv.QUOTE_MINIMAL)
     print(f"Saved {split} to {output_path}")
 
+    # try loading the saved file
+    df = pd.read_csv(output_path)
+    nan_values = df['text'].isna().any()
+    print(nan_values)
+
     # Verify unique ages
     unique_ages = df['age'].unique()
     print(f"Unique ages in {split}: {unique_ages}")
