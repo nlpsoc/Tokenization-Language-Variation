@@ -38,6 +38,9 @@ for split in dataset:
 
     # Check for invalid ages and remove them
     valid_ages = df['label'].notnull()
+    # check if any invalid ages
+    if len(valid_ages) != len(df):
+        print(f"Invalid ages in {split}: {df[~valid_ages]['age'].unique()}")
     df = df[valid_ages]
 
     # Save the DataFrame to a TSV file
@@ -45,7 +48,6 @@ for split in dataset:
     df.to_csv(output_path, sep='\t', index=False)
     print(f"Saved {split} to {output_path}")
 
-# Verify unique ages
-for split, df in df_splits.items():
+    # Verify unique ages
     unique_ages = df['age'].unique()
     print(f"Unique ages in {split}: {unique_ages}")

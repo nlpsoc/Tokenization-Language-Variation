@@ -69,7 +69,7 @@ def main(task, model_path, seed, output_dir):
             "--shuffle_train_dataset",
             "--text_column_name", "text",
             "--label_column_name", "label",
-            "--remove_columns", "date,gender,horoscope,job",
+            "--remove_columns", "age,date,gender,horoscope,job",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
@@ -145,6 +145,8 @@ def main(task, model_path, seed, output_dir):
             "--seed", str(seed),
         ]
         result = subprocess.run(command)
+
+
 
 
 if __name__ == "__main__":
