@@ -39,15 +39,6 @@ for split in dataset:
 
     # Check for invalid ages and remove them
     valid_ages = df['label'].notnull()
-    # check if any invalid ages
-    if len(valid_ages) != len(df):
-        print(f"Invalid ages in {split}: {df[~valid_ages]['age'].unique()}")
-    df = df[valid_ages]
-
-    # check for invalid texts
-    valid_texts = df['text'].notnull()
-    if len(valid_texts) != len(df):
-        print(f"Invalid texts in {split}: {df[~valid_texts]['text'].unique()}")
 
     # Save the DataFrame to a TSV file
     output_path = os.path.join(output_dir, f"{split}.csv")
@@ -57,8 +48,7 @@ for split in dataset:
     # try loading the saved file
     df = pd.read_csv(output_path)
     nan_values = df['text'].isna()
-    print(f"Nan values at: { df[nan_values].index}")
-
-    # Verify unique ages
-    unique_ages = df['age'].unique()
-    print(f"Unique ages in {split}: {unique_ages}")
+    print(f"Nan values at: {df[nan_values].index}")
+    # remove rows with nan values
+    df = df[~nan_values]
+    df.to_csv(output_path, index=False, quotechar='"', quoting=csv.QUOTE_MINIMAL)
