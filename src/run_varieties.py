@@ -64,8 +64,8 @@ def main(task, model_path, seed, output_dir):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.tsv",
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.csv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
             "--label_column_name", "label",
