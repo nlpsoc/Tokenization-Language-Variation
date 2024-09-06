@@ -44,8 +44,8 @@ for split in dataset:
     df = df[valid_ages]
 
     # Save the DataFrame to a TSV file
-    output_path = os.path.join(output_dir, f"{split}.tsv")
-    df.to_csv(output_path, sep='\t', index=False)
+    output_path = os.path.join(output_dir, f"{split}.csv")
+    df.to_csv(output_path, index=False)
     print(f"Saved {split} to {output_path}")
 
     # Verify unique ages
