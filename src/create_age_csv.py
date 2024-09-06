@@ -56,8 +56,8 @@ for split in dataset:
 
     # try loading the saved file
     df = pd.read_csv(output_path)
-    nan_values = df['text'].isna().any()
-    print(nan_values)
+    nan_values = df['text'].isna()
+    print(f"Nan values at: { df[nan_values].index}")
 
     # Verify unique ages
     unique_ages = df['age'].unique()
