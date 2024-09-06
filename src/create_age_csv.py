@@ -49,6 +49,7 @@ for split in dataset:
     df = pd.read_csv(output_path)
     nan_values = df['text'].isna()
     print(f"Nan values at: {df[nan_values].index}")
+    print(f"Overwriting save without nan values to {output_path}")
     # remove rows with nan values
     df = df[~nan_values]
     df.to_csv(output_path, index=False, quotechar='"', quoting=csv.QUOTE_MINIMAL)
