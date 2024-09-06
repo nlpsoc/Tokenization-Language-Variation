@@ -2,16 +2,14 @@ import argparse
 from tokenizers import Tokenizer, Regex
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import Whitespace, ByteLevel, Sequence, Split, PreTokenizer
+from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split
 
 import os
 
 from styletokenizer.utility import datasets_helper
+from styletokenizer.utility.tokenizer_vars import PRE_TOKENIZER, VOCAB_SIZE
 
 # the tokenizer variables
-PRE_TOKENIZER = ["ws", "gpt2", "llama3"]
-VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
-FITTING_CORPORA = ["twitter", "wikipedia", "mixed"]
 
 OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
 
