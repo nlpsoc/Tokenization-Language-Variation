@@ -64,13 +64,15 @@ def main(task, model_path, seed, output_dir):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--dataset_name", 'barilan/blog_authorship_corpus',
-            "--trust_remote_code", "True",
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.tsv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/validation.tsv",
+            # "--dataset_name", 'barilan/blog_authorship_corpus',
+            # "--trust_remote_code", "True",
             "--shuffle_train_dataset",
-            "--do_regression", "True",
+            # "--do_regression", "True",
             # "--metric_name", "mse",  # "mse" is default for regression
             "--text_column_name", "text",
-            "--label_column_name", "age",
+            "--label_column_name", "label",  # "age"
             "--remove_columns", "date,gender,horoscope,job",
             "--do_train",
             "--do_eval",
