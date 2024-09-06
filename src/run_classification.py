@@ -671,7 +671,11 @@ def main():
             preds = np.argmax(preds, axis=1)
             print(f"DEBUG: p.label_ids: {p.label_ids}")
             if len(p.label_ids) > 1:
-                result = metric.compute(predictions=preds, references=p.label_ids, average="macro")
+                # check if metric has "average" parameter
+                if "average" in metric.compute.__code__.co_varnames:
+                    result = metric.compute(predictions=preds, references=p.label_ids, average="macro")
+                else:
+                    result = metric.compute(predictions=preds, references=p.label_ids)
             else:
                 result = metric.compute(predictions=preds, references=p.label_ids)
         if len(result) > 1:
