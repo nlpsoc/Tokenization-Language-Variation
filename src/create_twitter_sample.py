@@ -25,6 +25,9 @@ def process_file(file_path, target_word_count_per_file, data):
             if lang != "en":  # Only consider English tweets
                 continue
             text = tweet.get("text", "")
+            # test if text starts with "RT" and skip if it does
+            if text.startswith("RT"):  # is a retweet
+                continue
             tweet_id = tweet.get("id", "")
             text_hash = hash(text)  # Create a hash of the text for quicker lookups
 
