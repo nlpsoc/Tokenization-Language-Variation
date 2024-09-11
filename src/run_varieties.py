@@ -128,11 +128,10 @@ def main(task, model_path, seed, output_dir):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_dev.tsv",
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_train.tsv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
             # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_test.tsv",
             "--shuffle_train_dataset",
-            "--metric_name", "accuracy",
             "--text_column_name", "text",
             "--label_column_name", "label",
             "--do_train",
