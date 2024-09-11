@@ -13,7 +13,7 @@ DEFAULT_FITTING_CORPORA = "mixed"
 DEFAULT_VOCAB_SIZE = 32000
 DEFAULT_PRE_TOKENIZER = "gpt2"
 if at_uu:
-    OUT_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER"
+    OUT_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer"
 else:
     OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
 
