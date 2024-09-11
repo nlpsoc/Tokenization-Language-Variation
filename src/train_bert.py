@@ -110,7 +110,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
-    batch_size = 2048  # 256 * 8
+    batch_size = 1024  # 256 * 8
     log_and_flush(f"Batch size: {batch_size}")
 
     # calculate the number of steps for one epoch
