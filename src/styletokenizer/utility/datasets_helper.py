@@ -98,7 +98,7 @@ def huggingface_format_generator(dataset_path, split="train"):
         yield dataset[split][i]
 
 
-def train_text_generator(dataset_path):
+def train_text_generator(dataset_path, split="train"):
     """
     Generator that yields text data from a Huggingface-formatted dataset.
 
@@ -108,7 +108,7 @@ def train_text_generator(dataset_path):
     Yields:
     - text (str): Text data from the dataset.
     """
-    for data_entry in huggingface_format_generator(dataset_path):
+    for data_entry in huggingface_format_generator(dataset_path, split=split):
         yield data_entry["text"]
 
 

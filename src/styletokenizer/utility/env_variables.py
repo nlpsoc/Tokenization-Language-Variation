@@ -61,7 +61,7 @@ UU_CACHE_DIR = "/hpc/uu_cs_nlpsoc/02-awegmann/huggingface"
 
 
 def set_cache():
-    if "uu_cs_nlpsoc" in os.getcwd():
+    if at_uu():
         log_and_flush("Using UU cluster cache")
         os.environ["HF_HOME"] = UU_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
@@ -72,3 +72,7 @@ def set_cache():
     os.environ["HF_HOME"] = UMICH_CACHE_DIR
     os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
     return UMICH_CACHE_DIR
+
+
+def at_uu() -> bool:
+    return "uu_cs_nlpsoc" in os.getcwd()

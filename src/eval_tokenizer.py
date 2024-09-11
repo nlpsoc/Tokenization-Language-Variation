@@ -1,7 +1,10 @@
 from typing import List, Dict
 
 from styletokenizer.utility.tokenizer_vars import (get_pretokenizer_paths, get_sorted_vocabularies_per_tokenizer,
-                                                   get_tokenizer_name_from_path, get_corpus_paths)
+                                                   get_tokenizer_name_from_path, get_corpus_paths, get_vocab_paths,
+                                                   get_tokenizer_from_path)
+from styletokenizer.fitting_corpora import CORPORA_MIXED, CORPORA_TWITTER, CORPORA_WIKIPEDIA
+from styletokenizer.utility import datasets_helper
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
 
@@ -38,6 +41,8 @@ def main():
     get_comparative_tok_stats(pretokenizer_paths)
     corpus_paths = get_corpus_paths()
     get_comparative_tok_stats(corpus_paths)
+    vocab_paths = get_vocab_paths()
+    get_comparative_tok_stats(vocab_paths)
 
 
 def get_comparative_tok_stats(tokenizer_paths):
@@ -97,3 +102,16 @@ def get_comparative_tok_stats(tokenizer_paths):
         plt.show()
 
     return results
+
+
+def calc_renyi_efficiency(tokenizer_path, data_path):
+    import tokenization_scorer
+    text_generator = tok_generator(data_path, split="dev", tokenizer_path=tokenizer_path)
+    return tokenization_scorer.score(text_generator, metric="renyi", power=2.5)
+
+
+def tok_generator(dataset_path, split, tokenizer_path):
+    tokenizer = get_tokenizer_from_path(tokenizer_path)
+    text_generator = datasets_helper.train_text_generator(dataset_path, split=split)
+    for text in text_generator:  # TODO: how to do tokenize in the right way again?, check that this works see test (!)
+        yield tokenizer.encode(text).tokens

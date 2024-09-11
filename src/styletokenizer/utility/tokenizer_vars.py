@@ -26,6 +26,10 @@ def get_corpus_paths():
     return [get_name(corpus, DEFAULT_PRE_TOKENIZER, DEFAULT_VOCAB_SIZE) for corpus in FITTING_CORPORA]
 
 
+def get_vocab_paths():
+    return [get_name(DEFAULT_FITTING_CORPORA, DEFAULT_PRE_TOKENIZER, vocab_size) for vocab_size in VOCAB_SIZE]
+
+
 def get_tokenizer_name_from_path(path):
     return os.path.basename(os.path.dirname(path))
 
@@ -53,3 +57,7 @@ def get_sorted_vocabularies_per_tokenizer(tokenizer_paths) -> Dict[str, List[str
         # Store sorted tokens (by frequency) as a list of token strings
         vocabularies[folder_name] = [token for token, _ in sorted_tokens]
     return vocabularies
+
+
+def get_tokenizer_from_path(path):
+    return Tokenizer.from_file(path)
