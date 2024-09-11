@@ -95,7 +95,7 @@ def sample_texts_from_files(directory, target_word_count):
 
 def main(test=False):
     directory = '/nfs/locker/twitter-decahose-locker/2021'
-    output_path = CORPORA_TWITTER
+    output_path = CORPORA_TWITTER + "_NORT"
     if test:
         target_word_count = 10
         output_path += "_test"
