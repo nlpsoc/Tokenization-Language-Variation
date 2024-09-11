@@ -767,22 +767,22 @@ def main():
         trainer.create_model_card(**kwargs)
 
 
-def check_for_multilabel(raw_datasets):
+def check_for_multilabel(raw_datasets, column='label'):
     # if it has a label column, load it as list, IF it is a list in string form (e.g. "[1,2,3]")
     first_element = raw_datasets['train'][0]  # Assuming you are loading 'train'
     # Check if the first element in 'col_with_lists' is a string that looks like a list
-    first_value = first_element['col_with_lists']
+    first_value = first_element[column]
     if isinstance(first_value, str) and first_value.strip().startswith('[') and first_value.strip().endswith(
             ']'):
 
         def convert_to_list(example):
-            value = example['col_with_lists']
+            value = example[column]
             # Try to convert the string to a list only if it looks like a list
             if isinstance(value, str) and value.strip().startswith('[') and value.strip().endswith(']'):
                 try:
                     evaluated_value = eval(value)
                     if isinstance(evaluated_value, list):
-                        example['col_with_lists'] = evaluated_value
+                        example[column] = evaluated_value
                 except:
                     # If eval fails or the string is not convertible to a list, keep it as is
                     pass
