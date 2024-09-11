@@ -192,7 +192,8 @@ class DataTrainingArguments:
     validation_file: Optional[str] = field(
         default=None, metadata={"help": "A tsv, csv or a json file containing the validation data."}
     )
-    test_file: Optional[str] = field(default=None, metadata={"help": "A tsv, csv or a json file containing the test data."})
+    test_file: Optional[str] = field(default=None,
+                                     metadata={"help": "A tsv, csv or a json file containing the test data."})
 
     def __post_init__(self):
         if self.dataset_name is None:
@@ -381,6 +382,7 @@ def main():
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
+            raw_datasets = check_for_multilabel(raw_datasets)
         elif data_args.train_file.endswith(".tsv"):
             # Loading a dataset from local tsv files
             raw_datasets = load_dataset(
@@ -390,6 +392,8 @@ def main():
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
+            raw_datasets = check_for_multilabel(raw_datasets)
+
         else:
             # Loading a dataset from local json files
             raw_datasets = load_dataset(
@@ -761,6 +765,32 @@ def main():
         trainer.push_to_hub(**kwargs)
     else:
         trainer.create_model_card(**kwargs)
+
+
+def check_for_multilabel(raw_datasets):
+    # if it has a label column, load it as list, IF it is a list in string form (e.g. "[1,2,3]")
+    first_element = raw_datasets['train'][0]  # Assuming you are loading 'train'
+    # Check if the first element in 'col_with_lists' is a string that looks like a list
+    first_value = first_element['col_with_lists']
+    if isinstance(first_value, str) and first_value.strip().startswith('[') and first_value.strip().endswith(
+            ']'):
+
+        def convert_to_list(example):
+            value = example['col_with_lists']
+            # Try to convert the string to a list only if it looks like a list
+            if isinstance(value, str) and value.strip().startswith('[') and value.strip().endswith(']'):
+                try:
+                    evaluated_value = eval(value)
+                    if isinstance(evaluated_value, list):
+                        example['col_with_lists'] = evaluated_value
+                except:
+                    # If eval fails or the string is not convertible to a list, keep it as is
+                    pass
+            return example
+
+        # Apply the conversion only if the first element looks like a list
+        raw_datasets = raw_datasets.map(convert_to_list)
+    return raw_datasets
 
 
 def _mp_fn(index):
