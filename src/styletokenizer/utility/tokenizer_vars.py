@@ -22,6 +22,10 @@ def get_pretokenizer_paths():
     return [get_name(DEFAULT_FITTING_CORPORA, pre_tokenizer, DEFAULT_VOCAB_SIZE) for pre_tokenizer in PRE_TOKENIZER]
 
 
+def get_corpus_paths():
+    return [get_name(corpus, DEFAULT_PRE_TOKENIZER, DEFAULT_VOCAB_SIZE) for corpus in FITTING_CORPORA]
+
+
 def get_tokenizer_name_from_path(path):
     return os.path.basename(os.path.dirname(path))
 

@@ -1,7 +1,7 @@
 from typing import List, Dict
 
 from styletokenizer.utility.tokenizer_vars import (get_pretokenizer_paths, get_sorted_vocabularies_per_tokenizer,
-                                                   get_tokenizer_name_from_path)
+                                                   get_tokenizer_name_from_path, get_corpus_paths)
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
 
@@ -34,13 +34,15 @@ def get_unique_tokens_per_tokenizer(vocabularies: Dict[str, List[str]]) -> Dict[
 
 
 def main():
-    results = get_pretokenizer_stats()
-
-
-def get_pretokenizer_stats():
     pretokenizer_paths = get_pretokenizer_paths()
-    tokenizer_names = [get_tokenizer_name_from_path(path) for path in pretokenizer_paths]
-    vocabularies = get_sorted_vocabularies_per_tokenizer(pretokenizer_paths)
+    get_comparative_tok_stats(pretokenizer_paths)
+    corpus_paths = get_corpus_paths()
+    get_comparative_tok_stats(corpus_paths)
+
+
+def get_comparative_tok_stats(tokenizer_paths):
+    tokenizer_names = [get_tokenizer_name_from_path(path) for path in tokenizer_paths]
+    vocabularies = get_sorted_vocabularies_per_tokenizer(tokenizer_paths)
     unique_tokens = get_unique_tokens_per_tokenizer(vocabularies)
     results = {
         'vocab_sizes': {name: len(vocab_list) for name, vocab_list in vocabularies.items()},
@@ -51,8 +53,8 @@ def get_pretokenizer_stats():
         'pairwise_common_tokens': {f"{tokenizer_names[i]}": {f"{tokenizer_names[j]}":
             len(set(
                 vocabularies[tokenizer_names[i]]).intersection(
-                set(vocabularies[tokenizer_names[j]])))}
-            for i in range(len(tokenizer_names)) for j in range(i + 1, len(tokenizer_names))},
+                set(vocabularies[tokenizer_names[j]]))) for j in range(i + 1, len(tokenizer_names))}
+            for i in range(len(tokenizer_names))},
         'unique_tokens': unique_tokens
     }
 
@@ -64,7 +66,7 @@ def get_pretokenizer_stats():
     print(f"\nCommon Tokens Across All: {results['common_token_count_all']}")
 
     print("\nTruly Unique Tokens with Frequency Examples:")
-    for name, tokens in results['unique tokens'].items():
+    for name, tokens in results['unique_tokens'].items():
         print(f"{name}: {len(tokens)} unique tokens")
         examples = results['unique_tokens_examples'][name]
         print(f"Most Common: {examples['most_common']}")
@@ -72,15 +74,26 @@ def get_pretokenizer_stats():
         print(f"Least Common: {examples['least_common']}")
 
     print("\nPairwise Common Tokens:")
-    for pair, count in results['pairwise_common_tokens'].items():
-        print(f"{pair}: {count} common tokens")
+    for i in range(len(tokenizer_names)):
+        for j in range(i + 1, len(tokenizer_names)):
+            print(f"{tokenizer_names[i]} & {tokenizer_names[j]}: "
+                  f"{results['pairwise_common_tokens'][tokenizer_names[i]][tokenizer_names[j]]} common tokens")
 
     # Plot the Venn diagram only if there are 3 tokenizers
     if len(tokenizer_names) == 3:
         plt.figure()
         venn_params = []
-        # per two tokenizers: TODO: NEXT
-        plt.show()
+        for i in range(len(tokenizer_names)):
+            if i == 0:
+                venn_params.append(results['unique_tokens_count'][tokenizer_names[i]])
+            for j in range(i + 1, len(tokenizer_names)):
+                if i == 0:
+                    venn_params.append(results['unique_tokens_count'][tokenizer_names[j]])
+                venn_params.append(results['pairwise_common_tokens'][tokenizer_names[i]][tokenizer_names[j]])
+        venn_params.append(results['common_token_count_all'])
 
+        # per two tokenizers:
+        venn3(subsets=venn_params, set_labels=tokenizer_names)
+        plt.show()
 
     return results
