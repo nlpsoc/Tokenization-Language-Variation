@@ -139,7 +139,7 @@ def main(task, model_path, seed, output_dir):
             "--max_seq_length", "512",
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
+            "--num_train_epochs", "5",
             "--output_dir", output_dir,
             "--seed", str(seed),
         ]
