@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ### Job name
-#SBATCH --job-name=0.3-80k-BERT
+#SBATCH --job-name=3.3-80k-BERT
 
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_bert-wikibook_330M_44_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_bert-wikibook_3300M_44_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -29,9 +29,9 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # 3300M words
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
 # python train_bert.py --uu --seed 43 --word_count 3_300_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
-# python train_bert.py --uu --seed 44 --word_count 3_300_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+python train_bert.py --uu --seed 44 --word_count 3_300_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
 
 # 330M words
 # python train_bert.py --uu --seed 42 --word_count 330_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
 # python train_bert.py --uu --seed 43 --word_count 330_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
-python train_bert.py --uu --seed 44 --word_count 330_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+# python train_bert.py --uu --seed 44 --word_count 330_000_000 --steps 80000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
