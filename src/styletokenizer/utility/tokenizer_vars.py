@@ -3,7 +3,7 @@ from typing import Dict, List
 
 from tokenizers import Tokenizer
 
-from styletokenizer.utility.env_variables import at_uu
+from styletokenizer.utility.env_variables import at_uu, at_umich
 
 PRE_TOKENIZER = ["ws", "gpt2", "llama3"]
 VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
@@ -12,10 +12,12 @@ FITTING_CORPORA = ["twitter", "wikipedia", "mixed"]
 DEFAULT_FITTING_CORPORA = "mixed"
 DEFAULT_VOCAB_SIZE = 32000
 DEFAULT_PRE_TOKENIZER = "gpt2"
-if at_uu:
+if at_uu():
     OUT_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer"
-else:
+elif at_umich():
     OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
+else:
+    OUT_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
 
 
 def get_name(corpus_name, pre_tokenizer, vocab_size):
@@ -33,6 +35,10 @@ def get_corpus_paths():
 
 def get_vocab_paths():
     return [get_name(DEFAULT_FITTING_CORPORA, DEFAULT_PRE_TOKENIZER, vocab_size) for vocab_size in VOCAB_SIZE]
+
+
+def get_all_paths():
+    return list(set(get_pretokenizer_paths() + get_corpus_paths() + get_vocab_paths()))
 
 
 def get_tokenizer_name_from_path(path):

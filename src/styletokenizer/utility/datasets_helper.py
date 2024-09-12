@@ -1,3 +1,5 @@
+import os
+
 from datasets import Dataset, DatasetDict, load_from_disk
 import pyarrow as pa
 from styletokenizer.utility.custom_logger import log_and_flush
@@ -111,6 +113,11 @@ def train_text_generator(dataset_path, split="train"):
     for data_entry in huggingface_format_generator(dataset_path, split=split):
         yield data_entry["text"]
 
+
+def efficient_split_generator(dataset_path, split="dev"):
+    data_split = load_from_disk(os.path.join(dataset_path, split))
+    for i in range(len(data_split)):
+        yield data_split[i]["text"]
 
 # def batch_text_generator(dataset_path, split="train", batch_size=1000):
 #     """

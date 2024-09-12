@@ -76,3 +76,7 @@ def set_cache():
 
 def at_uu() -> bool:
     return "uu_cs_nlpsoc" in os.getcwd()
+
+
+def at_umich() -> bool:
+    return "annaweg" in os.getcwd()

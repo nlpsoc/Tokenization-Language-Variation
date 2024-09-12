@@ -8,7 +8,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
-UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/_webbook"
+UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
 
 
 def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
@@ -110,7 +110,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
-    batch_size = 512  # 256 * 8
+    batch_size = 256  # 256 * 8
     log_and_flush(f"Batch size: {batch_size}")
 
     # calculate the number of steps for one epoch
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
 
     # add epoch argument
-    parser.add_argument("--steps", type=int, default=75000, help="number of steps to train")
+    parser.add_argument("--steps", type=int, default=80000, help="number of steps to train")
 
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
