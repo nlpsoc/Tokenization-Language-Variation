@@ -671,8 +671,8 @@ def main():
             preds = np.array([np.where(p > 0, 1, 0) for p in preds])  # convert logits to multi-hot encoding
             # Micro F1 is commonly used in multi-label classification
             result = metric.compute(predictions=preds, references=p.label_ids, average="micro")
-            print(f"DEBUG: p.label_ids: {p.label_ids}")
-            print(f"DEBUG: preds: {preds}")
+            print(f"DEBUG: p.label_ids: {p.label_ids}, sum: {np.sum(p.label_ids, axis=1)}")
+            print(f"DEBUG: preds: {preds}, sum: {np.sum(preds, axis=1)}")
         else:
             preds = np.argmax(preds, axis=1)
             print(f"DEBUG: p.label_ids: {p.label_ids}")
