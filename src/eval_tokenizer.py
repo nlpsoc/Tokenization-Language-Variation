@@ -56,9 +56,11 @@ def main():
         print(f"\n\n{tokenizer_path}")
         for corpus_path in [CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOK]:
             print(f"\n{corpus_path}")
-            print(f"Renyi Efficiency: {calc_renyi_efficiency(tokenizer_path, corpus_path)}")
+            print(f"Percentile Frequency: {calc_precentile_freq(tokenizer_path, corpus_path)}")
             print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
-            print(f"Average Tokens per Word: {calc_avg_tok_per_word(tokenizer_path, corpus_path)}")
+            # print(f"Renyi Efficiency: {calc_renyi_efficiency(tokenizer_path, corpus_path)}")
+            # print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
+            # print(f"Average Tokens per Word: {calc_avg_tok_per_word(tokenizer_path, corpus_path)}")
 
 
 def get_comparative_tok_stats(tokenizer_paths):
