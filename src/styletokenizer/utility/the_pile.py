@@ -33,6 +33,15 @@ def read_lines_from_zst(file_path):
 
 
 def sample_pile_texts(pile_set_names=PILE_SET_NAMES, word_counts=WORD_COUNTS, test=False, individual_text_length=None, ensure_en=False):
+    """
+        as pile is saved in random order, no need to shuffle
+    :param pile_set_names:
+    :param word_counts:
+    :param test:
+    :param individual_text_length:
+    :param ensure_en:
+    :return:
+    """
     from langdetect import detect
     from langdetect.lang_detect_exception import LangDetectException
     if ensure_en:
