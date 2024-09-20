@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_3.3-75k-42_mixed-ws-32k_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_3.3-75k-42_mixed-gpt2-32k_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -33,4 +33,5 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 # per-tokenizers
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-llama3-32000
-python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-ws-32000
+# python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-ws-32000
+python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
