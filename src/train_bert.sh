@@ -47,7 +47,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-4000
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-8000
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-16000
-python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 300000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --batch_size 64
-# python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000
+# python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 150000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --batch_size 128
+python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 300000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000 --batch_size 64
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-256000
 # python train_bert.py --uu --seed 42 --word_count 3_300_000_000 --steps 75000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-512000
