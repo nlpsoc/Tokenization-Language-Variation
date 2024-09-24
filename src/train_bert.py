@@ -94,7 +94,7 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, test=False):
+def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, batch_size=256, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -110,7 +110,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Dataset size: {len(dataset)}")
 
     # set parameters
-    batch_size = 256  # 256 * 8
+    batch_size = batch_size  # 256 * 8
     log_and_flush(f"Batch size: {batch_size}")
 
     # calculate the number of steps for one epoch
@@ -246,6 +246,7 @@ if __name__ == '__main__':
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
     parser.add_argument("--test", action="store_true", help="use a tiny dataset for testing purposes")
+    parser.add_argument("--batch_size", type=int, default=256, help="batch size for training")
 
     # Login to WandB account (this might prompt for an API key if not logged in already)
     wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
@@ -279,9 +280,10 @@ if __name__ == '__main__':
     log_and_flush(f"Seed: {args.seed}")
     log_and_flush(f"Word count: {args.word_count}")
     log_and_flush(f"Steps: {args.steps}")
+    log_and_flush(f"Batch size: {args.batch_size}")
     main(tokenizer_path=args.tokenizer, word_count=args.word_count, steps=args.steps, random_seed=args.seed,
          output_base_folder=output_base_folder,
-         data_path=train_path, test=args.test)
+         data_path=train_path, batch_size=args.batch_size, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
