@@ -716,7 +716,7 @@ def main():
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
-        # trainer.save_model()  # Saves the tokenizer too for easy upload
+        trainer.save_model()  # Saves the tokenizer too for easy upload
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         # trainer.save_state()
@@ -729,6 +729,15 @@ def main():
         metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
+
+        # Predict again on eval dataset and save all predictions with IDs
+        predictions = trainer.predict(eval_dataset)
+        eval_dataset = eval_dataset.add_column("predictions",
+                                               predictions.predictions.argmax(-1))  # assuming classification
+        # Dataset as a TSV file
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
+        eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
 
     if training_args.do_predict:
         logger.info("*** Predict ***")
