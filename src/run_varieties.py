@@ -105,20 +105,19 @@ def main(task, model_path, seed, output_dir):
         result = subprocess.run(command)
     elif task == "value":  # currently not in use, as value seems to need different code / env
         command = [
-            "python", "run_value.py",
+            "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--dataset_name", 'barilan/blog_authorship_corpus',
+            "--dataset_name", "/hpc/uu_cs_nlpsc/02-awegmann/TOKENIZER/data/eval-corpora/value/mrpc/",
             "--trust_remote_code", "True",
             "--shuffle_train_dataset",
-            "--metric_name", "f1",
             "--text_column_name", "text",
-            "--label_column_name", "value",
+            "--label_column_name", "label",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
+            "--num_train_epochs", "5",
             "--output_dir", output_dir,
             "--seed", str(seed),
         ]
