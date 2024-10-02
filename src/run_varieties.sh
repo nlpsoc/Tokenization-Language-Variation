@@ -31,7 +31,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3270M/steps-80000/seed-44
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/329M/steps-80000/seed-44
 # -----
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
+MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-llama3-32000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-ws-32000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/twitter-gpt2-32000/3270M/steps-75000/seed-42
@@ -41,7 +41,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-2000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-4000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-8000/3270M/steps-75000/seed-42
-MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-16000/3270M/steps-75000/seed-42
+# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-16000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-64000/3270M/steps-150000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-128000/3270M/steps-300000/seed-42
 
@@ -68,12 +68,12 @@ MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
 ##python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
 TASK_NAME=CORE
-SEED=42
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+SEED=43
 python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-#SEED=43
-#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-#SEED=44
-#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+SEED=44
+python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
 
 # TASK_NAME=value

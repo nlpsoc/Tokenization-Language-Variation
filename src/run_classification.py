@@ -738,7 +738,7 @@ def main():
                                                predictions.predictions.argmax(-1))  # assuming classification
         # Dataset as a TSV file
         current_date = datetime.now().strftime("%Y-%m-%d")
-        output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
+        output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset.tsv")
         eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
 
     if training_args.do_predict:
