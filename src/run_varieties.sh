@@ -82,7 +82,8 @@ conda deactivate
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
 cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
 export VALUE_TASK_NAME=mrpc
- python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE --morphosyntax --model_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/
+python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
+--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/
 #SEED=42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
