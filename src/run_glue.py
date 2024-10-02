@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
+from datetime import datetime
+
 from styletokenizer.utility.custom_logger import log_and_flush
 
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
@@ -281,7 +283,6 @@ def main():
             f"Output directory ({training_args.output_dir}) already exists and is not empty. "
             "Use --overwrite_output_dir to overcome."
         )
-
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -567,8 +568,8 @@ def main():
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
         # uncomment to save model
-        # trainer.save_model()
-        # trainer.save_state()
+        trainer.save_model()
+        trainer.save_state()
 
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
@@ -605,6 +606,14 @@ def main():
             log_and_flush(f"*** Eval results {task} with seed {training_args.seed}***")
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
+
+            # Predict again on eval dataset and save all predictions with IDs
+            predictions = trainer.predict(eval_dataset)
+            eval_dataset = eval_dataset.add_column("predictions", predictions.predictions.argmax(-1))  # assuming classification
+            # Dataset as a TSV file
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
+            eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
 
     if training_args.do_predict:
         logger.info("*** Predict ***")

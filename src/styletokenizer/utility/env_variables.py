@@ -67,11 +67,14 @@ def set_cache():
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
 
         return UU_CACHE_DIR
-
-    log_and_flush("Using UMich cluster cache")
-    os.environ["HF_HOME"] = UMICH_CACHE_DIR
-    os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
-    return UMICH_CACHE_DIR
+    elif at_umich():
+        log_and_flush("Using UMich cluster cache")
+        os.environ["HF_HOME"] = UMICH_CACHE_DIR
+        os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
+        return UMICH_CACHE_DIR
+    else:
+        log_and_flush("Using local cache")
+        return None
 
 
 def at_uu() -> bool:
