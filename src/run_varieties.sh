@@ -84,8 +84,8 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
 cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
 export VALUE_TASK_NAME=sst2
 python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
---morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
-SEED=42 --test
+--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME --test
+# SEED=42
 #python  run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
 #--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
 #--seed $SEED

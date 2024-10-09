@@ -34,7 +34,7 @@ from typing import List, Optional
 import datasets
 import evaluate
 import numpy as np
-from datasets import Value, load_dataset
+from datasets import Value, load_dataset, load_from_disk
 
 import transformers
 from transformers import (
@@ -345,14 +345,17 @@ def main():
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
     if data_args.dataset_name is not None:
-        # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(
-            data_args.dataset_name,
-            data_args.dataset_config_name,
-            cache_dir=model_args.cache_dir,
-            token=model_args.token,
-            trust_remote_code=model_args.trust_remote_code,
-        )
+        try:
+            # Downloading and loading a dataset from the hub.
+            raw_datasets = load_dataset(
+                data_args.dataset_name,
+                data_args.dataset_config_name,
+                cache_dir=model_args.cache_dir,
+                token=model_args.token,
+                trust_remote_code=model_args.trust_remote_code,
+            )
+        except ValueError as e:
+            raw_datasets = load_from_disk(data_args.dataset_name)
         # Try print some info about the dataset
         logger.info(f"Dataset loaded: {raw_datasets}")
         logger.info(raw_datasets)
