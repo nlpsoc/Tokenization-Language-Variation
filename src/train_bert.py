@@ -68,16 +68,24 @@ def load_tokenizer(tokenizer_path):
     return tokenizer, tokenizer_name
 
 
-def create_tinybert_architecture(tokenizer):
+def create_tinybert_architecture(tokenizer, model_size=4):
     """
         create a tiny BERT architecture according to https://huggingface.co/prajjwal1/bert-tiny
             with random weights and resizing the embedding layer to match the tokenizer size
+    :param model_size: in million
     :param tokenizer:
     :return:
     """
-    # Load the configuration of 'prajjwal1/bert-tiny'
-    config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
-    # DROPOUT in config is already set to 0.1, otherwise set
+    if model_size == 4:
+        # Load the configuration of 'prajjwal1/bert-tiny'
+        config = BertConfig.from_pretrained('prajjwal1/bert-tiny')
+    elif model_size == 11:
+        config = BertConfig.from_pretrained('prajjwal1/bert-mini')
+    elif model_size == 29:
+        config = BertConfig.from_pretrained('prajjwal1/bert-small')
+    else:
+        raise ValueError("Model size must be 4, 11 or 29 million, matching tiny, mini or small BERT")
+    # DROPOUT in config is already set to 0.1 by default, otherwise set
     # config.hidden_dropout_prob = 0.1
     # config.attention_probs_dropout_prob = 0.1
     log_and_flush(f"Configuration loaded: {config}")
@@ -94,7 +102,8 @@ def tokenize_and_encode(tokenizer, examples):
     return tokenizer(examples['text'], truncation=True, padding="max_length", max_length=512)
 
 
-def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, batch_size=256, test=False):
+def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, batch_size=256, model_size=4,
+         test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -124,7 +133,17 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Number of steps: {steps}")
     log_and_flush(f"Number of Epochs: {steps / len(dataset) * batch_size}")
 
-    output_dir = os.path.join(output_base_folder, tokenizer_name, f"{int(actual_word_count / 1_000_000)}M",
+    if model_size == 4:
+        bert_name = "tiny-BERT"
+    elif model_size == 11:
+        bert_name = "mini-BERT"
+    elif model_size == 29:
+        bert_name = "small-BERT"
+    else:
+        raise ValueError("Model size must be 4, 11 or 29 million, matching tiny, mini or small BERT")
+
+    output_dir = os.path.join(output_base_folder, bert_name, tokenizer_name,
+                              f"{int(actual_word_count / 1_000_000)}M",
                               f"steps-{steps}",
                               f"seed-{random_seed}")
     log_and_flush(f"Output directory: {output_dir}")
@@ -143,7 +162,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     )
 
     # initialize a tiny BERT model that fits the tokenizer size
-    model = create_tinybert_architecture(tokenizer)
+    model = create_tinybert_architecture(tokenizer, model_size=model_size)
 
     data_collator = DataCollatorForLanguageModeling(
         tokenizer=tokenizer, mlm=True, mlm_probability=0.15
@@ -242,6 +261,8 @@ if __name__ == '__main__':
 
     # add epoch argument
     parser.add_argument("--steps", type=int, default=80000, help="number of steps to train")
+    parser.add_argument("--model_size", type=int, default=4, help="in million, "
+                                                                 "the number of parameters of the org tiny bert architecture")
 
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
@@ -257,13 +278,13 @@ if __name__ == '__main__':
 
     if args.uu:
         log_and_flush("Using UU cluster")
-        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/"
+        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/"
         train_path = UU_TRAIN_DATASET_PATH
         os.environ["TRANSFORMERS_CACHE"] = UU_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
     elif args.umich:
         log_and_flush("Using UMich cluster")
-        output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/tiny-BERT/"
+        output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/"
         train_path = UMICH_TRAIN_DATASET_PATH
         os.environ["TRANSFORMERS_CACHE"] = UMICH_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
@@ -281,9 +302,10 @@ if __name__ == '__main__':
     log_and_flush(f"Word count: {args.word_count}")
     log_and_flush(f"Steps: {args.steps}")
     log_and_flush(f"Batch size: {args.batch_size}")
+    log_and_flush(f"Tiny BERT params in millions: {args.model_size}")
     main(tokenizer_path=args.tokenizer, word_count=args.word_count, steps=args.steps, random_seed=args.seed,
          output_base_folder=output_base_folder,
-         data_path=train_path, batch_size=args.batch_size, test=args.test)
+         data_path=train_path, batch_size=args.batch_size, model_size=args.model_size, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
