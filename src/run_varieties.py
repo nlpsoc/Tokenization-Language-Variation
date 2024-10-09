@@ -3,7 +3,7 @@ import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
 
-tasks = ["sadiri", "stel", "age", "value", "CORE"]
+tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "CORE"]
 
 
 def main(task, model_path, seed, output_dir):
