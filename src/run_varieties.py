@@ -107,7 +107,7 @@ def main(task, model_path, seed, output_dir):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--dataset_name", f"/hpc/uu_cs_nlpsc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}/",
+            "--dataset_name", f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}/",
             "--trust_remote_code", "True",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
