@@ -103,11 +103,11 @@ def main(task, model_path, seed, output_dir):
         #     "--seed", str(seed),
         # ]
         result = subprocess.run(command)
-    elif task == "value":  # currently not in use, as value seems to need different code / env
+    elif task in ["mrpc", "sst2"]:  # currently not in use, as value seems to need different code / env
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--dataset_name", "/hpc/uu_cs_nlpsc/02-awegmann/TOKENIZER/data/eval-corpora/value/mrpc/",
+            "--dataset_name", f"/hpc/uu_cs_nlpsc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}/",
             "--trust_remote_code", "True",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
