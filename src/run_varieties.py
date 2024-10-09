@@ -104,6 +104,10 @@ def main(task, model_path, seed, output_dir):
         # ]
         result = subprocess.run(command)
     elif task in ["mrpc", "sst2"]:  # currently not in use, as value seems to need different code / env
+        if task == "mrpc":
+            train_epochs = 5
+        else:
+            train_epochs = 3
         command = [
             "python", "run_glue.py",
             "--model_name_or_path", model_path,
@@ -117,7 +121,7 @@ def main(task, model_path, seed, output_dir):
             "--max_seq_length", "512",
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
-            "--num_train_epochs", "5",
+            "--num_train_epochs", train_epochs,
             "--output_dir", output_dir,
             "--seed", str(seed),
         ]

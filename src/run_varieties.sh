@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_3.3-75k-42_mixed-gpt2-16k_CORE_42_%j.txt
+### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_3.3-75k-42_mixed-gpt2-32k_VALUE-mrpc_42_%j.txt
 #SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE_TRANSFORM_TEST_SST2_%j.txt
 
 ### Request the time you need for execution in minutes
@@ -86,9 +86,10 @@ MODEL_NAME="${MODEL_PATH#*/tiny-BERT/}"
 #python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
 #--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME --test
 
- SEED=42
+TASK_NAME=mrpc
+SEED=42
 python  run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
---output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$VALUE_TASK_NAME/$MODEL_NAME/$SEED \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/value/$TASK_NAME/$MODEL_NAME/$SEED \
 --seed $SEED
 ###SEED=43
 ###python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
