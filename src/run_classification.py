@@ -345,7 +345,10 @@ def main():
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
     if data_args.dataset_name is not None:
-        try:
+        # test if dataset_name is a path that exists
+        if os.path.exists(data_args.dataset_name):
+            raw_datasets = load_from_disk(data_args.dataset_name)
+        else:
             # Downloading and loading a dataset from the hub.
             raw_datasets = load_dataset(
                 data_args.dataset_name,
@@ -354,11 +357,8 @@ def main():
                 token=model_args.token,
                 trust_remote_code=model_args.trust_remote_code,
             )
-        except FileNotFoundError:
-            raw_datasets = load_from_disk(data_args.dataset_name)
         # Try print some info about the dataset
         logger.info(f"Dataset loaded: {raw_datasets}")
-        logger.info(raw_datasets)
     else:
         # Loading a dataset from your local files.
         # TSV/CSV/JSON training and evaluation files are needed.

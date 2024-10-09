@@ -300,13 +300,17 @@ def main():
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
     if data_args.task_name is not None:
-        # Downloading and loading a dataset from the hub.
-        raw_datasets = load_dataset(
-            "nyu-mll/glue",
-            data_args.task_name,
-            cache_dir=model_args.cache_dir,
-            token=model_args.token,
-        )
+        if os.path.exists(data_args.task_name):
+            raw_datasets = load_from_disk(data_args.task_name)
+        else:
+            # Downloading and loading a dataset from the hub.
+            raw_datasets = load_dataset(
+                "nyu-mll/glue",
+                data_args.task_name,
+                cache_dir=model_args.cache_dir,
+                token=model_args.token,
+            )
+        logger.info(f"Dataset loaded: {raw_datasets}")
     elif data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
