@@ -354,7 +354,7 @@ def main():
                 token=model_args.token,
                 trust_remote_code=model_args.trust_remote_code,
             )
-        except ValueError or FileNotFoundError:
+        except FileNotFoundError:
             raw_datasets = load_from_disk(data_args.dataset_name)
         # Try print some info about the dataset
         logger.info(f"Dataset loaded: {raw_datasets}")
