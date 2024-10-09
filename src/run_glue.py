@@ -302,6 +302,9 @@ def main():
     if data_args.task_name is not None:
         if os.path.exists(data_args.task_name):
             raw_datasets = load_from_disk(data_args.task_name)
+            # set task name to last folder in path
+            task_name = os.path.basename(os.path.normpath(data_args.task_name))
+            data_args.task_name = task_name
         else:
             # Downloading and loading a dataset from the hub.
             raw_datasets = load_dataset(
