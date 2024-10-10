@@ -618,6 +618,10 @@ def main():
             # Predict again on eval dataset and save all predictions with IDs
             predictions = trainer.predict(eval_dataset)
             eval_dataset = eval_dataset.add_column("predictions", predictions.predictions.argmax(-1))  # assuming classification
+            # save the tokenized string in column "tokenized string"
+            eval_dataset = eval_dataset.add_column("tokenized string",
+                                                   model.tokenizer.batch_decode(eval_dataset["input_ids"],
+                                                                                skip_special_tokens=True))
             # Dataset as a TSV file
             current_date = datetime.now().strftime("%Y-%m-%d")
             output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
