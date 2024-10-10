@@ -102,7 +102,7 @@ TASK_NAME=mrpc
 SEED=42
 python  run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/value/$TASK_NAME/$MODEL_NAME/$SEED \
---seed $SEED --overwrite
+--seed $SEED
 ###SEED=43
 ###python run_glue.py --model_name_or_path $MODEL_PATH --task_name $VALUE_TASK_NAME --do_train --do_eval \
 ###--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \

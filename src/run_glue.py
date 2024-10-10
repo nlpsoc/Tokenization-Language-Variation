@@ -620,7 +620,7 @@ def main():
             eval_dataset = eval_dataset.add_column("predictions", predictions.predictions.argmax(-1))  # assuming classification
             # save the tokenized string in column "tokenized string"
             eval_dataset = eval_dataset.add_column("tokenized string",
-                                                   model.tokenizer.batch_decode(eval_dataset["input_ids"],
+                                                   tokenizer.batch_decode(eval_dataset["input_ids"],
                                                                                 skip_special_tokens=True))
             # Dataset as a TSV file
             current_date = datetime.now().strftime("%Y-%m-%d")
