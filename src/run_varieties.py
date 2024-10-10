@@ -126,7 +126,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
         ]
         if overwrite:
-            command.append("--overwrite")
+            command.append("--overwrite_output_dir")
         result = subprocess.run(command)
 
     elif task == "CORE":
