@@ -6,7 +6,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "CORE"]
 
 
-def main(task, model_path, seed, output_dir):
+def main(task, model_path, seed, output_dir, overwrite=False):
     # print all set vars
     log_and_flush(f"task: {task}")
     log_and_flush(f"model_path: {model_path}")
@@ -125,6 +125,8 @@ def main(task, model_path, seed, output_dir):
             "--output_dir", output_dir,
             "--seed", str(seed),
         ]
+        if overwrite:
+            command.append("--overwrite")
         result = subprocess.run(command)
 
     elif task == "CORE":
@@ -158,6 +160,9 @@ if __name__ == "__main__":
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--model_path', default=None, type=str)
     parser.add_argument('--output_dir', default=None, type=str)
+    parser.add_argument("--overwrite", action="store_true",
+                        help="Overwrite the output directory if it exists", default=False)
 
     args = parser.parse_args()
-    main(task=args.task, model_path=args.model_path, seed=args.seed, output_dir=args.output_dir)
+    main(task=args.task, model_path=args.model_path, seed=args.seed, output_dir=args.output_dir,
+         overwrite=args.overwrite)
