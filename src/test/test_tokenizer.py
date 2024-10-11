@@ -3,6 +3,7 @@ from unittest import TestCase
 from huggingface_tokenizers import T5, HUGGINGFACE_TOKENIZERS, TRAINED_TOKENIZERS
 from styletokenizer.tokenizer import TorchTokenizer
 import homoglyphs as hg
+from fit_tokenizer import init_tokenizer_with_regex
 
 
 class TestTokenizer(TestCase):
@@ -33,10 +34,10 @@ class TestTokenizer(TestCase):
     def test_robrta_tokenizer(self):
         # unicode space is "\u0020", i.e., " " == "\u0020"
         test_str = ("well...\nI loves me a café \t i'm, i DON'T    or we’ve got 1000s\u00a0€ of emojis!!!\r‘🫨 😊 :) :D :((’   ")
-        test_str = (
-            "Me ‘Time @ UMich's great!!😊’\nLearned 1000s thangs:\u00a0I'm I'M I’m café..  ")
+        # test_str = (
+        #     "Me ‘Time @ UMich's great!!😊 ’\nLearned 1000s thangs:\u00a0I'm I'M I’m café..  ")
         # test_str = "guy learnt\u00a0guitar\nThe man learned an instrument. "
-        test_str = ("Me ‘Learned 1000s thangs!!’\nI've learnt many things!")
+        # test_str = ("😊,😭,🥺,🤣,❤️,✨,🙏,😍,🥰, Me ‘Learned 1000s thangs!!’\nI've learnt many things!")
 
         for tok_name, tokenizer in zip(TRAINED_TOKENIZERS, self.trained_tokenizers):
             print(f"Tokenizer: {tok_name}")
@@ -98,15 +99,19 @@ class TestTokenizer(TestCase):
             print(atoms)
 
     def test_pre_tokenization(self):
-        test_str = "Hello    world!"
-        from tokenizers.pre_tokenizers import Split
-        # create regex for \s
-        from tokenizers import Regex
-        ws_re = Regex(r'\s+')
-        isolated_pre_tokenizer = Split(ws_re, behavior='isolated')
-        print("isolated:", isolated_pre_tokenizer.pre_tokenize_str(test_str))
-        contiguous_pre_tokenizer = Split(ws_re, behavior='contiguous')
-        print("contiguous:", contiguous_pre_tokenizer.pre_tokenize_str(test_str))
+        test_str = ("well... \n\n I DON'T don't like café for $3000!! #lol 😊 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
+        # pre-tokenize for ws, gpt2 and llama3
+        for regex_pretok in ["ws", "gpt2", "llama3"]:
+            pretokenizer = init_tokenizer_with_regex(regex_pretok).pre_tokenizer
+            print(pretokenizer.pre_tokenize_str(test_str))
+        # from tokenizers.pre_tokenizers import Split
+        # # create regex for \s
+        # from tokenizers import Regex
+        # ws_re = Regex(r'\s+')
+        # isolated_pre_tokenizer = Split(ws_re, behavior='isolated')
+        # print("isolated:", isolated_pre_tokenizer.pre_tokenize_str(test_str))
+        # contiguous_pre_tokenizer = Split(ws_re, behavior='contiguous')
+        # print("contiguous:", contiguous_pre_tokenizer.pre_tokenize_str(test_str))
 
     def test_homoglyphs(self):
         tokenizers = []
