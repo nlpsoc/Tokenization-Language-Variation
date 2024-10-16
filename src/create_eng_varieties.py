@@ -113,9 +113,9 @@ test_df = test_df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 print("Saving the datasets to CSV files...")
 # Save the datasets to CSV files
-train_df.to_csv('train.csv', index=False)
-dev_df.to_csv('dev.csv', index=False)
-test_df.to_csv('test.csv', index=False)
+train_df.to_csv('/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv', index=False)
+dev_df.to_csv('/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv', index=False)
+test_df.to_csv('/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/test.csv', index=False)
 
 print("Process completed successfully!")
 print(f"Training set samples: {len(train_df)}")
