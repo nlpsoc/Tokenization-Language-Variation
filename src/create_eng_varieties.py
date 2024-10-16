@@ -8,7 +8,7 @@ import glob
 from sklearn.model_selection import train_test_split
 
 # Define the path to the folder containing the gzipped CSV files
-folder_path = 'path_to_your_folder'
+folder_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/"
 
 # Define the list of possible origins
 origins = ['Nigeria', 'Canada', 'United_States', 'Hong_Kong', 'India', 'Pakistan', 'Malaysia',
