@@ -103,7 +103,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         #     "--seed", str(seed),
         # ]
         result = subprocess.run(command)
-    elif task in ["mrpc", "sst2"]:  # currently not in use, as value seems to need different code / env
+    elif task in ["mrpc", "sst2", "qqp", "mnli", "qnli", "rte"]:  # currently not in use, as value seems to need different code / env
         if task == "mrpc":
             train_epochs = "5"
         else:
