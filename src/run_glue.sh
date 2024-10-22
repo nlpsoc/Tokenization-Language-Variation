@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE_mini-3.3-75k-42_mixed-gpt2-32k_GLUE-42_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE_mini-3.3-75k-42_wiki-gpt2-32k_GLUE-42_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -43,9 +43,9 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-64000/3270M/steps-150000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-128000/3270M/steps-300000/seed-42
 # -----
-MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
+# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
 # MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/twitter-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/wikipedia-gpt2-32000/3270M/steps-75000/seed-42
+MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/wikipedia-gpt2-32000/3270M/steps-75000/seed-42
 
 
 # Extract the last part of the path
@@ -53,10 +53,10 @@ MODEL_NAME="GLUE/${MODEL_PATH#*/models/}"
 
 # #########################################################################################
 #  add --do_predict to eval on test set
-#export TASK_NAME=mrpc
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
+export TASK_NAME=mrpc
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
 #--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/43/ --seed 43
@@ -64,10 +64,10 @@ MODEL_NAME="GLUE/${MODEL_PATH#*/models/}"
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 5 \
 #--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/44/ --seed 44
 
-#export TASK_NAME=sst2
-#python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-#--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
-#--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
+export TASK_NAME=sst2
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
 #--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/43/ --seed 43
