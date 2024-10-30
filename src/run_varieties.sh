@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_mini-3.3-75k-42_twitter-gpt2-32k_VAR_42_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_mini-3.3-75k-42_twitter-gpt2-32k_VALUE_42_%j.txt
 ### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE_TRANSFORM_SST2-RTE_%j.txt
 
 ### Request the time you need for execution in minutes
@@ -47,19 +47,19 @@ MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/twitter-gpt2
 
 MODEL_NAME="${MODEL_PATH#*/models/}"
 
-TASK_NAME=stel
-python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
-
-TASK_NAME=sadiri
-SEED=42
-python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-TASK_NAME=age
-SEED=42
-python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-
-TASK_NAME=CORE
-SEED=42
-python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#TASK_NAME=stel
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+#
+#TASK_NAME=sadiri
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#TASK_NAME=age
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+#
+#TASK_NAME=CORE
+#SEED=42
+#python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
 TASK_NAME=mrpc
 SEED=42
