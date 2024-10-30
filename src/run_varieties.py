@@ -103,7 +103,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         #     "--seed", str(seed),
         # ]
         result = subprocess.run(command)
-    elif task in ["mrpc", "sst2", "qqp", "mnli", "qnli", "rte"]:  # currently not in use, as value seems to need different code / env
+    elif task in ["mrpc", "sst2", "qqp", "mnli", "qnli",
+                  "rte"]:  # currently not in use, as value seems to need different code / env
         if task == "mrpc":
             train_epochs = "5"
         else:
@@ -169,10 +170,9 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
             "--max_train_samples", "200000",
             "--max_eval_samples", "20000",
+            "--overwrite_output_dir",
         ]
         result = subprocess.run(command)
-
-
 
 
 if __name__ == "__main__":
