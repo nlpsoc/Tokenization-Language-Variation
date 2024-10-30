@@ -596,50 +596,82 @@ def main():
                 result["label"] = [(label_to_id[str(l)] if l != -1 else -1) for l in examples["label"]]
         return result
 
-    # Running the preprocessing pipeline on all the datasets
-    with training_args.main_process_first(desc="dataset map pre-processing"):
-        raw_datasets = raw_datasets.map(
-            preprocess_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            load_from_cache_file=False,
-            keep_in_memory=True,
-            desc="Running tokenizer on dataset",
-        )
+    def prepare_dataset(raw_datasets, dataset_keys, do_flag, max_samples=None, shuffle=False, seed=None, desc=None,
+                        preprocess_function=None, num_proc=None, load_from_cache_file=False, keep_in_memory=True):
+        if not do_flag:
+            return None
 
-    if training_args.do_train:
-        if "train" not in raw_datasets:
-            raise ValueError("--do_train requires a train dataset.")
-        train_dataset = raw_datasets["train"]
-        if data_args.shuffle_train_dataset:
-            logger.info("Shuffling the training dataset")
-            train_dataset = train_dataset.shuffle(seed=data_args.shuffle_seed)
-        if data_args.max_train_samples is not None:
-            max_train_samples = min(len(train_dataset), data_args.max_train_samples)
-            train_dataset = train_dataset.select(range(max_train_samples))
-
-    if training_args.do_eval:
-        if "validation" not in raw_datasets and "validation_matched" not in raw_datasets:
-            if "test" not in raw_datasets and "test_matched" not in raw_datasets:
-                raise ValueError("--do_eval requires a validation or test dataset if validation is not defined.")
-            else:
-                logger.warning("Validation dataset not found. Falling back to test dataset for validation.")
-                eval_dataset = raw_datasets["test"]
+        # Find the appropriate dataset key
+        for key in dataset_keys:
+            if key in raw_datasets:
+                dataset = raw_datasets[key]
+                break
         else:
-            eval_dataset = raw_datasets["validation"]
+            raise ValueError(f"Required dataset not found. Available keys: {list(raw_datasets.keys())}")
 
-        if data_args.max_eval_samples is not None:
-            max_eval_samples = min(len(eval_dataset), data_args.max_eval_samples)
-            eval_dataset = eval_dataset.select(range(max_eval_samples))
+        # Shuffle the dataset if required
+        if shuffle:
+            logger.info(f"Shuffling the {desc} dataset")
+            dataset = dataset.shuffle(seed=seed)
 
-    if training_args.do_predict or data_args.test_file is not None:
-        if "test" not in raw_datasets:
-            raise ValueError("--do_predict requires a test dataset")
-        predict_dataset = raw_datasets["test"]
-        # remove label column if it exists
-        if data_args.max_predict_samples is not None:
-            max_predict_samples = min(len(predict_dataset), data_args.max_predict_samples)
-            predict_dataset = predict_dataset.select(range(max_predict_samples))
+        # Select a subset of the dataset if max_samples is specified
+        if max_samples is not None:
+            max_samples = min(len(dataset), max_samples)
+            dataset = dataset.select(range(max_samples))
+
+        # Preprocess only the selected samples
+        with training_args.main_process_first(desc="dataset map pre-processing"):
+            dataset = dataset.map(
+                preprocess_function,
+                batched=True,
+                num_proc=num_proc,
+                load_from_cache_file=load_from_cache_file,
+                keep_in_memory=keep_in_memory,
+                desc=f"Running tokenizer on {desc} dataset",
+            )
+
+        return dataset
+
+    # Prepare the training dataset
+    train_dataset = prepare_dataset(
+        raw_datasets=raw_datasets,
+        dataset_keys=["train"],
+        do_flag=training_args.do_train,
+        max_samples=data_args.max_train_samples,
+        shuffle=data_args.shuffle_train_dataset,
+        seed=data_args.shuffle_seed,
+        desc="training",
+        preprocess_function=preprocess_function,
+        num_proc=data_args.preprocessing_num_workers,
+        load_from_cache_file=False,
+        keep_in_memory=True,
+    )
+
+    # Prepare the evaluation dataset
+    eval_dataset = prepare_dataset(
+        raw_datasets=raw_datasets,
+        dataset_keys=["validation", "validation_matched"],
+        do_flag=training_args.do_eval,
+        max_samples=data_args.max_eval_samples,
+        desc="evaluation",
+        preprocess_function=preprocess_function,
+        num_proc=data_args.preprocessing_num_workers,
+        load_from_cache_file=False,
+        keep_in_memory=True,
+    )
+
+    # Prepare the prediction dataset
+    predict_dataset = prepare_dataset(
+        raw_datasets=raw_datasets,
+        dataset_keys=["test", "test_matched"],
+        do_flag=training_args.do_predict or data_args.test_file is not None,
+        max_samples=data_args.max_predict_samples,
+        desc="prediction",
+        preprocess_function=preprocess_function,
+        num_proc=data_args.preprocessing_num_workers,
+        load_from_cache_file=False,
+        keep_in_memory=True,
+    )
 
     # Log a few random samples from the training set:
     if training_args.do_train:
