@@ -167,8 +167,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--num_train_epochs", "3",
             "--output_dir", output_dir,
             "--seed", str(seed),
-            "--max_train_samples", "1000",
-            "--max_eval_samples", "1000",
+            "--max_train_samples", "200000",
+            "--max_eval_samples", "20000",
         ]
         result = subprocess.run(command)
 
