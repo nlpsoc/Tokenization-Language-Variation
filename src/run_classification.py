@@ -387,7 +387,7 @@ def main():
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
-            raw_datasets = check_for_multilabel(raw_datasets)
+            raw_datasets = check_for_multilabel(raw_datasets, column=data_args.label_column_name)
         elif data_args.train_file.endswith(".tsv"):
             # Loading a dataset from local tsv files
             raw_datasets = load_dataset(
@@ -397,7 +397,7 @@ def main():
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
-            raw_datasets = check_for_multilabel(raw_datasets)
+            raw_datasets = check_for_multilabel(raw_datasets, column=data_args.label_column_name)
 
         else:
             # Loading a dataset from local json files
