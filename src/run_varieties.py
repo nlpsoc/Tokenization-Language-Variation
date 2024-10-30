@@ -169,6 +169,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
             "--max_train_samples", "1000",
         ]
+        result = subprocess.run(command)
 
 
 
