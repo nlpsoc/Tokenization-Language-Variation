@@ -50,7 +50,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         class SBERTSimilarity(Similarity):
             def __init__(self):
                 super().__init__()
-                self.model = SentenceTransformer(model_path)
+                self.model = SentenceTransformer(model_path)  # should create mean pooling by default, see https://www.sbert.net/docs/sentence_transformer/usage/custom_models.html?highlight=mean%20pool
                 self.model.to("cuda" if torch.cuda.is_available() else "cpu")
 
             def similarities(self, sentences_1, sentences_2):
