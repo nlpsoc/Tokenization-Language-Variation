@@ -15,10 +15,31 @@ def load_train_data():
     return pd.concat([entertainment_df, family_df], axis=0)
 
 
+def save_run_classification_train_data():
+    train_data = load_train_data()
+    save_for_runclassification(train_data)
+
+
+def save_for_runclassification(train_data, filename="train.csv"):
+    train_labels, train_texts = to_classification_data(train_data)
+    train_df = pd.DataFrame({
+        'label': train_labels,
+        'text': train_texts
+    })
+    # shuffle
+    train_df = train_df.sample(frac=1).reset_index(drop=True)
+    train_df.to_csv(GYAFC_PATH + filename, index=False)
+
+
 def load_dev_data():
     entertainment_df = _get_theme_data(ENTERTAINMENT, split="dev")
     family_df = _get_theme_data(FAMILY, split="dev")
     return pd.concat([entertainment_df, family_df], axis=0)
+
+
+def save_for_runclassification_dev_data():
+    dev_data = load_dev_data()
+    save_for_runclassification(dev_data, filename="dev.csv")
 
 
 def _get_theme_data(theme_dir, split="train"):
