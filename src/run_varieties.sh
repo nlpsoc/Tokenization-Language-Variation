@@ -11,7 +11,7 @@
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
-#SBATCH -t 48:00:00
+#SBATCH -t 24:00:00
 
 ### Request a specific GPU
 ### see https://hpcusers.op.umcutrecht.nl/xwiki/bin/view/Main/Setup/Cluster/GPU-nodes/
