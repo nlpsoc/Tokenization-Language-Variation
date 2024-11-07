@@ -11,11 +11,11 @@ def get_text(example, task):
     if task == 'sst2':
         return example['sentence']
     elif task == 'qqp':
-        return example['question1'] + example['question2']
+        return example['question1'] + " " + example['question2']
     elif task == 'mnli':
-        return example['premise'] + example['hypothesis']
+        return example['premise'] + " " + example['hypothesis']
     elif task == 'qnli':
-        return example['question'] + example['sentence']
+        return example['question'] + " " + example['sentence']
     else:
         return ''
 
