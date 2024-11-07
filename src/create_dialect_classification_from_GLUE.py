@@ -4,7 +4,7 @@
 import os
 import random
 import pandas as pd
-from datasets import load_dataset, load_from_disk
+from datasets import load_dataset, load_from_disk, concatenate_datasets
 
 
 def get_text(example, task):
@@ -24,6 +24,19 @@ def create_datasets():
     tasks = ['sst2', 'qqp', 'mnli', 'qnli']
     sample_sizes = {'train': 25000, 'validation': 2500, 'test': 2500}
 
+    split_mapping = {
+        'mnli': {
+            'train': ['train'],
+            'validation': ['validation_matched', 'validation_mismatched'],
+            'test': ['test_matched', 'test_mismatched']
+        },
+        'default': {
+            'train': ['train'],
+            'validation': ['validation'],
+            'test': ['test']
+        }
+    }
+
     for split in ['train', 'validation', 'test']:
         print(f"Processing split: {split}")
 
@@ -34,25 +47,52 @@ def create_datasets():
         total_available_samples = 0
         task_splits = {}
         for task in tasks:
+            # Determine the actual splits for the task
+            if task == 'mnli':
+                actual_splits = split_mapping['mnli'][split]
+            else:
+                actual_splits = split_mapping['default'][split]
+
             # Load the original and perturbed datasets
             original_dataset = load_dataset('nyu-mll/glue', task)
             perturbed_dataset_path = f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}"
             perturbed_dataset = load_from_disk(perturbed_dataset_path)
 
-            if split not in original_dataset:
-                print(f"Split {split} not found for task {task}, skipping.")
+            # Initialize combined splits
+            combined_original_split = None
+            combined_perturbed_split = None
+
+            for actual_split in actual_splits:
+                if actual_split not in original_dataset:
+                    print(f"Split {actual_split} not found for task {task}, skipping.")
+                    continue
+
+                original_split = original_dataset[actual_split]
+                perturbed_split = perturbed_dataset[actual_split]
+
+                # Ensure datasets are aligned
+                min_length = min(len(original_split), len(perturbed_split))
+                original_split = original_split.select(range(min_length))
+                perturbed_split = perturbed_split.select(range(min_length))
+
+                # Combine splits if necessary
+                if combined_original_split is None:
+                    combined_original_split = original_split
+                    combined_perturbed_split = perturbed_split
+                else:
+                    combined_original_split = concatenate_datasets([combined_original_split, original_split])
+                    combined_perturbed_split = concatenate_datasets([combined_perturbed_split, perturbed_split])
+
+            if combined_original_split is None:
+                print(f"No valid splits found for task {task} and split {split}, skipping.")
                 continue
 
-            original_split = original_dataset[split]
-            perturbed_split = perturbed_dataset[split]
+            task_splits[task] = (combined_original_split, combined_perturbed_split)
+            total_available_samples += len(combined_original_split)
 
-            # Ensure datasets are aligned
-            min_length = min(len(original_split), len(perturbed_split))
-            original_split = original_split.select(range(min_length))
-            perturbed_split = perturbed_split.select(range(min_length))
-
-            task_splits[task] = (original_split, perturbed_split)
-            total_available_samples += min_length
+        if total_available_samples == 0:
+            print(f"No data available for split {split}, skipping.")
+            continue
 
         # Determine sample size (number of sentence pairs)
         max_samples = sample_sizes.get(split, total_available_samples)
