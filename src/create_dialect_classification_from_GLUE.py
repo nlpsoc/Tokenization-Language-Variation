@@ -1,25 +1,26 @@
+"""
+    Generated with ChatGPT o1-preview on 2024-11-07
+"""
 import os
 import random
 import pandas as pd
-from datasets import load_dataset, load_from_disk, concatenate_datasets
-
+from datasets import load_dataset, load_from_disk
 
 def get_text(example, task):
     if task == 'sst2':
         return example['sentence']
     elif task == 'qqp':
-        return example['question1'] + ' [SEP] ' + example['question2']
+        return example['question1'] + example['question2']
     elif task == 'mnli':
-        return example['premise'] + ' [SEP] ' + example['hypothesis']
+        return example['premise'] + example['hypothesis']
     elif task == 'qnli':
-        return example['question'] + ' [SEP] ' + example['sentence']
+        return example['question'] + example['sentence']
     else:
         return ''
 
-
 def create_datasets():
     tasks = ['sst2', 'qqp', 'mnli', 'qnli']
-    sample_sizes = {'train': 50000, 'validation': 5000, 'test': 5000}
+    sample_sizes = {'train': 25000, 'validation': 2500, 'test': 2500}
 
     for split in ['train', 'validation', 'test']:
         print(f"Processing split: {split}")
@@ -51,12 +52,12 @@ def create_datasets():
             task_splits[task] = (original_split, perturbed_split)
             total_available_samples += min_length
 
-        # Determine sample size
+        # Determine sample size (number of sentence pairs)
         max_samples = sample_sizes.get(split, total_available_samples)
         sample_size = min(max_samples, total_available_samples)
 
-        print(f"Total available samples for {split}: {total_available_samples}")
-        print(f"Sample size for {split}: {sample_size}")
+        print(f"Total available sentence pairs for {split}: {total_available_samples}")
+        print(f"Sample size (number of sentence pairs) for {split}: {sample_size}")
 
         # Calculate number of samples per task proportionally
         samples_per_task = {}
@@ -96,18 +97,17 @@ def create_datasets():
             total_perturbed_texts.extend(perturbed_texts)
 
         # Labels
-        original_labels = [0] * len(total_original_texts)
-        perturbed_labels = [1] * len(total_perturbed_texts)
-
-        # Combine
         texts = total_original_texts + total_perturbed_texts
-        labels = original_labels + perturbed_labels
+        labels = [0] * len(total_original_texts) + [1] * len(total_perturbed_texts)
+
+        # Combine and shuffle
+        combined = list(zip(texts, labels))
+        random.seed(42)
+        random.shuffle(combined)
+        texts[:], labels[:] = zip(*combined)
 
         # Create dataframe
         df = pd.DataFrame({'text': texts, 'label': labels})
-
-        # Shuffle
-        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
         # Save to CSV
         output_dir = f"./combined_{split}"
@@ -115,7 +115,6 @@ def create_datasets():
         df.to_csv(os.path.join(output_dir, f"combined_{split}.csv"), index=False)
 
         print(f"Saved {len(df)} samples for {split}")
-
 
 if __name__ == '__main__':
     create_datasets()
