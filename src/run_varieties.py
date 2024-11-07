@@ -3,7 +3,7 @@ import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
 
-tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC"]
+tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):
@@ -193,7 +193,25 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
         ]
         result = subprocess.run(command)
-
+    elif task == "DIALECT":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
+            "--shuffle_train_dataset",
+            "--text_column_name", "text",
+            "--label_column_name", "label",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "512",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+        ]
+        result = subprocess.run(command)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
