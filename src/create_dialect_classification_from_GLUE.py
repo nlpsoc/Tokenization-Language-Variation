@@ -6,6 +6,7 @@ import random
 import pandas as pd
 from datasets import load_dataset, load_from_disk
 
+
 def get_text(example, task):
     if task == 'sst2':
         return example['sentence']
@@ -17,6 +18,7 @@ def get_text(example, task):
         return example['question'] + example['sentence']
     else:
         return ''
+
 
 def create_datasets():
     tasks = ['sst2', 'qqp', 'mnli', 'qnli']
@@ -115,6 +117,7 @@ def create_datasets():
         df.to_csv(os.path.join(output_dir, f"combined_{split}.csv"), index=False)
 
         print(f"Saved {len(df)} samples for {split}")
+
 
 if __name__ == '__main__':
     create_datasets()
