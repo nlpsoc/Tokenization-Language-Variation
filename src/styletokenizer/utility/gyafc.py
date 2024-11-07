@@ -16,7 +16,8 @@ def load_train_data():
 
 
 def save_run_classification_train_data():
-    train_data = load_train_data()
+    train_data = load_train_data() # sample 1/4 of the data
+    train_data = train_data.sample(frac=0.25).reset_index(drop=True)
     save_for_runclassification(train_data)
 
 
@@ -38,7 +39,8 @@ def load_dev_data():
 
 
 def save_for_runclassification_dev_data():
-    dev_data = load_dev_data()
+    dev_data = load_dev_data()   # sample 1/4 of the data
+    dev_data = dev_data.sample(frac=0.25).reset_index(drop=True)
     save_for_runclassification(dev_data, filename="dev.csv")
 
 
