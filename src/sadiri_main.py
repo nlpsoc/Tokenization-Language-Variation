@@ -45,14 +45,8 @@ def main(args):
     set_seed(args.seed)
 
     ############# LOAD TOKENIZER ############
-    if not args.tokenizer:
-        print("intialize the tokenizer...")
-        tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model)
-    else:
-        if re.search(r'\.model', args.tokenizer):
-            tokenizer = T5Tokenizer(vocab_file=args.tokenizer)
-        else:
-            tokenizer = AutoTokenizer.from_pretrained(args.tokenizer)
+    print("intialize the tokenizer...")
+    tokenizer = AutoTokenizer.from_pretrained(args.pretrained_model)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 

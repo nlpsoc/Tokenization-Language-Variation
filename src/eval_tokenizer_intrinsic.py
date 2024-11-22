@@ -7,7 +7,10 @@ from styletokenizer.utility.env_variables import set_cache
 set_cache()
 from datasets import load_dataset, load_from_disk
 
+from styletokenizer.utility.tokenizer_vars import OUT_PATH
+
 BASE_TOKENIZER_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/"
+BASE_TOKENIZER_PATH = OUT_PATH
 
 TOKENIZER_PATHS = [
     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
@@ -39,27 +42,28 @@ VALUE_PATHS = [
     os.path.join(VALUE_BASE, glue_task) for glue_task in GLUE_TASKS
 ]
 
-
-# task_name_or_hfpath = "mnli"
-def main(csv_file=None):
-    task = None
-
-    for task_name_or_hfpath in VALUE_PATHS + GLUE_TASKS:
-        raw_datasets = load_eval_data(task_name_or_hfpath)
-        eval_dataset = raw_datasets["validation_matched" if task_name_or_hfpath == "mnli" else "validation"]
-        sentence1_key, sentence2_key = task_to_keys[task_name_or_hfpath]
-
-        for tokenizer_path in TOKENIZER_PATHS:
-            log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
-            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
-            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
-            log_and_flush(f"Avg # Toks/Words (Meh): {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
+VARIETIES_TASK_DICT = {
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+    "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
+             "/home/uu_cs_nlpsoc/awegmann/STEL/characteristics/quad_questions_char_contraction.tsv",
+             "/home/uu_cs_nlpsoc/awegmann/STEL/characteristics/quad_questions_char_substitution.tsv"],
+    "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
+    "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
+    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
+    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
+    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
+}
+VARIETIES_TASKS = list(VARIETIES_TASK_DICT.keys())
 
 
 def load_eval_data(task_name_or_hfpath=None, csv_file=None):
+    """
+        loading the different eval datasets in all different forms (from huggingface datasets,
+         locally with datasets, or csv)
+    :param task_name_or_hfpath:
+    :param csv_file:
+    :return:
+    """
     # load dev set of the datasets
     if task_name_or_hfpath is not None:
         if os.path.exists(task_name_or_hfpath):
@@ -76,7 +80,7 @@ def load_eval_data(task_name_or_hfpath=None, csv_file=None):
     else:
         # Loading a dataset from your local files.
         # CSV/JSON training and evaluation files are needed.
-        data_files = {"validation": csv_file}
+        data_files = {"validation": csv_file}  # should also work with list of csv files
         if csv_file.endswith(".csv"):
             # Loading a dataset from local csv files
             raw_datasets = load_dataset(
@@ -84,6 +88,27 @@ def load_eval_data(task_name_or_hfpath=None, csv_file=None):
                 data_files=data_files
             )
     return raw_datasets
+
+
+def main():
+    # task_name_or_hfpath = "mnli"
+    for task_name_or_hfpath in VARIETIES_TASKS:  # VALUE_PATHS +
+        if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
+            task = task_name_or_hfpath
+            task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
+        else:
+            task = os.path.basename(os.path.normpath(task_name_or_hfpath))
+        raw_datasets = load_eval_data(task_name_or_hfpath)
+        eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
+        sentence1_key, sentence2_key = task_to_keys[task]
+        for tokenizer_path in TOKENIZER_PATHS:
+            log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Avg # Toks/Words (Meh): {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
 
 
 if __name__ == "__main__":

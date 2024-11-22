@@ -189,7 +189,7 @@ def calc_renyi_efficency_from_generator(text_generator, tokenizer_path):
     import tokenization_scorer
     tok_gen = tok_generator(text_generator, tokenizer_path=tokenizer_path)
     tqdm.tqdm = lambda *args, **kwargs: iter(args[0])
-    return tokenization_scorer.score(tok_gen, metric="renyi", power=2.5)
+    return tokenization_scorer.score(tok_gen, metric="renyi", power=2.5)  # 2.5 ideal in Exp 1.1 in https://aclanthology.org/2023.acl-long.284v2.pdf
 
 
 def calc_precentile_freq(tokenizer_path, data_path):
@@ -229,4 +229,4 @@ def calc_avg_tok_from_generator(text_generator, tokenizer_path):
 def tok_generator(text_generator, tokenizer_path):
     tokenizer = get_tokenizer_from_path(tokenizer_path)
     for text in text_generator:  # TODO: how to do tokenize in the right way again?, check that this works see test (!)
-        yield tokenizer.encode(text).tokens
+        yield " ".join(tokenizer.encode(text).tokens)
