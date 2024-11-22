@@ -58,9 +58,9 @@ def main():
             print(f"\n{corpus_path}")
             print(f"Percentile Frequency: {calc_precentile_freq(tokenizer_path, corpus_path)}")
             print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
-            print(f"Renyi Efficiency: {calc_renyi_efficiency(tokenizer_path, corpus_path)}")
+            print(f"Renyi Efficiency: {calc_renyi_efficiency_from_path(tokenizer_path, corpus_path)}")
             print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
-            print(f"Average Tokens per Word: {calc_avg_tok_per_word(tokenizer_path, corpus_path)}")
+            print(f"Average Tokens per Word: {calc_avg_tok_per_word_from_path(tokenizer_path, corpus_path)}")
 
 
 def get_comparative_tok_stats(tokenizer_paths):
@@ -180,9 +180,13 @@ def get_consecutive_tok_stats(tokenizer_paths):
         print("Least Frequent Added Tokens:", examples['least_frequent'])
 
 
-def calc_renyi_efficiency(tokenizer_path, data_path):
-    import tokenization_scorer
+def calc_renyi_efficiency_from_path(tokenizer_path, data_path):
     text_generator = tok_generator(data_path, split="dev", tokenizer_path=tokenizer_path)
+    return calc_renyi_efficency_from_generator(text_generator)
+
+
+def calc_renyi_efficency_from_generator(text_generator):
+    import tokenization_scorer
     tqdm.tqdm = lambda *args, **kwargs: iter(args[0])
     return tokenization_scorer.score(text_generator, metric="renyi", power=2.5)
 
@@ -199,9 +203,13 @@ def calc_seq_len(tokenizer_path, data_path):
     return seq_len(list(text_generator))
 
 
-def calc_avg_tok_per_word(tokenizer_path, data_path):
-    tokenizer = get_tokenizer_from_path(tokenizer_path)
+def calc_avg_tok_per_word_from_path(tokenizer_path, data_path):
     text_generator = datasets_helper.efficient_split_generator(data_path, split="dev")
+    return calc_avg_tok_from_generator(text_generator, tokenizer_path)
+
+
+def calc_avg_tok_from_generator(text_generator, tokenizer_path):
+    tokenizer = get_tokenizer_from_path(tokenizer_path)
     nbr_tokens = 0
     nbr_words = 0
     for text in text_generator:
