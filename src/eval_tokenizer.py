@@ -8,7 +8,7 @@ from styletokenizer.utility.tokenizer_vars import (get_pretokenizer_paths, get_s
                                                    get_tokenizer_from_path, get_all_paths)
 from styletokenizer.fitting_corpora import CORPORA_MIXED, CORPORA_TWITTER, CORPORA_WIKIPEDIA
 from styletokenizer.utility import datasets_helper
-import matplotlib.pyplot as plt
+import matploçtlib.pyplot as plt
 from matplotlib_venn import venn3
 from tokenization_scorer.metrics import _seq_len as seq_len
 
@@ -181,14 +181,15 @@ def get_consecutive_tok_stats(tokenizer_paths):
 
 
 def calc_renyi_efficiency_from_path(tokenizer_path, data_path):
-    text_generator = tok_generator(data_path, split="dev", tokenizer_path=tokenizer_path)
-    return calc_renyi_efficency_from_generator(text_generator)
+    text_generator = datasets_helper.efficient_split_generator(data_path, split="dev")
+    return calc_renyi_efficency_from_generator(text_generator, tokenizer_path)
 
 
-def calc_renyi_efficency_from_generator(text_generator):
+def calc_renyi_efficency_from_generator(text_generator, tokenizer_path):
     import tokenization_scorer
+    tok_gen = tok_generator(text_generator, tokenizer_path=tokenizer_path)
     tqdm.tqdm = lambda *args, **kwargs: iter(args[0])
-    return tokenization_scorer.score(text_generator, metric="renyi", power=2.5)
+    return tokenization_scorer.score(tok_gen, metric="renyi", power=2.5)
 
 
 def calc_precentile_freq(tokenizer_path, data_path):
@@ -219,8 +220,7 @@ def calc_avg_tok_from_generator(text_generator, tokenizer_path):
     return nbr_tokens / nbr_words
 
 
-def tok_generator(dataset_path, split, tokenizer_path):
+def tok_generator(text_generator, tokenizer_path):
     tokenizer = get_tokenizer_from_path(tokenizer_path)
-    text_generator = datasets_helper.efficient_split_generator(dataset_path, split=split)
     for text in text_generator:  # TODO: how to do tokenize in the right way again?, check that this works see test (!)
         yield tokenizer.encode(text).tokens

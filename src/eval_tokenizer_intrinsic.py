@@ -1,9 +1,7 @@
 import os
-
 from styletokenizer.utility.custom_logger import log_and_flush
-from fit_tokenizer import OUT_PATH
-from utility.tokenizer_vars import PRE_TOKENIZER, VOCAB_SIZE, FITTING_CORPORA
-from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len, calc_avg_tok_from_generator, main, calc_precentile_freq
+from eval_tokenizer import calc_renyi_efficency_from_generator, calc_avg_tok_from_generator
+from run_glue import task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 
 set_cache()
@@ -35,7 +33,7 @@ GLUE_TASKS = [
     "rte",
     "sst2",
 ]
-from run_glue import task_to_keys
+
 
 def main(task_name_or_hfpath=None, csv_file=None):
     task = None
@@ -75,8 +73,8 @@ def main(task_name_or_hfpath=None, csv_file=None):
 
     for tokenizer_path in TOKENIZER_PATHS:
         print(f"\n{task} - {tokenizer_path}")
-        print(calc_renyi_efficency_from_generator(tokenizer_path, text_generator))
-        print(calc_avg_tok_from_generator(tokenizer_path, text_generator))
+        print(calc_renyi_efficency_from_generator(text_generator, tokenizer_path))
+        print(calc_avg_tok_from_generator(text_generator, tokenizer_path))
 
 
 if __name__ == "__main__":
