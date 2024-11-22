@@ -71,10 +71,10 @@ def main(task_name_or_hfpath=None, csv_file=None):
     else:
         raise ValueError(f"Invalid task: {task}")
 
-    for tokenizer_path in TOKENIZER_PATHS:
-        print(f"\n{task} - {tokenizer_path}")
-        print(calc_renyi_efficency_from_generator(text_generator, tokenizer_path))
-        print(calc_avg_tok_from_generator(text_generator, tokenizer_path))
+for tokenizer_path in TOKENIZER_PATHS:
+    print(f"\n{task} - {tokenizer_path}")
+    print(calc_renyi_efficency_from_generator(text_generator, tokenizer_path))
+    print(calc_avg_tok_from_generator(text_generator, tokenizer_path))
 
 
 if __name__ == "__main__":

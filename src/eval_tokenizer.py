@@ -8,7 +8,7 @@ from styletokenizer.utility.tokenizer_vars import (get_pretokenizer_paths, get_s
                                                    get_tokenizer_from_path, get_all_paths)
 from styletokenizer.fitting_corpora import CORPORA_MIXED, CORPORA_TWITTER, CORPORA_WIKIPEDIA
 from styletokenizer.utility import datasets_helper
-import matploçtlib.pyplot as plt
+import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
 from tokenization_scorer.metrics import _seq_len as seq_len
 
