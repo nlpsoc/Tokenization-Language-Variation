@@ -1,7 +1,7 @@
 import os
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, calc_avg_tok_from_generator
-from run_glue import task_to_keys
+from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 
 set_cache()
@@ -53,6 +53,15 @@ VARIETIES_TASK_DICT = {
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
 }
+VARIETIES_to_keys = {
+    "sadiri": ("text", "text"),
+    "stel": ("Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"),
+    "age": ("text"),
+    "CORE": ("text"),
+    "CGLU": ("Text"),
+    "GYAFC": ("text"),
+    "DIALECT": ("text"),
+}
 VARIETIES_TASKS = list(VARIETIES_TASK_DICT.keys())
 
 
@@ -96,18 +105,21 @@ def main():
         if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
             task = task_name_or_hfpath
             task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
+            task_to_keys = VARIETIES_to_keys
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
+            task_to_keys = glue_task_to_keys
+
         raw_datasets = load_eval_data(task_name_or_hfpath)
         eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
-        sentence1_key, sentence2_key = task_to_keys[task]
+        sentence_keys = task_to_keys[task]
         for tokenizer_path in TOKENIZER_PATHS:
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
             log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
             log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
             log_and_flush(f"Avg # Toks/Words (Meh): {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
 
 
