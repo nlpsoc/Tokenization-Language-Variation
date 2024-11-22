@@ -54,7 +54,7 @@ VARIETIES_TASK_DICT = {
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
 }
 VARIETIES_to_keys = {
-    "sadiri": ("text", "text"),
+    "sadiri": ("query_text", "candidate_text"),
     "stel": ("Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"),
     "age": ("text"),
     "CORE": ("text"),
@@ -109,9 +109,11 @@ def main():
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
             task_to_keys = glue_task_to_keys
-
         raw_datasets = load_eval_data(task_name_or_hfpath)
-        eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
+        try:
+            eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
+        except AttributeError:  # some of the datasets are not provided in split form
+            eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task]
         for tokenizer_path in TOKENIZER_PATHS:
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
@@ -120,7 +122,8 @@ def main():
             text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
             log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
             text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
-            log_and_flush(f"Avg # Toks/Words (Meh): {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
+            log_and_flush(f"Avg # Toks/Words + Seq Len (slow impl.): "
+                          f"{calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
 
 
 if __name__ == "__main__":

@@ -219,11 +219,13 @@ def calc_avg_tok_from_generator(text_generator, tokenizer_path):
     tokenizer = get_tokenizer_from_path(tokenizer_path)
     nbr_tokens = 0
     nbr_words = 0
+    nbr_seq = 0
     for text in text_generator:
         tokens = tokenizer.encode(text).tokens
         nbr_words += len(text.split())
         nbr_tokens += len(tokens)
-    return nbr_tokens / nbr_words
+        nbr_seq += 1
+    return nbr_tokens / nbr_words, nbr_tokens/nbr_seq
 
 
 def tok_generator(text_generator, tokenizer_path):
