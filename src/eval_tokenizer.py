@@ -10,7 +10,7 @@ from styletokenizer.fitting_corpora import CORPORA_MIXED, CORPORA_TWITTER, CORPO
 from styletokenizer.utility import datasets_helper
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
-from tokenization_scorer.metrics import _seq_len as seq_len
+# from tokenization_scorer.metrics import _seq_len as seq_len
 
 from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
 import tqdm
@@ -57,9 +57,9 @@ def main():
         for corpus_path in [CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOK]:
             print(f"\n{corpus_path}")
             print(f"Percentile Frequency: {calc_precentile_freq(tokenizer_path, corpus_path)}")
-            print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
+            print(f"Sequence Length: {calc_seq_len_from_path(tokenizer_path, corpus_path)}")
             print(f"Renyi Efficiency: {calc_renyi_efficiency_from_path(tokenizer_path, corpus_path)}")
-            print(f"Sequence Length: {calc_seq_len(tokenizer_path, corpus_path)}")
+            print(f"Sequence Length: {calc_seq_len_from_path(tokenizer_path, corpus_path)}")
             print(f"Average Tokens per Word: {calc_avg_tok_per_word_from_path(tokenizer_path, corpus_path)}")
 
 
@@ -198,10 +198,16 @@ def calc_precentile_freq(tokenizer_path, data_path):
     return tokenization_scorer.score(text_generator, metric="percentile_freq", perc_start=0.03, perc_end=0.83)
 
 
-def calc_seq_len(tokenizer_path, data_path):
+def calc_seq_len_from_path(tokenizer_path, data_path):
+    text_generator = datasets_helper.efficient_split_generator(data_path, split="dev")
+    return calc_seq_len_from_generator(text_generator, tokenizer_path)
+
+
+def calc_seq_len_from_generator(text_generator, tokenizer_path):
     import tokenization_scorer
-    text_generator = tok_generator(data_path, split="dev", tokenizer_path=tokenizer_path)
-    return seq_len(list(text_generator))
+    tok_gen = tok_generator(text_generator, tokenizer_path=tokenizer_path)
+    tqdm.tqdm = lambda *args, **kwargs: iter(args[0])
+    return tokenization_scorer.score(tok_gen, metric="seq_len")
 
 
 def calc_avg_tok_per_word_from_path(tokenizer_path, data_path):

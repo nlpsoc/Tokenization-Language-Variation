@@ -1,5 +1,5 @@
 from unittest import TestCase
-from src.eval_tokenizer import calc_renyi_efficiency_from_path, calc_seq_len, calc_avg_tok_per_word_from_path, main, calc_precentile_freq
+from src.eval_tokenizer import calc_renyi_efficiency_from_path, calc_seq_len_from_path, calc_avg_tok_per_word_from_path, main, calc_precentile_freq
 import tqdm
 from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
 
