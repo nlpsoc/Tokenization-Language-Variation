@@ -34,17 +34,21 @@ GLUE_TASKS = [
     "sst2",
 ]
 
+VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
+VALUE_PATHS = [
+    os.path.join(VALUE_BASE, glue_task) for glue_task in GLUE_TASKS
+]
+
 
 # task_name_or_hfpath = "mnli"
 def main(csv_file=None):
     task = None
 
-    for task_name_or_hfpath in GLUE_TASKS:
+    for task_name_or_hfpath in VALUE_PATHS + GLUE_TASKS:
         raw_datasets = load_eval_data(task_name_or_hfpath)
         eval_dataset = raw_datasets["validation_matched" if task_name_or_hfpath == "mnli" else "validation"]
         sentence1_key, sentence2_key = task_to_keys[task_name_or_hfpath]
 
-        # tokenizer_path = TOKENIZER_PATHS[0]
         for tokenizer_path in TOKENIZER_PATHS:
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
             text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
