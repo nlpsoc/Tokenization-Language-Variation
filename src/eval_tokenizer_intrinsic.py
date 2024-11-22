@@ -1,6 +1,6 @@
 import os
 from styletokenizer.utility.custom_logger import log_and_flush
-from eval_tokenizer import calc_renyi_efficency_from_generator, calc_avg_tok_from_generator
+from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, calc_avg_tok_from_generator
 from run_glue import task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 
@@ -39,18 +39,20 @@ GLUE_TASKS = [
 def main(csv_file=None):
     task = None
 
-for task_name_or_hfpath in GLUE_TASKS:
-    raw_datasets = load_eval_data(task_name_or_hfpath)
-    eval_dataset = raw_datasets["validation_matched" if task_name_or_hfpath == "mnli" else "validation"]
-    sentence1_key, sentence2_key = task_to_keys[task_name_or_hfpath]
+    for task_name_or_hfpath in GLUE_TASKS:
+        raw_datasets = load_eval_data(task_name_or_hfpath)
+        eval_dataset = raw_datasets["validation_matched" if task_name_or_hfpath == "mnli" else "validation"]
+        sentence1_key, sentence2_key = task_to_keys[task_name_or_hfpath]
 
-    # tokenizer_path = TOKENIZER_PATHS[0]
-    for tokenizer_path in TOKENIZER_PATHS:
-        log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-        text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
-        log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
-        text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
-        log_and_flush(f"Avg # Tokens: {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
+        # tokenizer_path = TOKENIZER_PATHS[0]
+        for tokenizer_path in TOKENIZER_PATHS:
+            log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
+            text_generator = (example[sentence1_key] + " " + example[sentence2_key] for example in eval_dataset)
+            log_and_flush(f"Avg # Toks/Words (Meh): {calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
 
 
 def load_eval_data(task_name_or_hfpath=None, csv_file=None):
