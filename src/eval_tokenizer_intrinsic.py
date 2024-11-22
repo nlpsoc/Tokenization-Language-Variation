@@ -10,19 +10,19 @@ from datasets import load_dataset, load_from_disk
 BASE_TOKENIZER_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/"
 
 TOKENIZER_PATHS = [
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000"),
-    os.path.join(BASE_TOKENIZER_PATH, "twitter-gpt2-32000"),
-    os.path.join(BASE_TOKENIZER_PATH, "wikipedia-gpt2-32000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-ws-32000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-llama3-32000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-500"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-1000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-2000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-4000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-8000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-16000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-64000"),
-    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-128000"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "twitter-gpt2-32000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "wikipedia-gpt2-32000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-ws-32000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-llama3-32000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-500/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-1000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-2000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-4000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-8000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-16000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-64000/tokenizer.json"),
+    os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-128000/tokenizer.json"),
 ]
 
 GLUE_TASKS = [
@@ -34,7 +34,7 @@ GLUE_TASKS = [
     "sst2",
 ]
 
-
+# task_name_or_hfpath = "mnli"
 def main(task_name_or_hfpath=None, csv_file=None):
     task = None
     # load dev set of the datasets
@@ -71,6 +71,7 @@ def main(task_name_or_hfpath=None, csv_file=None):
     else:
         raise ValueError(f"Invalid task: {task}")
 
+# tokenizer_path = TOKENIZER_PATHS[0]
 for tokenizer_path in TOKENIZER_PATHS:
     print(f"\n{task} - {tokenizer_path}")
     print(calc_renyi_efficency_from_generator(text_generator, tokenizer_path))
