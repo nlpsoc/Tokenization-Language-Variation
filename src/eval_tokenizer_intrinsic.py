@@ -1,3 +1,4 @@
+import itertools
 import os
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, calc_avg_tok_from_generator
@@ -116,14 +117,13 @@ def main():
             eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task]
         for tokenizer_path in TOKENIZER_PATHS:
+            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
+            t_gen1, t_gen2, t_gen3 = itertools.tee(text_generator, 3)
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
-            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
-            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(text_generator, tokenizer_path)}")
-            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
+            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(t_gen1, tokenizer_path)}")
+            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(t_gen2, tokenizer_path)}")
             log_and_flush(f"Avg # Toks/Words + Seq Len (slow impl.): "
-                          f"{calc_avg_tok_from_generator(text_generator, tokenizer_path)}")
+                          f"{calc_avg_tok_from_generator(t_gen3, tokenizer_path)}")
 
 
 if __name__ == "__main__":
