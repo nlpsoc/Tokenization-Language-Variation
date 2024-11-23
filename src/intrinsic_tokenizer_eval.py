@@ -59,12 +59,12 @@ VARIETIES_TASK_DICT = {
 }
 VARIETIES_to_keys = {
     "sadiri": ("query_text", "candidate_text"),
-    "stel": ("Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"),
-    "age": ("text"),
-    "CORE": ("text"),
-    "CGLU": ("Text"),
-    "GYAFC": ("text"),
-    "DIALECT": ("text"),
+    "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
+    "age": ["text"],
+    "CORE": ["text"],
+    "CGLU": ["Text"],
+    "GYAFC": ["text"],
+    "DIALECT": ["text"],
 }
 VARIETIES_TASKS = list(VARIETIES_TASK_DICT.keys())
 
@@ -117,18 +117,15 @@ def main():
             task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
         elif task_name_or_hfpath in FITTING_CORPORA:
-            task_to_keys = {"mixed": "text", "twitter": "text", "wikipedia": "text", "webbook": "text"}
-            task = "mixed" # doesn't matter which one
-            split="dev"
+            task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"]}
+            task = os.path.basename(os.path.normpath(task_name_or_hfpath))  # doesn't really matter which one
+            split = "dev"
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
             task_to_keys = glue_task_to_keys
         raw_datasets = load_eval_data(task_name_or_hfpath, split=split)
         try:
-            if task_name_or_hfpath in FITTING_CORPORA:
-                eval_dataset = raw_datasets["dev"]
-            else:
-                eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
+            eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
         except KeyError:  # some of the datasets are not provided in split form
             eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task]
