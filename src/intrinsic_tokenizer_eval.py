@@ -132,7 +132,10 @@ def main():
             text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
             text_generator, t_gen1, t_gen2, t_gen3 = itertools.tee(text_generator, 4)
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-            log_and_flush(f"Renyi Efficency: {calc_renyi_efficency_from_generator(t_gen1, tokenizer_path)}")
+            log_and_flush(f"Renyi Efficency (2.5): "
+                          f"{calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)}")
+            log_and_flush(f"Renyi Efficency (3.0): "
+                          f"{calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=3.0)}")
             log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(t_gen2, tokenizer_path)}")
             log_and_flush(f"Avg # Toks/Words + Seq Len (slow impl.): "
                           f"{calc_avg_tok_from_generator(t_gen3, tokenizer_path)}")

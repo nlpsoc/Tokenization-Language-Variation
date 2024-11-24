@@ -185,11 +185,11 @@ def calc_renyi_efficiency_from_path(tokenizer_path, data_path):
     return calc_renyi_efficency_from_generator(text_generator, tokenizer_path)
 
 
-def calc_renyi_efficency_from_generator(text_generator, tokenizer_path):
+def calc_renyi_efficency_from_generator(text_generator, tokenizer_path, power=2.5):
     import tokenization_scorer
     tok_gen = tok_generator(text_generator, tokenizer_path=tokenizer_path)
     tqdm.tqdm = lambda *args, **kwargs: iter(args[0])
-    return tokenization_scorer.score(tok_gen, metric="renyi", power=2.5)  # 2.5 ideal in Exp 1.1 in https://aclanthology.org/2023.acl-long.284v2.pdf
+    return tokenization_scorer.score(tok_gen, metric="renyi", power=power)  # 2.5 ideal in Exp 1.1 in https://aclanthology.org/2023.acl-long.284v2.pdf
 
 
 def calc_precentile_freq(tokenizer_path, data_path):
