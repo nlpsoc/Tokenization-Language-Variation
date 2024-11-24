@@ -4,7 +4,6 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, calc_avg_tok_from_generator
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
-from utility import datasets_helper
 
 set_cache()
 from datasets import load_dataset, load_from_disk
