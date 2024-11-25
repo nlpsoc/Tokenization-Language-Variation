@@ -1,29 +1,14 @@
 import argparse
 import os
+
+from styletokenizer.webbook import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
+
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
 import wandb
 import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
-
-UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
-UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
-
-
-def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
-    # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
-    train_data = load_from_disk(data_path)["train"]
-    # for COUNT_PER_ROW get the number of rows to sample for word_count
-    nbr_rows = int(word_count // COUNT_PER_ROW)
-    nbr_rows = min(nbr_rows, len(train_data))
-    log_and_flush(f"Using {nbr_rows * COUNT_PER_ROW} words for pre-training.")
-    # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW
-    if test:
-        train_data = train_data.select(range(256))
-    else:
-        train_data = train_data.select(range(nbr_rows))
-    return train_data
 
 
 def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
@@ -83,6 +68,8 @@ def create_tinybert_architecture(tokenizer, model_size=4):
         config = BertConfig.from_pretrained('prajjwal1/bert-mini')
     elif model_size == 29:
         config = BertConfig.from_pretrained('prajjwal1/bert-small')
+    elif model_size == 42:
+        config = BertConfig.from_pretrained('prajjwal1/bert-medium')
     else:
         raise ValueError("Model size must be 4, 11 or 29 million, matching tiny, mini or small BERT")
     # DROPOUT in config is already set to 0.1 by default, otherwise set

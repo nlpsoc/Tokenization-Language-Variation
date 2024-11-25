@@ -110,7 +110,7 @@ def load_eval_data(task_name_or_hfpath=None, csv_file=None, split=None):
 def main():
     # task_name_or_hfpath = "mnli"
     for task_name_or_hfpath in (FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS):
-        split=None
+        split = None
         if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
             task = task_name_or_hfpath
             task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
@@ -139,7 +139,6 @@ def main():
             log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(t_gen3, tokenizer_path)}")
             log_and_flush(f"Avg # Toks/Words + Seq Len (slow impl.): "
                           f"{calc_avg_tok_from_generator(t_gen4, tokenizer_path)}")
-
 
 
 if __name__ == "__main__":
