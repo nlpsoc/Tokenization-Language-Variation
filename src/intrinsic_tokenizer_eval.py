@@ -139,7 +139,8 @@ def main(output_path=None):
             eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task]
         for tokenizer_path in TOKENIZER_PATHS:
-            text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
+            text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
+                              for example in eval_dataset)
             text_generator, t_gen1, t_gen2, t_gen3 = itertools.tee(text_generator, 4)
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
             renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
