@@ -109,7 +109,7 @@ def load_eval_data(task_name_or_hfpath=None, csv_file=None, split=None):
 
 def main():
     # task_name_or_hfpath = "mnli"
-    for task_name_or_hfpath in (FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS):
+    for task_name_or_hfpath in (FITTING_CORPORA):   #  + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS
         split = None
         if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
             task = task_name_or_hfpath
@@ -118,7 +118,7 @@ def main():
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"]}
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))  # doesn't really matter which one
-            split = "dev"
+            split = "test"
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
             task_to_keys = glue_task_to_keys
