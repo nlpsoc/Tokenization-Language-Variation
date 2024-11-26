@@ -1,7 +1,7 @@
 import os
 
 from styletokenizer.utility import whitespace, POS
-from utility.env_variables import at_uu, at_umich
+from styletokenizer.utility.env_variables import at_uu, at_umich
 
 
 def get(tokenizer_name):
