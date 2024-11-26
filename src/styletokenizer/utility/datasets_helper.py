@@ -3,7 +3,6 @@ import os
 from datasets import Dataset, DatasetDict, load_from_disk, load_dataset
 import pyarrow as pa
 from styletokenizer.utility.custom_logger import log_and_flush
-from utility.custom_logger import log_and_flush
 
 
 def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01):
