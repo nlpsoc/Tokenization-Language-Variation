@@ -50,20 +50,18 @@ def get_common_words_features(tokens1_list, tokens2_list):
     return features
 
 
-def get_cross_words_features(tokens1_list, tokens2_list):
+def get_cross_words_features(tokens1_list, tokens2_list, max_tokens=50):
     # Generate features for cross words
     features = []
     for tokens1, tokens2 in zip(tokens1_list, tokens2_list):
-        tokens1_list_split = tokens1.split()
-        tokens2_list_split = tokens2.split()
         # Create Cartesian product of tokens
-        cross_tokens = [f"{w1}_{w2}" for w1 in tokens1_list_split for w2 in tokens2_list_split]
+        cross_tokens = [f"{w1}_{w2}" for w1 in tokens1.split()[:max_tokens] for w2 in tokens2.split()[:max_tokens]]
         features.append(' '.join(cross_tokens))
     return features
 
 
 def main():
-    features = 'common_words'  # Change to 'cross_words' as needed
+    features_type = 'cross_words'  # Change to 'common_words' as needed
 
     result_dict = {
         "task_name": [],
@@ -89,23 +87,45 @@ def main():
             encoded_dataset = raw_datasets.map(
                 lambda examples: preprocess_function(examples, tokenizer, sentence1_key, sentence2_key),
                 batched=True,
-                load_from_cache_file=False  # make sure to re-tokenize every time
+                load_from_cache_file=False  # Make sure to re-tokenize every time
             )
 
-            # Extract features and labels
+            # Extract labels
             y_train = encoded_dataset["train"]["label"]
             y_eval = encoded_dataset[val_key]["label"]
 
-            # Extract features and labels
-            X_train_ids = encoded_dataset["train"]["input_ids"]
-            y_train = encoded_dataset["train"]["label"]
+            if sentence2_key is None:
+                # Single sentence tasks
+                X_train_ids1 = encoded_dataset["train"]["input_ids1"]
+                X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
 
-            X_eval_ids = encoded_dataset[val_key]["input_ids"]
-            y_eval = encoded_dataset[val_key]["label"]
+                # Convert input IDs to tokens
+                X_train_texts = ids_to_tokens(X_train_ids1, tokenizer)
+                X_eval_texts = ids_to_tokens(X_eval_ids1, tokenizer)
 
-            # Convert input IDs to token strings
-            X_train_texts = ids_to_tokens(X_train_ids, tokenizer)
-            X_eval_texts = ids_to_tokens(X_eval_ids, tokenizer)
+            else:
+                # Sentence pair tasks
+                X_train_ids1 = encoded_dataset["train"]["input_ids1"]
+                X_train_ids2 = encoded_dataset["train"]["input_ids2"]
+                X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
+                X_eval_ids2 = encoded_dataset[val_key]["input_ids2"]
+
+                # Convert input IDs to tokens
+                X_train_tokens1 = ids_to_tokens(X_train_ids1, tokenizer)
+                X_train_tokens2 = ids_to_tokens(X_train_ids2, tokenizer)
+                X_eval_tokens1 = ids_to_tokens(X_eval_ids1, tokenizer)
+                X_eval_tokens2 = ids_to_tokens(X_eval_ids2, tokenizer)
+
+                if features_type == 'common_words':
+                    # Create features based on common words
+                    X_train_texts = get_common_words_features(X_train_tokens1, X_train_tokens2)
+                    X_eval_texts = get_common_words_features(X_eval_tokens1, X_eval_tokens2)
+                elif features_type == 'cross_words':
+                    # Create features based on cross words
+                    X_train_texts = get_cross_words_features(X_train_tokens1, X_train_tokens2)
+                    X_eval_texts = get_cross_words_features(X_eval_tokens1, X_eval_tokens2)
+                else:
+                    raise ValueError("Invalid features_type. Choose 'common_words' or 'cross_words'.")
 
             # Create Bag-of-Words features
             vectorizer = CountVectorizer()
@@ -114,19 +134,16 @@ def main():
 
             # Train logistic regression
             clf = LogisticRegression(max_iter=1000, penalty="l1", C=0.4, solver='liblinear')
+            print(f"Training logistic regression for {task} with tokenizer {tokenizer_path}")
             clf.fit(X_train_features, y_train)
 
             # Predict on evaluation set
             y_pred = clf.predict(X_eval_features)
 
-            # Compute F1 scores with different averaging methods
+            # Compute evaluation metrics
             f1_weighted = f1_score(y_eval, y_pred, average='weighted')
             f1_macro = f1_score(y_eval, y_pred, average='macro')
-
-            # Compute accuracy
             accuracy = accuracy_score(y_eval, y_pred)
-
-            print(classification_report(y_eval, y_pred))
 
             # Record results
             result_dict["task_name"].append(task)
@@ -142,21 +159,28 @@ def main():
                 coefs = [coefs]
             top_features = {}
             for i, class_label in enumerate(clf.classes_):
-                top_positive_coefficients = np.argsort(coefs[i])[-100:]
-                top_negative_coefficients = np.argsort(coefs[i])[:100]
+                top_positive_coefficients = np.argsort(coefs[i])[-10:]
+                top_negative_coefficients = np.argsort(coefs[i])[:10]
                 top_features[class_label] = {
                     "top_positive": [feature_names[j] for j in top_positive_coefficients],
                     "top_negative": [feature_names[j] for j in top_negative_coefficients]
                 }
             result_dict["predictive_features"].append(top_features)
 
+            # Optionally, print classification report
+            print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
+            print(classification_report(y_eval, y_pred))
+            print("------------------------------------------------------")
+
     # Print the results
     for idx in range(len(result_dict["task_name"])):
         print(f"Task: {result_dict['task_name'][idx]}")
         print(f"Tokenizer: {result_dict['tokenizer_path'][idx]}")
-        print(f"F1 Score: {result_dict['F1'][idx]}")
+        print(f"F1 Weighted: {result_dict['F1_weighted'][idx]}")
+        print(f"F1 Macro: {result_dict['F1_macro'][idx]}")
+        print(f"Accuracy: {result_dict['Accuracy'][idx]}")
         print(f"Predictive Features: {result_dict['predictive_features'][idx]}")
-        print("------------------------------------------------------")
+        print("======================================================")
 
     # Save the results
     import pandas as pd
