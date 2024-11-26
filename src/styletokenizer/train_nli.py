@@ -126,7 +126,7 @@ def get_dataset_and_preprocess(mnli=False, preprocess=False):
     return train_df, val_df
 
 
-train_df, val_df = get_dataset_and_preprocess(mnli=False, preprocess=False)
+train_df, val_df = get_dataset_and_preprocess(mnli=True, preprocess=False)
 # print(f"------ split(" ") tokenizer ------")
 # do_train(lambda x: x.split(" "), tok_name="split", features="cross_words")
 #

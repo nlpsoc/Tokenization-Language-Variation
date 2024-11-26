@@ -72,7 +72,7 @@ def main():
         "predictive_features": []
     }
 
-    for task_name_or_hfpath in GLUE_TASKS:
+    for task_name_or_hfpath in ["snli"] + GLUE_TASKS:
         task = os.path.basename(os.path.normpath(task_name_or_hfpath))
         raw_datasets = load_data(task_name_or_hfpath)
 

@@ -160,11 +160,17 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
             # set task name to last folder in path
             task_name_or_hfpath = os.path.basename(os.path.normpath(task_name_or_hfpath))
         else:
-            # GLUE: MRPC, CoLA, SST-2, QNLI, QQP, RTE, WNLI, STS-B
-            raw_datasets = load_dataset(
-                "nyu-mll/glue",
-                task_name_or_hfpath
-            )
+            if task_name_or_hfpath == "snli":
+                # SNLI
+                raw_datasets = load_dataset(
+                    "snli"
+                )
+            else:
+                # GLUE: MRPC, CoLA, SST-2, QNLI, QQP, RTE, WNLI, STS-B
+                raw_datasets = load_dataset(
+                    "nyu-mll/glue",
+                    task_name_or_hfpath
+                )
         log_and_flush(f"Dataset loaded: {raw_datasets}")
     else:
         # Loading a dataset from your local files.
