@@ -1,8 +1,9 @@
 import os
 
-from datasets import Dataset, DatasetDict, load_from_disk
+from datasets import Dataset, DatasetDict, load_from_disk, load_dataset
 import pyarrow as pa
 from styletokenizer.utility.custom_logger import log_and_flush
+from utility.custom_logger import log_and_flush
 
 
 def save_to_huggingface_format(data, output_path, dev_size=0.01, test_size=0.01):
@@ -142,3 +143,38 @@ def efficient_split_generator(dataset_path, split="dev"):
 #     # Yield the last batch if it's not empty and has less than batch_size elements
 #     if batch:
 #         yield batch
+def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
+    """
+        loading the different eval datasets in all different forms (from huggingface datasets,
+         locally with datasets, or csv)
+    :param task_name_or_hfpath:
+    :param csv_file:
+    :return:
+    """
+    # load dev set of the datasets
+    if task_name_or_hfpath is not None:
+        if os.path.exists(task_name_or_hfpath):
+            if split:
+                raw_datasets = load_from_disk(os.path.join(task_name_or_hfpath, split))
+            else:
+                raw_datasets = load_from_disk(task_name_or_hfpath)
+            # set task name to last folder in path
+            task_name_or_hfpath = os.path.basename(os.path.normpath(task_name_or_hfpath))
+        else:
+            # GLUE: MRPC, CoLA, SST-2, QNLI, QQP, RTE, WNLI, STS-B
+            raw_datasets = load_dataset(
+                "nyu-mll/glue",
+                task_name_or_hfpath
+            )
+        log_and_flush(f"Dataset loaded: {raw_datasets}")
+    else:
+        # Loading a dataset from your local files.
+        # CSV/JSON training and evaluation files are needed.
+        data_files = {"validation": csv_file}  # should also work with list of csv files
+        if csv_file.endswith(".csv"):
+            # Loading a dataset from local csv files
+            raw_datasets = load_dataset(
+                "csv",
+                data_files=data_files
+            )
+    return raw_datasets

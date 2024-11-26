@@ -101,7 +101,7 @@ def create_dataframe(features, tokenizer_func, train_df, val_df):
     return train_df, val_df
 
 
-def get_dataset_and_preprocess(mnli=False, preprocess=False, debias=False):
+def get_dataset_and_preprocess(mnli=False, preprocess=False):
     # Load the SNLI dataset
     #   0 - entailment
     #   1 - neutral
@@ -121,10 +121,7 @@ def get_dataset_and_preprocess(mnli=False, preprocess=False, debias=False):
         train_dataset = train_dataset.map(lowercase_stem_and_clean, load_from_cache_file=False)
         dev_dataset = dev_dataset.map(lowercase_stem_and_clean, load_from_cache_file=False)
 
-    # Convert to pandas DataFrame for easier manipulation
     train_df = pd.DataFrame(train_dataset)
-    # assert not train_df['premise'].str.contains("'").any()
-    # assert not train_df['premise'].str.contains("\.").any()
     val_df = pd.DataFrame(dev_dataset)
     return train_df, val_df
 

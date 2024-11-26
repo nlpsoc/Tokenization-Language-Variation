@@ -20,6 +20,10 @@ else:
     OUT_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
 
 
+def get_tokenizer_from_path(path):
+    return Tokenizer.from_file(path)
+
+
 def get_name(corpus_name, pre_tokenizer, vocab_size):
     dir_name = f"{OUT_PATH}/{corpus_name}-{pre_tokenizer}-{vocab_size}/tokenizer.json"
     return dir_name
@@ -68,7 +72,3 @@ def get_sorted_vocabularies_per_tokenizer(tokenizer_paths) -> Dict[str, List[str
         # Store sorted tokens (by frequency) as a list of token strings
         vocabularies[folder_name] = [token for token, _ in sorted_tokens]
     return vocabularies
-
-
-def get_tokenizer_from_path(path):
-    return Tokenizer.from_file(path)
