@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_TINY_10M-600-42_mixed-gpt2-32k_batch-32_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_MEDIUM_100M-6k-42_mixed-gpt2-32k_batch-32_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -63,7 +63,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 
 # medium BERT on 100 million words
-# python train_bert.py --uu --seed 42 --word_count 100_000_000 --model_size 42 --batch_size 32 --steps 6000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+python train_bert.py --uu --seed 42 --word_count 100_000_000 --model_size 42 --batch_size 32 --steps 6000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
 
 # tiny BERT on 10 million words
-python train_bert.py --uu --seed 42 --word_count 10_000_000 --model_size 4 --batch_size 32 --steps 600 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+# python train_bert.py --uu --seed 42 --word_count 10_000_000 --model_size 4 --batch_size 32 --steps 600 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
