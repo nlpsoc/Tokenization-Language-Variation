@@ -1,3 +1,4 @@
+import argparse
 import itertools
 import os
 from styletokenizer.utility.custom_logger import log_and_flush
@@ -107,9 +108,18 @@ def load_eval_data(task_name_or_hfpath=None, csv_file=None, split=None):
     return raw_datasets
 
 
-def main():
+def main(output_path=None):
     # task_name_or_hfpath = "mnli"
-    for task_name_or_hfpath in (FITTING_CORPORA):   #  + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS
+    # create a result dataframe with
+    # task_name, tokenizer_path, renyi_eff_2.5, renyi_eff_3.0, avg_seq_len
+    result_dict = {
+        "task_name": [],
+        "tokenizer_path": [],
+        "renyi_eff_2.5": [],
+        "renyi_eff_3.0": [],
+        "avg_seq_len": []
+    }
+    for task_name_or_hfpath in (FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS):
         split = None
         if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
             task = task_name_or_hfpath
@@ -130,16 +140,32 @@ def main():
         sentence_keys = task_to_keys[task]
         for tokenizer_path in TOKENIZER_PATHS:
             text_generator = (" ".join(example[text_key] for text_key in sentence_keys) for example in eval_dataset)
-            text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
+            text_generator, t_gen1, t_gen2, t_gen3 = itertools.tee(text_generator, 4)
             log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
+            renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
             log_and_flush(f"Renyi Efficency (2.5): "
-                          f"{calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)}")
+                          f"{renyi_25}")
+            renyi_30 = calc_renyi_efficency_from_generator(t_gen2, tokenizer_path, power=3.0)
             log_and_flush(f"Renyi Efficency (3.0): "
-                          f"{calc_renyi_efficency_from_generator(t_gen2, tokenizer_path, power=3.0)}")
-            log_and_flush(f"Avg Seq Len: {calc_seq_len_from_generator(t_gen3, tokenizer_path)}")
-            log_and_flush(f"Avg # Toks/Words + Seq Len (slow impl.): "
-                          f"{calc_avg_tok_from_generator(t_gen4, tokenizer_path)}")
+                          f"{renyi_30}")
+            seq_len = calc_seq_len_from_generator(t_gen3, tokenizer_path)
+            log_and_flush(f"Avg Seq Len: {seq_len}")
+            result_dict["task_name"].append(task)
+            result_dict["tokenizer_path"].append(tokenizer_path)
+            result_dict["renyi_eff_2.5"].append(renyi_25)
+            result_dict["renyi_eff_3.0"].append(renyi_30)
+            result_dict["avg_seq_len"].append(seq_len)
+    import pandas as pd
+    result_df = pd.DataFrame(result_dict)
+    if output_path:
+        result_df.to_csv(os.path.join(output_path, "intrinsic_tokenizer_eval_results.csv"), sep="\t")
+    else:
+        result_df.to_csv("eval_results.csv", sep="\t")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--output_path', default=None, type=str)
+    args = parser.parse_args()
+    main(output_path=args.output_path)
