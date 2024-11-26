@@ -72,6 +72,8 @@ def main():
         "predictive_features": []
     }
 
+    glue_task_to_keys["snli"] = ("premise", "hypothesis")
+
     for task_name_or_hfpath in ["snli"] + GLUE_TASKS:
         task = os.path.basename(os.path.normpath(task_name_or_hfpath))
         raw_datasets = load_data(task_name_or_hfpath)
