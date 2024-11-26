@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer
 from tokenizers import Tokenizer
 
-from huggingface_tokenizers import HUGGINGFACE_TOKENIZERS
+from styletokenizer.huggingface_tokenizers import HUGGINGFACE_TOKENIZERS
 
 
 class TorchTokenizer:
