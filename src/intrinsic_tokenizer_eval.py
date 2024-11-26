@@ -60,12 +60,15 @@ def main(output_path=None):
         "renyi_eff_3.0": [],
         "avg_seq_len": []
     }
-    for task_name_or_hfpath in (FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS + VARIETIES_TASKS):
+    for task_name_or_hfpath in (VARIETIES_TASKS + FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS):
         split = None
+        csv_file = False
         if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
             task = task_name_or_hfpath
             task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
+            if task != "sadiri":
+                csv_file = True
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"]}
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))  # doesn't really matter which one
@@ -73,7 +76,10 @@ def main(output_path=None):
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
             task_to_keys = glue_task_to_keys
-        raw_datasets = load_data(task_name_or_hfpath, split=split)
+        if csv_file:
+            raw_datasets = load_data(csv_file=task_name_or_hfpath, split=split)
+        else:
+            raw_datasets = load_data(task_name_or_hfpath, split=split)
         try:
             eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
         except KeyError:  # some of the datasets are not provided in split form
