@@ -2,6 +2,8 @@ import argparse
 import os
 import re
 
+from webbook import COUNT_PER_ROW
+
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
@@ -9,12 +11,9 @@ os.environ["HF_DATASETS_CACHE"] = cache_dir
 from styletokenizer.utility.datasets_helper import save_to_huggingface_format
 from styletokenizer.utility.custom_logger import log_and_flush
 
-from datasets import load_dataset
 import random
 from pathlib import Path
 import styletokenizer.utility.the_pile as the_pile
-
-COUNT_PER_ROW = 512
 
 
 def sample_texts_from_webtext_dataset(target_word_count):

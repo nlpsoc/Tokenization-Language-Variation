@@ -1,10 +1,10 @@
 from datasets import load_from_disk
 
-from create_webbook_sample import COUNT_PER_ROW
-from utility.custom_logger import log_and_flush
+from styletokenizer.utility.custom_logger import log_and_flush
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
+COUNT_PER_ROW = 512
 
 
 def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
@@ -21,3 +21,6 @@ def load_train_dataset(word_count=3_300_000_000, data_path=UMICH_TRAIN_DATASET_P
     else:
         train_data = train_data.select(range(nbr_rows))
     return train_data
+
+
+
