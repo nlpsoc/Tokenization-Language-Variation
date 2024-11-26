@@ -9,15 +9,12 @@ from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.utility.datasets_helper import load_data
-from tokenizer import BASE_TOKENIZER_PATH
 
 set_cache()
 
 from styletokenizer.utility.tokenizer_vars import OUT_PATH
 from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED
 from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
-
-BASE_TOKENIZER_PATH = OUT_PATH
 
 VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
 VALUE_PATHS = [
