@@ -166,6 +166,8 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
                 raw_datasets = load_dataset(
                     "snli"
                 )
+                raw_datasets["train"] = raw_datasets["train"].filter(lambda x: x['label'] != -1)
+                raw_datasets["val"] = raw_datasets["val"] .filter(lambda x: x['label'] != -1)
             else:
                 # GLUE: MRPC, CoLA, SST-2, QNLI, QQP, RTE, WNLI, STS-B
                 raw_datasets = load_dataset(

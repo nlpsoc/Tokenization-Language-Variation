@@ -157,8 +157,15 @@ def main():
             # Identify most predictive features
             feature_names = vectorizer.get_feature_names_out()
             coefs = clf.coef_
-            if len(coefs.shape) == 1:
-                coefs = [coefs]
+
+            if len(clf.classes_) == 2:
+                # Binary classification: create coefficients for both classes
+                coefs = np.vstack([-coefs[0], coefs[0]])
+            else:
+                # For multiclass or single-class classification, ensure coefs is 2D
+                if len(coefs.shape) == 1:
+                    coefs = coefs.reshape(1, -1)
+
             top_features = {}
             for i, class_label in enumerate(clf.classes_):
                 top_positive_coefficients = np.argsort(coefs[i])[-10:]
@@ -173,6 +180,8 @@ def main():
             print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
             print(classification_report(y_eval, y_pred))
             print("------------------------------------------------------")
+            print(f"Predictive Features for {task} with tokenizer {tokenizer_path}:")
+            print(top_features)
 
     # Print the results
     for idx in range(len(result_dict["task_name"])):
