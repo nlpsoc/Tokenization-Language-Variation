@@ -8,7 +8,7 @@ from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_fro
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_TASK_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
+from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
                                                     VALUE_PATHS)
 
 set_cache()
@@ -33,9 +33,9 @@ def main(output_path=None):
     for task_name_or_hfpath in (VARIETIES_TASKS + FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS):
         split = None
         csv_file = False
-        if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
+        if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
-            task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
+            task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
             if task != "sadiri":
                 csv_file = True

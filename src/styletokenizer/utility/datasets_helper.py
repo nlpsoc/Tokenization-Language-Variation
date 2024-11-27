@@ -213,7 +213,7 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
     return raw_datasets
 
 
-VARIETIES_TASK_DICT = {
+VARIETIES_DEV_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
     "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
@@ -224,6 +224,14 @@ VARIETIES_TASK_DICT = {
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
 }
+VARIETIES_TRAIN_DICT = {
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+    "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.csv",
+    "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_train.tsv",
+    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",
+    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
+    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
+}
 VARIETIES_to_keys = {
     "sadiri": ("query_text", "candidate_text"),
     "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
@@ -233,7 +241,7 @@ VARIETIES_to_keys = {
     "GYAFC": ["text"],
     "DIALECT": ["text"],
 }
-VARIETIES_TASKS = list(VARIETIES_TASK_DICT.keys())
+VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
 VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
 VALUE_PATHS = [
     os.path.join(VALUE_BASE, glue_task) for glue_task in GLUE_TASKS

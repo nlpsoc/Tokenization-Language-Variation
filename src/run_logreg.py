@@ -6,8 +6,8 @@ set_cache()
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.glue import GLUE_TASKS
 from run_glue import task_to_keys as glue_task_to_keys
-from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_TASK_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
-                                                    VALUE_PATHS)
+from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
+                                                    VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 from datasets import load_dataset
@@ -77,11 +77,11 @@ def main():
 
     for task_name_or_hfpath in (VARIETIES_TASKS + VALUE_PATHS + GLUE_TASKS):
         csv_file = False
-        if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
+        if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
             if task == "stel":  # not a training task
                 continue
-            task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
+            task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
             if task != "sadiri":
                 csv_file = True
@@ -90,12 +90,20 @@ def main():
             task_to_keys = glue_task_to_keys
 
         if csv_file:
-            raw_datasets = load_data(csv_file=task_name_or_hfpath)
+            raw_datasets = {
+                "train": load_data(csv_file=task_name_or_hfpath),
+                "validation": load_data(csv_file=VARIETIES_TRAIN_DICT[task])
+            }
         else:
-            raw_datasets = load_data(task_name_or_hfpath)
+            if task in VARIETIES_TASKS:
+                raw_datasets = {
+                    "train": load_data(task_name_or_hfpath),
+                    "validation": load_data(VARIETIES_TRAIN_DICT[task])
+                }
+            else:
+                raw_datasets = load_data(task_name_or_hfpath)
 
-        task_to_keys = glue_task_to_keys[task]
-        sentence1_key, sentence2_key = task_to_keys
+        sentence1_key, sentence2_key = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
 
         for tokenizer_path in TOKENIZER_PATHS:
