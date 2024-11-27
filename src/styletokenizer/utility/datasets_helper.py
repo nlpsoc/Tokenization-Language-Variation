@@ -119,6 +119,7 @@ def efficient_split_generator(dataset_path, split="dev"):
     for i in range(len(data_split)):
         yield data_split[i]["text"]
 
+
 # def batch_text_generator(dataset_path, split="train", batch_size=1000):
 #     """
 #     Generator that yields data entries from a Huggingface-formatted dataset in batches.
@@ -176,10 +177,33 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
         # Loading a dataset from your local files.
         # CSV/JSON training and evaluation files are needed.
         data_files = {"validation": csv_file}  # should also work with list of csv files
-        if csv_file.endswith(".csv"):
+        csv = False
+        tsv = False
+        if type(csv_file) == list:
+            if csv_file[0].endswith(".csv"):
+                csv = True
+            elif csv_file[0].endswith(".tsv"):
+                tsv = True
+        else:
+            if csv_file.endswith(".csv"):
+                csv = True
+            elif csv_file.endswith(".tsv"):
+                tsv = True
+
+        if csv:
             # Loading a dataset from local csv files
             raw_datasets = load_dataset(
                 "csv",
                 data_files=data_files
             )
+        elif tsv:
+            # Loading a dataset from local tsv files
+            raw_datasets = load_dataset(
+                "csv",
+                data_files=data_files,
+                delimiter="\t"
+            )
+        else:
+            raise ValueError("Please provide a valid csv or tsv file")
+
     return raw_datasets
