@@ -71,7 +71,7 @@ def create_tinybert_architecture(tokenizer, model_size=4):
     elif model_size == 42:
         config = BertConfig.from_pretrained('prajjwal1/bert-medium')
     else:
-        raise ValueError("Model size must be 4, 11 or 29 million, matching tiny, mini or small BERT")
+        raise ValueError("Model size must be 4, 11, 29 or 42 million, matching tiny, mini, small or medium BERT")
     # DROPOUT in config is already set to 0.1 by default, otherwise set
     # config.hidden_dropout_prob = 0.1
     # config.attention_probs_dropout_prob = 0.1
@@ -126,8 +126,10 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
         bert_name = "mini-BERT"
     elif model_size == 29:
         bert_name = "small-BERT"
+    elif model_size == 42:
+        bert_name = "medium-BERT"
     else:
-        raise ValueError("Model size must be 4, 11 or 29 million, matching tiny, mini or small BERT")
+        raise ValueError("Model size must be 4, 11, 29  or 42 million, matching tiny, mini, small or medium BERT")
 
     output_dir = os.path.join(output_base_folder, bert_name, tokenizer_name,
                               f"{int(actual_word_count / 1_000_000)}M",

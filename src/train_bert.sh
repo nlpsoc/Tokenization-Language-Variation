@@ -63,7 +63,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 
 # medium BERT on 100 million words
-# python train_bert.py --uu --seed 42 --word_count 100_000_000 --model_size 42 --batch_size 32 --steps 6000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+python train_bert.py --uu --seed 42 --word_count 100_000_000 --model_size 42 --batch_size 32 --steps 6000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
 
 # tiny BERT on 10 million words
-python train_bert.py --uu --seed 42 --word_count 10_000_000 --model_size 4 --batch_size 32 --steps 600 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
+# python train_bert.py --uu --seed 42 --word_count 10_000_000 --model_size 4 --batch_size 32 --steps 600 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000
