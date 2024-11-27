@@ -23,9 +23,9 @@ VALUE_PATHS = [
 
 VARIETIES_TASK_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
-    "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
-             "/home/uu_cs_nlpsoc/awegmann/STEL/characteristics/quad_questions_char_contraction.tsv",
-             "/home/uu_cs_nlpsoc/awegmann/STEL/characteristics/quad_questions_char_substitution.tsv"],
+    "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
+             "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
+             "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
     "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
     "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
