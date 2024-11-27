@@ -103,7 +103,7 @@ def main():
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
 
-        sentence1_key, sentence2_key = task_to_keys[task]
+        sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
 
         for tokenizer_path in TOKENIZER_PATHS:
@@ -111,7 +111,8 @@ def main():
 
             # Use lambda to pass tokenizer and sentence keys to preprocess_function
             encoded_dataset = raw_datasets.map(
-                lambda examples: preprocess_function(examples, tokenizer, sentence1_key, sentence2_key),
+                lambda examples: preprocess_function(examples, tokenizer, sentence_keys[0],
+                                                     sentence_keys[1] if len(sentence_keys) > 1 else None),
                 batched=True,
                 load_from_cache_file=False  # Make sure to re-tokenize every time
             )

@@ -236,13 +236,13 @@ VARIETIES_TRAIN_DICT = {
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
 }
 VARIETIES_to_keys = {
-    "sadiri": ("query_text", "candidate_text"),
-    "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
     "age": ["text"],
+    "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
     "CORE": ["text"],
     "CGLU": ["Text"],
     "GYAFC": ["text"],
     "DIALECT": ["text"],
+    "sadiri": ("query_text", "candidate_text"),
 }
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
 VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
