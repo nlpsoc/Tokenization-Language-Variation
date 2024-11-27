@@ -3,7 +3,7 @@ import os
 from datasets import Dataset, DatasetDict, load_from_disk, load_dataset
 import pyarrow as pa
 
-from glue import GLUE_TASKS
+from styletokenizer.glue import GLUE_TASKS
 from styletokenizer.utility.custom_logger import log_and_flush
 
 
