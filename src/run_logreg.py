@@ -10,7 +10,7 @@ from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DIC
                                                     VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
-from datasets import load_dataset
+from datasets import DatasetDict
 from transformers import AutoTokenizer
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -96,10 +96,10 @@ def main():
             }
         else:
             if task in VARIETIES_TASKS:
-                raw_datasets = {
+                raw_datasets = DatasetDict({
                     "train": load_data(task_name_or_hfpath),
                     "validation": load_data(VARIETIES_TRAIN_DICT[task])
-                }
+                })
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
 
