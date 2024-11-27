@@ -101,8 +101,8 @@ def main():
             if task == "sadiri":
                 features_type = 'common_words'
                 (train_queries, train_candidates), train_labels, _ = _create_pairs(
-                    load_data(VARIETIES_TRAIN_DICT[task])["train"])
-                (val_queries, val_candidates), val_labels, _ = _create_pairs(load_data(task_name_or_hfpath)["train"])
+                    load_data(VARIETIES_TRAIN_DICT[task]))
+                (val_queries, val_candidates), val_labels, _ = _create_pairs(load_data(task_name_or_hfpath))
                 raw_datasets = DatasetDict({
                     "train":  Dataset.from_dict({
                         "query_text": train_queries,
