@@ -34,22 +34,31 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         #     "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
         #     "--loss", "SupConLoss"
         # ]
+        from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+        train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
+        train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
+        train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
+        train_dataset.to_csv(train_csv_path, index=False)
+        validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
+        validation_dataset = create_singplesplit_sadiri_classification_dataset(validation_file)
+        validation_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
+                               "/validation.csv")
+        validation_dataset.to_csv(validation_csv_path, index=False)
+
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+            "--train_file", train_csv_path,
+            "--validation_file", validation_csv_path,
             "--shuffle_train_dataset",
-            "--text_column_name", "text",
+            "--text_column_name", "query_text,candidate_text",
             "--label_column_name", "label",
-            "--remove_columns", "age,date,gender,horoscope,job",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "3",
-            "--max_train_samples", "200000",  # use only 200k samples, which is roughly 10% of the dataset
             "--output_dir", output_dir,
             "--seed", str(seed),
         ]

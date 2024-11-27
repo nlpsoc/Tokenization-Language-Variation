@@ -1,11 +1,12 @@
 import json
 import re
 
-from datasets import load_from_disk
+from datasets import load_from_disk, DatasetDict, Dataset
 import pandas as pd
 
 from styletokenizer.utility.filesystem import set_global_seed
 from styletokenizer.whitespace_consts import APOSTROPHE_PATTERN
+from styletokenizer.utility.datasets_helper import load_data
 
 DEV_PATH = "../../data/UMich-AV/down_1/dev"
 TRAIN_1_PATH = "../../data/UMich-AV/down_1/train"
@@ -210,3 +211,24 @@ def find_av_matches(df, apostrophe_pattern=APOSTROPHE_PATTERN):
 
     # Display the examples
     print_examples_per_apostrophe_type(grouped)
+
+
+def create_sadiri_class_dataset(train_path, validation_path):
+    train_dataset = create_singplesplit_sadiri_classification_dataset(train_path)
+    val_dataset = create_singplesplit_sadiri_classification_dataset(validation_path)
+    train_val_dataset = DatasetDict({
+        "train": train_dataset,
+        "validation": val_dataset,
+    })
+    return train_val_dataset
+
+
+def create_singplesplit_sadiri_classification_dataset(train_path):
+    (train_queries, train_candidates), train_labels, _ = _create_pairs(
+        load_data(train_path))
+    train_dataset = Dataset.from_dict({
+        "query_text": train_queries,
+        "candidate_text": train_candidates,
+        "label": train_labels
+    })
+    return train_dataset

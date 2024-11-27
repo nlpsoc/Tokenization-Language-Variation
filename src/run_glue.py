@@ -550,10 +550,7 @@ def main():
         data_collator = None
 
     # Determine which trainer to use
-    if data_args.task_name == "sadiri":
-        trainer_class = SADIRITrainer
-    else:
-        trainer_class = Trainer
+    trainer_class = Trainer
 
     # Initialize our Trainer
     trainer = trainer_class(
