@@ -121,7 +121,7 @@ def main():
             y_train = encoded_dataset["train"]["label"]
             y_eval = encoded_dataset[val_key]["label"]
 
-            if sentence2_key is None:
+            if (len(sentence_keys) == 1) or (sentence_keys[1] is None):
                 # Single sentence tasks
                 X_train_ids1 = encoded_dataset["train"]["input_ids1"]
                 X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
