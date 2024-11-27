@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ### Job name
-#SBATCH --job-name=INTRINSIC-EVAL
+#SBATCH --job-name=LR-EVAL
 
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID

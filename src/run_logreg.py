@@ -6,7 +6,8 @@ set_cache()
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.glue import GLUE_TASKS
 from run_glue import task_to_keys as glue_task_to_keys
-from styletokenizer.utility.datasets_helper import load_data
+from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_TASK_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
+                                                    VALUE_PATHS)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 from datasets import load_dataset
@@ -72,11 +73,26 @@ def main():
         "predictive_features": []
     }
 
-    glue_task_to_keys["snli"] = ("premise", "hypothesis")
+    # glue_task_to_keys["snli"] = ("premise", "hypothesis")
 
-    for task_name_or_hfpath in ["snli"] + GLUE_TASKS:
-        task = os.path.basename(os.path.normpath(task_name_or_hfpath))
-        raw_datasets = load_data(task_name_or_hfpath)
+    for task_name_or_hfpath in (VARIETIES_TASKS + VALUE_PATHS + GLUE_TASKS):
+        csv_file = False
+        if task_name_or_hfpath in VARIETIES_TASK_DICT.keys():
+            task = task_name_or_hfpath
+            if task == "stel":  # not a training task
+                continue
+            task_name_or_hfpath = VARIETIES_TASK_DICT[task_name_or_hfpath]
+            task_to_keys = VARIETIES_to_keys
+            if task != "sadiri":
+                csv_file = True
+        else:
+            task = os.path.basename(os.path.normpath(task_name_or_hfpath))
+            task_to_keys = glue_task_to_keys
+
+        if csv_file:
+            raw_datasets = load_data(csv_file=task_name_or_hfpath)
+        else:
+            raw_datasets = load_data(task_name_or_hfpath)
 
         task_to_keys = glue_task_to_keys[task]
         sentence1_key, sentence2_key = task_to_keys
@@ -159,21 +175,36 @@ def main():
             coefs = clf.coef_
 
             if len(clf.classes_) == 2:
-                # Binary classification: create coefficients for both classes
+                # Binary classification
                 coefs = np.vstack([-coefs[0], coefs[0]])
-            else:
-                # For multiclass or single-class classification, ensure coefs is 2D
-                if len(coefs.shape) == 1:
-                    coefs = coefs.reshape(1, -1)
+            elif len(coefs.shape) == 1:
+                # Ensure coefs is 2D for single-class classification
+                coefs = coefs.reshape(1, -1)
 
             top_features = {}
             for i, class_label in enumerate(clf.classes_):
-                top_positive_coefficients = np.argsort(coefs[i])[-10:]
-                top_negative_coefficients = np.argsort(coefs[i])[:10]
+                coef = coefs[i]
+                # Get indices of non-zero coefficients
+                non_zero_indices = np.flatnonzero(coef)
+                # If there are no non-zero coefficients, skip
+                if non_zero_indices.size == 0:
+                    top_features[class_label] = {
+                        "top_positive": [],
+                        "top_negative": []
+                    }
+                    continue
+
+                # Sort the coefficients by value
+                sorted_indices = np.argsort(coef[non_zero_indices])
+                top_positive_indices = non_zero_indices[sorted_indices][-10:][::-1]
+                top_negative_indices = non_zero_indices[sorted_indices][:10]
+
+                # Include the coefficients in the output
                 top_features[class_label] = {
-                    "top_positive": [feature_names[j] for j in top_positive_coefficients],
-                    "top_negative": [feature_names[j] for j in top_negative_coefficients]
+                    "top_positive": [(feature_names[j], coef[j]) for j in top_positive_indices],
+                    "top_negative": [(feature_names[j], coef[j]) for j in top_negative_indices]
                 }
+
             result_dict["predictive_features"].append(top_features)
 
             # Optionally, print classification report

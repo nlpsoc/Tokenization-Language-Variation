@@ -8,40 +8,13 @@ from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_fro
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.utility.datasets_helper import load_data
+from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_TASK_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
+                                                    VALUE_PATHS)
 
 set_cache()
 
-from styletokenizer.utility.tokenizer_vars import OUT_PATH
 from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED
 from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
-
-VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
-VALUE_PATHS = [
-    os.path.join(VALUE_BASE, glue_task) for glue_task in GLUE_TASKS
-]
-
-VARIETIES_TASK_DICT = {
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
-    "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
-             "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
-             "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
-    "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
-    "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
-    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
-    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
-    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
-}
-VARIETIES_to_keys = {
-    "sadiri": ("query_text", "candidate_text"),
-    "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
-    "age": ["text"],
-    "CORE": ["text"],
-    "CGLU": ["Text"],
-    "GYAFC": ["text"],
-    "DIALECT": ["text"],
-}
-VARIETIES_TASKS = list(VARIETIES_TASK_DICT.keys())
 
 FITTING_CORPORA = [CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOK]
 
