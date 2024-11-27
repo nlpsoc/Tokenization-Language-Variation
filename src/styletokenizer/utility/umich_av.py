@@ -4,8 +4,8 @@ import re
 from datasets import load_from_disk
 import pandas as pd
 
-from utility.filesystem import set_global_seed
-from whitespace_consts import APOSTROPHE_PATTERN
+from styletokenizer.utility.filesystem import set_global_seed
+from styletokenizer.whitespace_consts import APOSTROPHE_PATTERN
 
 DEV_PATH = "../../data/UMich-AV/down_1/dev"
 TRAIN_1_PATH = "../../data/UMich-AV/down_1/train"
