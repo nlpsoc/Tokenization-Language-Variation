@@ -213,8 +213,9 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
     return raw_datasets
 
 
+
 VARIETIES_DEV_DICT = {
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+    "sadiri": "//Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/dev",  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
     "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
@@ -225,7 +226,7 @@ VARIETIES_DEV_DICT = {
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
 }
 VARIETIES_TRAIN_DICT = {
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+    "sadiri": "//Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
     "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.csv",
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_train.tsv",
     "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",

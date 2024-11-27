@@ -9,8 +9,9 @@ from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
                                                     VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
+from styletokenizer.utility.umich_av import _create_pairs
 
-from datasets import DatasetDict
+from datasets import DatasetDict, Dataset
 from transformers import AutoTokenizer
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -45,9 +46,11 @@ def get_common_words_features(tokens1_list, tokens2_list):
         tokens1_set = set(tokens1.split())
         tokens2_set = set(tokens2.split())
         common_tokens = tokens1_set & tokens2_set
+        unique_tokens = (tokens1_set | tokens2_set) - common_tokens
         # Create 'word_word' features
         feature_tokens = [f"{word}_{word}" for word in common_tokens]
-        features.append(' '.join(feature_tokens))
+        uncommon_tokens = [f"{word}_not_{word}" for word in unique_tokens]
+        features.append(' '.join(feature_tokens + uncommon_tokens))
     return features
 
 
@@ -95,10 +98,22 @@ def main():
                 "validation": load_data(csv_file=VARIETIES_TRAIN_DICT[task])
             }
         else:
-            if task in VARIETIES_TASKS:
+            if task == "sadiri":
+                features_type = 'common_words'
+                (train_queries, train_candidates), train_labels, _ = _create_pairs(
+                    load_data(VARIETIES_TRAIN_DICT[task])["train"])
+                (val_queries, val_candidates), val_labels, _ = _create_pairs(load_data(task_name_or_hfpath)["train"])
                 raw_datasets = DatasetDict({
-                    "train": load_data(task_name_or_hfpath),
-                    "validation": load_data(VARIETIES_TRAIN_DICT[task])
+                    "train":  Dataset.from_dict({
+                        "query_text": train_queries,
+                        "candidate_text": train_candidates,
+                        "label": train_labels
+                    }),
+                    "validation": Dataset.from_dict({
+                        "query_text": val_queries,
+                        "candidate_text": val_candidates,
+                        "label": val_labels
+                    }),
                 })
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
