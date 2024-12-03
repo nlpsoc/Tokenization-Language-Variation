@@ -14,6 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
+from styletokenizer.utility.env_variables import set_cache
+set_cache()
+
 from datetime import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
@@ -29,9 +32,7 @@ import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-from styletokenizer.utility.env_variables import set_cache
 
-set_cache()
 
 import datasets
 import evaluate
