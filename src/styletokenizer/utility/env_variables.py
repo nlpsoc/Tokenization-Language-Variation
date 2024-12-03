@@ -65,7 +65,7 @@ def set_cache():
         log_and_flush("Using UU cluster cache")
         os.environ["HF_HOME"] = UU_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
-
+        os.environ["WANDB_CACHE_DIR"] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
         return UU_CACHE_DIR
     elif at_umich():
         log_and_flush("Using UMich cluster cache")
