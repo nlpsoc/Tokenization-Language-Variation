@@ -597,7 +597,7 @@ def main():
         return result
 
     def prepare_dataset(raw_datasets, dataset_keys, do_flag, max_samples=None, shuffle=False, seed=None, desc=None,
-                        preprocess_function=None, num_proc=None, load_from_cache_file=False, keep_in_memory=True):
+                        preprocess_function=None, num_proc=None, load_from_cache_file=False):
         if not do_flag:
             return None
 
@@ -626,7 +626,6 @@ def main():
                 batched=True,
                 num_proc=num_proc,
                 load_from_cache_file=load_from_cache_file,
-                keep_in_memory=keep_in_memory,
                 desc=f"Running tokenizer on {desc} dataset",
             )
 
@@ -644,7 +643,6 @@ def main():
         preprocess_function=preprocess_function,
         num_proc=data_args.preprocessing_num_workers,
         load_from_cache_file=False,
-        keep_in_memory=True,
     )
 
     # Prepare the evaluation dataset
@@ -657,7 +655,6 @@ def main():
         preprocess_function=preprocess_function,
         num_proc=data_args.preprocessing_num_workers,
         load_from_cache_file=False,
-        keep_in_memory=True,
     )
 
     # Prepare the prediction dataset
@@ -670,7 +667,6 @@ def main():
         preprocess_function=preprocess_function,
         num_proc=data_args.preprocessing_num_workers,
         load_from_cache_file=False,
-        keep_in_memory=True,
     )
 
     # Log a few random samples from the training set:

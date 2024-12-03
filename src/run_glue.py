@@ -15,6 +15,7 @@
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
 from styletokenizer.utility.env_variables import set_cache
+
 set_cache()
 
 from datetime import datetime
@@ -32,7 +33,6 @@ import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-
 
 import datasets
 import evaluate
@@ -225,22 +225,12 @@ class ModelArguments:
     )
 
 
-class MyTrainingArguments(HFTrainingArguments):
-    def __init__(self, **kwargs):
-        # Override the defaults you care about
-        kwargs['save_strategy'] = 'no'  # kwargs.get('save_strategy', 'no')
-        # kwargs.setdefault('resume_from_checkpoint', False)
-
-        # Call the parent class's initializer with the updated arguments
-        super().__init__(**kwargs)
-
-
 def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, MyTrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
@@ -489,7 +479,6 @@ def main():
             preprocess_function,
             batched=True,
             load_from_cache_file=False,
-            keep_in_memory=False,
             desc="Running tokenizer on dataset",
         )
     if training_args.do_train:
@@ -615,11 +604,12 @@ def main():
 
             # Predict again on eval dataset and save all predictions with IDs
             predictions = trainer.predict(eval_dataset)
-            eval_dataset = eval_dataset.add_column("predictions", predictions.predictions.argmax(-1))  # assuming classification
+            eval_dataset = eval_dataset.add_column("predictions",
+                                                   predictions.predictions.argmax(-1))  # assuming classification
             # save the tokenized string in column "tokenized string"
             eval_dataset = eval_dataset.add_column("tokenized string",
                                                    tokenizer.batch_decode(eval_dataset["input_ids"],
-                                                                                skip_special_tokens=True))
+                                                                          skip_special_tokens=True))
             # Dataset as a TSV file
             current_date = datetime.now().strftime("%Y-%m-%d")
             output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
