@@ -95,8 +95,8 @@ def main():
 
         if csv_file:
             raw_datasets = DatasetDict({
-                "train": load_data(csv_file=task_name_or_hfpath)["validation"],
-                "validation": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"]
+                "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
+                "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
             })
         else:
             if task == "sadiri":
