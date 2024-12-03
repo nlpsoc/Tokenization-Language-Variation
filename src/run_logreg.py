@@ -1,11 +1,10 @@
-import os
-
-from datasets import DatasetDict
-
 from styletokenizer.utility.env_variables import set_cache
+set_cache()
+
+import os
+from datasets import DatasetDict
 from styletokenizer.utility.umich_av import create_sadiri_class_dataset
 
-set_cache()
 
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.glue import GLUE_TASKS
@@ -125,7 +124,8 @@ def main():
                 lambda examples: preprocess_function(examples, tokenizer, sentence_keys[0],
                                                      sentence_keys[1] if len(sentence_keys) > 1 else None),
                 batched=True,
-                load_from_cache_file=False  # Make sure to re-tokenize every time
+                load_from_cache_file=False,  # Make sure to re-tokenize every time
+                keep_in_memory=True,
             )
 
             # Extract labels
