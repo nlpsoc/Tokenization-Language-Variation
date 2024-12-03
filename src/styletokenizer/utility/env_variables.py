@@ -64,7 +64,9 @@ def set_cache():
     if at_uu():
         log_and_flush("Using UU cluster cache")
         os.environ["HF_HOME"] = UU_CACHE_DIR
-        os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
+        os.environ["HF_DATASETS_CACHE"] = os.path.join(UU_CACHE_DIR, "datasets")
+        import datasets
+        datasets.config.HF_DATASETS_CACHE = os.path.join(UU_CACHE_DIR, "datasets")
         os.environ["WANDB_CACHE_DIR"] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
         return UU_CACHE_DIR
     elif at_umich():

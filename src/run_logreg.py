@@ -113,8 +113,16 @@ def main():
 
         # there might be labels of type None seeping through
         # Apply the filter to the datasets
-        raw_datasets['train'] = raw_datasets['train'].filter(filter_none_labels)
-        raw_datasets[val_key] = raw_datasets[val_key].filter(filter_none_labels)
+        raw_datasets['train'] = raw_datasets['train'].filter(
+            filter_none_labels,
+            load_from_cache_file=False,
+            keep_in_memory=True
+        )
+        raw_datasets[val_key] = raw_datasets[val_key].filter(
+            filter_none_labels,
+            load_from_cache_file=False,
+            keep_in_memory=True´
+        )
 
         for tokenizer_path in TOKENIZER_PATHS:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
