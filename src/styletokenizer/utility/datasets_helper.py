@@ -149,6 +149,7 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
     """
         loading the different eval datasets in all different forms (from huggingface datasets,
          locally with datasets, or csv)
+    :param split:
     :param task_name_or_hfpath:
     :param csv_file:
     :return:
