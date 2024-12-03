@@ -57,7 +57,7 @@ def main(args):
     ############# LOAD DATASET ############
     if args.train:
         print("loading training data...")
-        train_dataset = load_from_disk(args.train_data, keep_in_memory=True)
+        train_dataset = load_from_disk(args.train_data)
 
         if args.num_training_samples > 1:
             train_dataset = train_dataset.select(
@@ -85,7 +85,7 @@ def main(args):
         print("training data loaded")
 
         print('loading dev data...')
-        dev_dataset = load_from_disk(args.dev_data, keep_in_memory=True).shuffle(seed=args.seed)
+        dev_dataset = load_from_disk(args.dev_data).shuffle(seed=args.seed)
 
         if args.num_eval_samples > 1:
             dev_dataset = dev_dataset.select(
@@ -113,7 +113,7 @@ def main(args):
     if args.evaluate:
 
         print('loading test data...')
-        test_dataset = load_from_disk(args.test_data, keep_in_memory=True)['train'].shuffle(seed=args.seed)
+        test_dataset = load_from_disk(args.test_data)['train'].shuffle(seed=args.seed)
 
         if args.num_eval_samples > 1:
             test_dataset = test_dataset.select([i for i in range(args.num_eval_samples)])
