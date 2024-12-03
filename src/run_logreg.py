@@ -133,7 +133,6 @@ def main():
                                                      sentence_keys[1] if len(sentence_keys) > 1 else None),
                 batched=True,
                 load_from_cache_file=False,  # Make sure to re-tokenize every time
-                keep_in_memory=True,
             )
 
             # Extract labels
