@@ -488,7 +488,7 @@ def main():
             preprocess_function,
             batched=True,
             load_from_cache_file=False,
-            keep_in_memory=True,
+            keep_in_memory=False,
             desc="Running tokenizer on dataset",
         )
     if training_args.do_train:

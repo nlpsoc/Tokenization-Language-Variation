@@ -54,7 +54,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42
 
 # Extract the last part of the path
-MODEL_NAME="GLUE/${MODEL_PATH#*/models/}"
+MODEL_NAME="_GLUE/${MODEL_PATH#*/models/}"
 PER_DEVICE_TRAIN_BATCH_SIZE=32
 MAX_SEQ_LENGTH=128
 
@@ -72,7 +72,7 @@ MAX_SEQ_LENGTH=128
 ##--output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/44/ --seed 44
 #
 export TASK_NAME=sst2
-python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/ --seed 42 --overwrite_cache
 ##python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
