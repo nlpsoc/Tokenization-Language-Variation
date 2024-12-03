@@ -14,14 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
-from datetime import datetime
-
-from styletokenizer.utility.custom_logger import log_and_flush
-
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
-"""
-    copied from https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_glue.py
-"""
+from styletokenizer.utility.env_variables import set_cache
+set_cache()
 
 import logging
 import os
@@ -29,14 +24,11 @@ import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-from styletokenizer.utility.env_variables import set_cache
-
-set_cache()
 
 import datasets
 import evaluate
 import numpy as np
-from datasets import load_dataset, load_from_disk
+from datasets import load_dataset
 
 import transformers
 from transformers import (
@@ -52,12 +44,13 @@ from transformers import (
     default_data_collator,
     set_seed,
 )
+from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
-from transformers import TrainingArguments as HFTrainingArguments
+
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-# check_min_version("4.45.0.dev0")
+check_min_version("4.47.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/text-classification/requirements.txt")
 
@@ -71,7 +64,6 @@ task_to_keys = {
     "sst2": ("sentence", None),
     "stsb": ("sentence1", "sentence2"),
     "wnli": ("sentence1", "sentence2"),
-    "sadiri": ("query_text", "candidate_text"),
 }
 
 logger = logging.getLogger(__name__)
@@ -107,7 +99,7 @@ class DataTrainingArguments:
         },
     )
     overwrite_cache: bool = field(
-        default=True, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
+        default=False, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
     )
     pad_to_max_length: bool = field(
         default=True,
@@ -155,10 +147,9 @@ class DataTrainingArguments:
 
     def __post_init__(self):
         if self.task_name is not None:
-            print("task_name", self.task_name)
-            # self.task_name = self.task_name.lower()
-            # if self.task_name not in task_to_keys.keys():
-            #     raise ValueError("Unknown task, you should pick one in " + ",".join(task_to_keys.keys()))
+            self.task_name = self.task_name.lower()
+            if self.task_name not in task_to_keys.keys():
+                raise ValueError("Unknown task, you should pick one in " + ",".join(task_to_keys.keys()))
         elif self.dataset_name is not None:
             pass
         elif self.train_file is None or self.validation_file is None:
@@ -168,7 +159,7 @@ class DataTrainingArguments:
             assert train_extension in ["csv", "json"], "`train_file` should be a csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
-                    validation_extension == train_extension
+                validation_extension == train_extension
             ), "`validation_file` should have the same extension (csv or json) as `train_file`."
 
 
@@ -224,22 +215,12 @@ class ModelArguments:
     )
 
 
-class MyTrainingArguments(HFTrainingArguments):
-    def __init__(self, **kwargs):
-        # Override the defaults you care about
-        kwargs['save_strategy'] = 'no'  # kwargs.get('save_strategy', 'no')
-        # kwargs.setdefault('resume_from_checkpoint', False)
-
-        # Call the parent class's initializer with the updated arguments
-        super().__init__(**kwargs)
-
-
 def main():
     # See all possible arguments in src/transformers/training_args.py
     # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
-    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, MyTrainingArguments))
+    parser = HfArgumentParser((ModelArguments, DataTrainingArguments, TrainingArguments))
     if len(sys.argv) == 2 and sys.argv[1].endswith(".json"):
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
@@ -257,7 +238,6 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
-    logging.info(f"Training/evaluation parameters {training_args}")
 
     if training_args.should_log:
         # The default of training_args.log_level is passive, so we set log level at info here to have that default.
@@ -277,13 +257,20 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
-    # create output dir
-    os.makedirs(training_args.output_dir, exist_ok=True)
-    if (len(os.listdir(training_args.output_dir)) > 0) and (not training_args.overwrite_output_dir):
-        raise ValueError(
-            f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-            "Use --overwrite_output_dir to overcome."
-        )
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                "Use --overwrite_output_dir to overcome."
+            )
+        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+            logger.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
+                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
+            )
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -301,20 +288,13 @@ def main():
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
     if data_args.task_name is not None:
-        if os.path.exists(data_args.task_name):
-            raw_datasets = load_from_disk(data_args.task_name)
-            # set task name to last folder in path
-            task_name = os.path.basename(os.path.normpath(data_args.task_name))
-            data_args.task_name = task_name
-        else:
-            # Downloading and loading a dataset from the hub.
-            raw_datasets = load_dataset(
-                "nyu-mll/glue",
-                data_args.task_name,
-                cache_dir=model_args.cache_dir,
-                token=model_args.token,
-            )
-        logger.info(f"Dataset loaded: {raw_datasets}")
+        # Downloading and loading a dataset from the hub.
+        raw_datasets = load_dataset(
+            "nyu-mll/glue",
+            data_args.task_name,
+            cache_dir=model_args.cache_dir,
+            token=model_args.token,
+        )
     elif data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
@@ -336,7 +316,7 @@ def main():
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
-                        test_extension == train_extension
+                    test_extension == train_extension
                 ), "`test_file` should have the same extension (csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
@@ -367,7 +347,7 @@ def main():
     # Labels
     if data_args.task_name is not None:
         is_regression = data_args.task_name == "stsb"
-        if (not is_regression) and (not data_args.task_name == "sadiri"):
+        if not is_regression:
             label_list = raw_datasets["train"].features["label"].names
             num_labels = len(label_list)
         else:
@@ -440,9 +420,9 @@ def main():
     # Some models have set the order of the labels to use, so let's make sure we do use it.
     label_to_id = None
     if (
-            model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-            and data_args.task_name is not None
-            and not is_regression
+        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
+        and data_args.task_name is not None
+        and not is_regression
     ):
         # Some have all caps in their config, some don't.
         label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
@@ -460,7 +440,7 @@ def main():
     if label_to_id is not None:
         model.config.label2id = label_to_id
         model.config.id2label = {id: label for label, id in config.label2id.items()}
-    elif data_args.task_name is not None and not is_regression and (not (data_args.task_name == "sadiri")):
+    elif data_args.task_name is not None and not is_regression:
         model.config.label2id = {l: i for i, l in enumerate(label_list)}
         model.config.id2label = {id: label for label, id in config.label2id.items()}
 
@@ -487,8 +467,7 @@ def main():
         raw_datasets = raw_datasets.map(
             preprocess_function,
             batched=True,
-            load_from_cache_file=False,
-            keep_in_memory=True,
+            load_from_cache_file=not data_args.overwrite_cache,
             desc="Running tokenizer on dataset",
         )
     if training_args.do_train:
@@ -517,13 +496,11 @@ def main():
 
     # Log a few random samples from the training set:
     if training_args.do_train:
-        for index in random.sample(range(len(train_dataset)), 2):
+        for index in random.sample(range(len(train_dataset)), 3):
             logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     # Get the metric function
-    if data_args.task_name == "sadiri":
-        metric = evaluate.load("accuracy", cache_dir=model_args.cache_dir)  # TODO: how to continue?
-    elif data_args.task_name is not None:
+    if data_args.task_name is not None:
         metric = evaluate.load("glue", data_args.task_name, cache_dir=model_args.cache_dir)
     elif is_regression:
         metric = evaluate.load("mse", cache_dir=model_args.cache_dir)
@@ -549,35 +526,36 @@ def main():
     else:
         data_collator = None
 
-    # Determine which trainer to use
-    trainer_class = Trainer
-
     # Initialize our Trainer
-    trainer = trainer_class(
+    trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=train_dataset if training_args.do_train else None,
         eval_dataset=eval_dataset if training_args.do_eval else None,
         compute_metrics=compute_metrics,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
         data_collator=data_collator,
     )
 
     # Training
     if training_args.do_train:
-        train_result = trainer.train()
+        checkpoint = None
+        if training_args.resume_from_checkpoint is not None:
+            checkpoint = training_args.resume_from_checkpoint
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
+        train_result = trainer.train(resume_from_checkpoint=checkpoint)
         metrics = train_result.metrics
         max_train_samples = (
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
-        # uncomment to save model
-        trainer.save_model()
-        trainer.save_state()
+        trainer.save_model()  # Saves the tokenizer too for easy upload
 
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
+        trainer.save_state()
 
     # Evaluation
     if training_args.do_eval:
@@ -608,21 +586,8 @@ def main():
             if task is not None and "mnli" in task:
                 combined.update(metrics)
 
-            log_and_flush(f"*** Eval results {task} with seed {training_args.seed}***")
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
-
-            # Predict again on eval dataset and save all predictions with IDs
-            predictions = trainer.predict(eval_dataset)
-            eval_dataset = eval_dataset.add_column("predictions", predictions.predictions.argmax(-1))  # assuming classification
-            # save the tokenized string in column "tokenized string"
-            eval_dataset = eval_dataset.add_column("tokenized string",
-                                                   tokenizer.batch_decode(eval_dataset["input_ids"],
-                                                                                skip_special_tokens=True))
-            # Dataset as a TSV file
-            current_date = datetime.now().strftime("%Y-%m-%d")
-            output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
-            eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
 
     if training_args.do_predict:
         logger.info("*** Predict ***")
@@ -658,6 +623,11 @@ def main():
         kwargs["dataset_tags"] = "glue"
         kwargs["dataset_args"] = data_args.task_name
         kwargs["dataset"] = f"GLUE {data_args.task_name.upper()}"
+
+    if training_args.push_to_hub:
+        trainer.push_to_hub(**kwargs)
+    else:
+        trainer.create_model_card(**kwargs)
 
 
 def _mp_fn(index):
