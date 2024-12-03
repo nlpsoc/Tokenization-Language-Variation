@@ -1,4 +1,7 @@
 import os
+
+from datasets import DatasetDict
+
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.utility.umich_av import create_sadiri_class_dataset
 
@@ -91,10 +94,10 @@ def main():
             task_to_keys = glue_task_to_keys
 
         if csv_file:
-            raw_datasets = {
+            raw_datasets = DatasetDict({
                 "train": load_data(csv_file=task_name_or_hfpath),
                 "validation": load_data(csv_file=VARIETIES_TRAIN_DICT[task])
-            }
+            })
         else:
             if task == "sadiri":
                 features_type = 'common_words'
