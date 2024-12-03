@@ -16,7 +16,8 @@
 ### see https://hpcusers.op.umcutrecht.nl/xwiki/bin/view/Main/Setup/Cluster/GPU-nodes/
 ### --> 2g20gb is 1/3 of a A100 GPU
 ### --> 7g.79gb is A100 GPU (4 in the whole cluster)
-#SBATCH -p gpu --gpus-per-node=2g.20gb:1
+### SBATCH -p gpu --gpus-per-node=2g.20gb:1
+#SBATCH -p gpu --gpus-per-node=7g.79gb:1
 
 ### Memory your job needs per node, e. g. 1 GB
 #SBATCH --mem 120G
@@ -54,6 +55,7 @@ MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-3
 
 # Extract the last part of the path
 MODEL_NAME="GLUE/${MODEL_PATH#*/models/}"
+PER_DEVICE_BATCH_SIZE=512
 
 # #########################################################################################
 #  add --do_predict to eval on test set
@@ -70,7 +72,7 @@ MODEL_NAME="GLUE/${MODEL_PATH#*/models/}"
 
 export TASK_NAME=sst2
 python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
---max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--max_seq_length 512 --per_device_train_batch_size $PER_DEVICE_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
@@ -81,7 +83,7 @@ python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_
 
 export TASK_NAME=qqp
 python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
---max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--max_seq_length 512 --per_device_train_batch_size $PER_DEVICE_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
@@ -92,7 +94,7 @@ python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_
 
 export TASK_NAME=mnli
 python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
---max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--max_seq_length 512 --per_device_train_batch_size $PER_DEVICE_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
@@ -103,7 +105,7 @@ python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_
 
 export TASK_NAME=qnli
 python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
---max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
+--max_seq_length 512 --per_device_train_batch_size $PER_DEVICE_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
 --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/bert-tiny/$MODEL_NAME/$TASK_NAME/42/ --seed 42
 #python run_glue.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
 #--max_seq_length 512 --per_device_train_batch_size 32 --learning_rate 2e-5 --num_train_epochs 3 \
