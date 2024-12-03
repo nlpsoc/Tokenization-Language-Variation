@@ -109,6 +109,14 @@ def main():
         sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
 
+        def filter_none_labels(example):
+            return example['label'] is not None
+
+        # there might be labels of type None seeping through
+        # Apply the filter to the datasets
+        raw_datasets['train'] = raw_datasets['train'].filter(filter_none_labels)
+        raw_datasets[val_key] = raw_datasets[val_key].filter(filter_none_labels)
+
         for tokenizer_path in TOKENIZER_PATHS:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
 
@@ -129,7 +137,7 @@ def main():
                 X_train_ids1 = encoded_dataset["train"]["input_ids1"]
                 X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
 
-                # Convert input IDs to tokens
+                # Convert input IDs back to tokens for interpretability
                 X_train_texts = ids_to_tokens(X_train_ids1, tokenizer)
                 X_eval_texts = ids_to_tokens(X_eval_ids1, tokenizer)
 
@@ -140,7 +148,7 @@ def main():
                 X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
                 X_eval_ids2 = encoded_dataset[val_key]["input_ids2"]
 
-                # Convert input IDs to tokens
+                # Convert input IDs back to tokens for interpretability
                 X_train_tokens1 = ids_to_tokens(X_train_ids1, tokenizer)
                 X_train_tokens2 = ids_to_tokens(X_train_ids2, tokenizer)
                 X_eval_tokens1 = ids_to_tokens(X_eval_ids1, tokenizer)
