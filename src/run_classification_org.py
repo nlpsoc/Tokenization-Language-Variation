@@ -14,15 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for text classification."""
-from datetime import datetime
-
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
-"""
-    copied from https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_classification.py
-"""
-from styletokenizer.utility.env_variables import set_cache
-
-set_cache()
 
 import logging
 import os
@@ -34,7 +26,7 @@ from typing import List, Optional
 import datasets
 import evaluate
 import numpy as np
-from datasets import Value, load_dataset, load_from_disk
+from datasets import Value, load_dataset
 
 import transformers
 from transformers import (
@@ -49,13 +41,16 @@ from transformers import (
     default_data_collator,
     set_seed,
 )
-from transformers.utils import send_example_telemetry
+from transformers.trainer_utils import get_last_checkpoint
+from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
+
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-# check_min_version("4.45.0.dev0")
+check_min_version("4.42.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/text-classification/requirements.txt")
+
 
 logger = logging.getLogger(__name__)
 
@@ -86,13 +81,13 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": (
-                "The name of the text column in the input dataset or a TSV/CSV/JSON file. "
+                "The name of the text column in the input dataset or a CSV/JSON file. "
                 'If not specified, will use the "sentence" column for single/multi-label classification task.'
             )
         },
     )
     text_column_delimiter: Optional[str] = field(
-        default=" ", metadata={"help": "The delimiter to use to join text columns into a single sentence."}
+        default=" ", metadata={"help": "THe delimiter to use to join text columns into a single sentence."}
     )
     train_split_name: Optional[str] = field(
         default=None,
@@ -124,7 +119,7 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": (
-                "The name of the label column in the input dataset or a TSV/CSV/JSON file. "
+                "The name of the label column in the input dataset or a CSV/JSON file. "
                 'If not specified, will use the "label" column for single/multi-label classification task'
             )
         },
@@ -137,10 +132,6 @@ class DataTrainingArguments:
                 "than this will be truncated, sequences shorter will be padded."
             )
         },
-    )
-    preprocessing_num_workers: Optional[int] = field(
-        default=None,
-        metadata={"help": "The number of processes to use for the preprocessing."},
     )
     overwrite_cache: bool = field(
         default=False, metadata={"help": "Overwrite the cached preprocessed datasets or not."}
@@ -189,13 +180,12 @@ class DataTrainingArguments:
     )
     metric_name: Optional[str] = field(default=None, metadata={"help": "The metric to use for evaluation."})
     train_file: Optional[str] = field(
-        default=None, metadata={"help": "A tsv, csv or a json file containing the training data."}
+        default=None, metadata={"help": "A csv or a json file containing the training data."}
     )
     validation_file: Optional[str] = field(
-        default=None, metadata={"help": "A tsv, csv or a json file containing the validation data."}
+        default=None, metadata={"help": "A csv or a json file containing the validation data."}
     )
-    test_file: Optional[str] = field(default=None,
-                                     metadata={"help": "A tsv, csv or a json file containing the test data."})
+    test_file: Optional[str] = field(default=None, metadata={"help": "A csv or a json file containing the test data."})
 
     def __post_init__(self):
         if self.dataset_name is None:
@@ -203,11 +193,11 @@ class DataTrainingArguments:
                 raise ValueError(" training/validation file or a dataset name.")
 
             train_extension = self.train_file.split(".")[-1]
-            assert train_extension in ["tsv", "csv", "json"], "`train_file` should be a tsv, csv or a json file."
+            assert train_extension in ["csv", "json"], "`train_file` should be a csv or a json file."
             validation_extension = self.validation_file.split(".")[-1]
             assert (
-                    validation_extension == train_extension
-            ), "`validation_file` should have the same extension (tsv, csv or json) as `train_file`."
+                validation_extension == train_extension
+            ), "`validation_file` should have the same extension (csv or json) as `train_file`."
 
 
 @dataclass
@@ -317,51 +307,55 @@ def main():
     )
     logger.info(f"Training/evaluation parameters {training_args}")
 
-    # create output dir
-    os.makedirs(training_args.output_dir, exist_ok=True)
-    if (len(os.listdir(training_args.output_dir)) > 0) and (not training_args.overwrite_output_dir):
-        raise ValueError(
-            f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-            "Use --overwrite_output_dir to overcome."
-        )
+    # Detecting last checkpoint.
+    last_checkpoint = None
+    if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
+        last_checkpoint = get_last_checkpoint(training_args.output_dir)
+        if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
+            raise ValueError(
+                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                "Use --overwrite_output_dir to overcome."
+            )
+        elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+            logger.info(
+                f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
+                "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
+            )
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
 
-    # Get the datasets: you can either provide your own TSV/CSV/JSON training and evaluation files, or specify a dataset name
+    # Get the datasets: you can either provide your own CSV/JSON training and evaluation files, or specify a dataset name
     # to load from huggingface/datasets. In ether case, you can specify a the key of the column(s) containing the text and
     # the key of the column containing the label. If multiple columns are specified for the text, they will be joined together
     # for the actual text value.
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
     if data_args.dataset_name is not None:
-        # test if dataset_name is a path that exists
-        if os.path.exists(data_args.dataset_name):
-            raw_datasets = load_from_disk(data_args.dataset_name)
-        else:
-            # Downloading and loading a dataset from the hub.
-            raw_datasets = load_dataset(
-                data_args.dataset_name,
-                data_args.dataset_config_name,
-                cache_dir=model_args.cache_dir,
-                token=model_args.token,
-                trust_remote_code=model_args.trust_remote_code,
-            )
+        # Downloading and loading a dataset from the hub.
+        raw_datasets = load_dataset(
+            data_args.dataset_name,
+            data_args.dataset_config_name,
+            cache_dir=model_args.cache_dir,
+            token=model_args.token,
+            trust_remote_code=model_args.trust_remote_code,
+        )
         # Try print some info about the dataset
         logger.info(f"Dataset loaded: {raw_datasets}")
+        logger.info(raw_datasets)
     else:
         # Loading a dataset from your local files.
-        # TSV/CSV/JSON training and evaluation files are needed.
+        # CSV/JSON training and evaluation files are needed.
         data_files = {"train": data_args.train_file, "validation": data_args.validation_file}
 
-        # Get the test dataset: you can provide your own TSV/CSV/JSON test file
+        # Get the test dataset: you can provide your own CSV/JSON test file
         if training_args.do_predict:
             if data_args.test_file is not None:
                 train_extension = data_args.train_file.split(".")[-1]
                 test_extension = data_args.test_file.split(".")[-1]
                 assert (
-                        test_extension == train_extension
-                ), "`test_file` should have the same extension (tsv, csv or json) as `train_file`."
+                    test_extension == train_extension
+                ), "`test_file` should have the same extension (csv or json) as `train_file`."
                 data_files["test"] = data_args.test_file
             else:
                 raise ValueError("Need either a dataset name or a test file for `do_predict`.")
@@ -377,18 +371,6 @@ def main():
                 cache_dir=model_args.cache_dir,
                 token=model_args.token,
             )
-            raw_datasets = check_for_multilabel(raw_datasets, column=data_args.label_column_name)
-        elif data_args.train_file.endswith(".tsv"):
-            # Loading a dataset from local tsv files
-            raw_datasets = load_dataset(
-                "csv",
-                data_files=data_files,
-                delimiter="\t",
-                cache_dir=model_args.cache_dir,
-                token=model_args.token,
-            )
-            raw_datasets = check_for_multilabel(raw_datasets, column=data_args.label_column_name)
-
         else:
             # Loading a dataset from local json files
             raw_datasets = load_dataset(
@@ -586,78 +568,48 @@ def main():
                 result["label"] = [(label_to_id[str(l)] if l != -1 else -1) for l in examples["label"]]
         return result
 
-    def prepare_dataset(raw_datasets, dataset_keys, do_flag, max_samples=None, shuffle=False, seed=None, desc=None,
-                        preprocess_function=None, num_proc=None, load_from_cache_file=False):
-        if not do_flag:
-            return None
+    # Running the preprocessing pipeline on all the datasets
+    with training_args.main_process_first(desc="dataset map pre-processing"):
+        raw_datasets = raw_datasets.map(
+            preprocess_function,
+            batched=True,
+            load_from_cache_file=not data_args.overwrite_cache,
+            desc="Running tokenizer on dataset",
+        )
 
-        # Find the appropriate dataset key
-        for key in dataset_keys:
-            if key in raw_datasets:
-                dataset = raw_datasets[key]
-                break
+    if training_args.do_train:
+        if "train" not in raw_datasets:
+            raise ValueError("--do_train requires a train dataset.")
+        train_dataset = raw_datasets["train"]
+        if data_args.shuffle_train_dataset:
+            logger.info("Shuffling the training dataset")
+            train_dataset = train_dataset.shuffle(seed=data_args.shuffle_seed)
+        if data_args.max_train_samples is not None:
+            max_train_samples = min(len(train_dataset), data_args.max_train_samples)
+            train_dataset = train_dataset.select(range(max_train_samples))
+
+    if training_args.do_eval:
+        if "validation" not in raw_datasets and "validation_matched" not in raw_datasets:
+            if "test" not in raw_datasets and "test_matched" not in raw_datasets:
+                raise ValueError("--do_eval requires a validation or test dataset if validation is not defined.")
+            else:
+                logger.warning("Validation dataset not found. Falling back to test dataset for validation.")
+                eval_dataset = raw_datasets["test"]
         else:
-            raise ValueError(f"Required dataset not found. Available keys: {list(raw_datasets.keys())}")
+            eval_dataset = raw_datasets["validation"]
 
-        # Shuffle the dataset if required
-        if shuffle:
-            logger.info(f"Shuffling the {desc} dataset")
-            dataset = dataset.shuffle(seed=seed)
+        if data_args.max_eval_samples is not None:
+            max_eval_samples = min(len(eval_dataset), data_args.max_eval_samples)
+            eval_dataset = eval_dataset.select(range(max_eval_samples))
 
-        # Select a subset of the dataset if max_samples is specified
-        if max_samples is not None:
-            max_samples = min(len(dataset), max_samples)
-            dataset = dataset.select(range(max_samples))
-
-        # Preprocess only the selected samples
-        with training_args.main_process_first(desc="dataset map pre-processing"):
-            dataset = dataset.map(
-                preprocess_function,
-                batched=True,
-                num_proc=num_proc,
-                load_from_cache_file=load_from_cache_file,
-                desc=f"Running tokenizer on {desc} dataset",
-            )
-
-        return dataset
-
-    # Prepare the training dataset
-    train_dataset = prepare_dataset(
-        raw_datasets=raw_datasets,
-        dataset_keys=["train"],
-        do_flag=training_args.do_train,
-        max_samples=data_args.max_train_samples,
-        shuffle=data_args.shuffle_train_dataset,
-        seed=data_args.shuffle_seed,
-        desc="training",
-        preprocess_function=preprocess_function,
-        num_proc=data_args.preprocessing_num_workers,
-        load_from_cache_file=False,
-    )
-
-    # Prepare the evaluation dataset
-    eval_dataset = prepare_dataset(
-        raw_datasets=raw_datasets,
-        dataset_keys=["validation", "validation_matched"],
-        do_flag=training_args.do_eval,
-        max_samples=data_args.max_eval_samples,
-        desc="evaluation",
-        preprocess_function=preprocess_function,
-        num_proc=data_args.preprocessing_num_workers,
-        load_from_cache_file=False,
-    )
-
-    # Prepare the prediction dataset
-    predict_dataset = prepare_dataset(
-        raw_datasets=raw_datasets,
-        dataset_keys=["test", "test_matched"],
-        do_flag=training_args.do_predict or data_args.test_file is not None,
-        max_samples=data_args.max_predict_samples,
-        desc="prediction",
-        preprocess_function=preprocess_function,
-        num_proc=data_args.preprocessing_num_workers,
-        load_from_cache_file=False,
-    )
+    if training_args.do_predict or data_args.test_file is not None:
+        if "test" not in raw_datasets:
+            raise ValueError("--do_predict requires a test dataset")
+        predict_dataset = raw_datasets["test"]
+        # remove label column if it exists
+        if data_args.max_predict_samples is not None:
+            max_predict_samples = min(len(predict_dataset), data_args.max_predict_samples)
+            predict_dataset = predict_dataset.select(range(max_predict_samples))
 
     # Log a few random samples from the training set:
     if training_args.do_train:
@@ -694,19 +646,9 @@ def main():
             preds = np.array([np.where(p > 0, 1, 0) for p in preds])  # convert logits to multi-hot encoding
             # Micro F1 is commonly used in multi-label classification
             result = metric.compute(predictions=preds, references=p.label_ids, average="micro")
-            print(f"DEBUG: p.label_ids: {p.label_ids}, sum: {np.sum(p.label_ids, axis=1)}")
-            print(f"DEBUG: preds: {preds}, sum: {np.sum(preds, axis=1)}")
         else:
             preds = np.argmax(preds, axis=1)
-            print(f"DEBUG: p.label_ids: {p.label_ids}")
-            if len(p.label_ids) > 1:
-                # check if metric has "average" parameter
-                if "average" in metric.compute.__code__.co_varnames:
-                    result = metric.compute(predictions=preds, references=p.label_ids, average="macro")
-                else:
-                    result = metric.compute(predictions=preds, references=p.label_ids)
-            else:
-                result = metric.compute(predictions=preds, references=p.label_ids)
+            result = metric.compute(predictions=preds, references=p.label_ids)
         if len(result) > 1:
             result["combined_score"] = np.mean(list(result.values())).item()
         return result
@@ -733,7 +675,12 @@ def main():
 
     # Training
     if training_args.do_train:
-        train_result = trainer.train()
+        checkpoint = None
+        if training_args.resume_from_checkpoint is not None:
+            checkpoint = training_args.resume_from_checkpoint
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
+        train_result = trainer.train(resume_from_checkpoint=checkpoint)
         metrics = train_result.metrics
         max_train_samples = (
             data_args.max_train_samples if data_args.max_train_samples is not None else len(train_dataset)
@@ -742,7 +689,7 @@ def main():
         trainer.save_model()  # Saves the tokenizer too for easy upload
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
-        # trainer.save_state()
+        trainer.save_state()
 
     # Evaluation
     if training_args.do_eval:
@@ -752,15 +699,6 @@ def main():
         metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
         trainer.log_metrics("eval", metrics)
         trainer.save_metrics("eval", metrics)
-
-        # Predict again on eval dataset and save all predictions with IDs
-        predictions = trainer.predict(eval_dataset)
-        eval_dataset = eval_dataset.add_column("predictions",
-                                               predictions.predictions.argmax(-1))  # assuming classification
-        # Dataset as a TSV file
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset.tsv")
-        eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
 
     if training_args.do_predict:
         logger.info("*** Predict ***")
@@ -799,32 +737,6 @@ def main():
         trainer.push_to_hub(**kwargs)
     else:
         trainer.create_model_card(**kwargs)
-
-
-def check_for_multilabel(raw_datasets, column='label'):
-    # if it has a label column, load it as list, IF it is a list in string form (e.g. "[1,2,3]")
-    first_element = raw_datasets['train'][0]  # Assuming you are loading 'train'
-    # Check if the first element in 'col_with_lists' is a string that looks like a list
-    first_value = first_element[column]
-    if isinstance(first_value, str) and first_value.strip().startswith('[') and first_value.strip().endswith(
-            ']'):
-
-        def convert_to_list(example):
-            value = example[column]
-            # Try to convert the string to a list only if it looks like a list
-            if isinstance(value, str) and value.strip().startswith('[') and value.strip().endswith(']'):
-                try:
-                    evaluated_value = eval(value)
-                    if isinstance(evaluated_value, list):
-                        example[column] = evaluated_value
-                except:
-                    # If eval fails or the string is not convertible to a list, keep it as is
-                    pass
-            return example
-
-        # Apply the conversion only if the first element looks like a list
-        raw_datasets = raw_datasets.map(convert_to_list)
-    return raw_datasets
 
 
 def _mp_fn(index):

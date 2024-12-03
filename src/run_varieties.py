@@ -14,54 +14,56 @@ def main(task, model_path, seed, output_dir, overwrite=False):
     log_and_flush(f"output_dir: {output_dir}")
 
     if task == "sadiri":
-        # command = [
-        #     "python", "sadiri_main.py",
-        #     "--train",
-        #     "--validate",
-        #     "--out_dir", output_dir,
-        #     "--pretrained_model", model_path,
-        #     "--train_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
-        #     "--dev_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
-        #     "--learning_rate", "0.00001",
-        #     "--batch_size", "128",
-        #     "--epochs", "5",
-        #     "--max_length", "512",
-        #     "--grad_acc", "1",
-        #     "--gradient_checkpointing", "False",
-        #     "--saving_step", "100",
-        #     "--mask", "0",
-        #     "--seed", str(seed),
-        #     "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
-        #     "--loss", "SupConLoss"
-        # ]
-        from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
-        train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
-        train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
-        train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
-        train_dataset.to_csv(train_csv_path, index=False)
-        validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
-        validation_dataset = create_singplesplit_sadiri_classification_dataset(validation_file)
-        validation_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
-                               "/validation.csv")
-        validation_dataset.to_csv(validation_csv_path, index=False)
-
         command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", train_csv_path,
-            "--validation_file", validation_csv_path,
-            "--shuffle_train_dataset",
-            "--text_column_name", "query_text,candidate_text",
-            "--label_column_name", "label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "512",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            "--output_dir", output_dir,
+            "python", "sadiri_main.py",
+            "--train",
+            "--validate",
+            "--out_dir", output_dir,
+            "--pretrained_model", model_path,
+            "--train_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+            "--dev_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+            "--learning_rate", "0.00001",
+            "--batch_size", "128",
+            "--epochs", "5",
+            "--max_length", "512",
+            "--grad_acc", "1",
+            "--gradient_checkpointing", "False",
+            "--saving_step", "100",
+            "--mask", "0",
             "--seed", str(seed),
+            "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
+            "--loss", "SupConLoss"
         ]
+        # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+        # train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
+        # train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
+        # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
+        # train_dataset.to_csv(train_csv_path, index=False)
+        # validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
+        # validation_dataset = create_singplesplit_sadiri_classification_dataset(validation_file)
+        # validation_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
+        #                        "/validation.csv")
+        # validation_dataset.to_csv(validation_csv_path, index=False)
+        #
+        # command = [
+        #     "python", "run_classification.py",
+        #     "--model_name_or_path", model_path,
+        #     "--train_file", train_csv_path,
+        #     "--validation_file", validation_csv_path,
+        #     "--shuffle_train_dataset",
+        #     "--text_column_name", "query_text,candidate_text",
+        #     "--label_column_name", "label",
+        #     "--do_train",
+        #     "--do_eval",
+        #     "--max_seq_length", "512",
+        #     "--per_device_train_batch_size", "32",
+        #     "--learning_rate", "2e-5",
+        #     "--num_train_epochs", "3",
+        #     "--output_dir", output_dir,
+        #     "--seed", str(seed),
+        #     "--overwrite_cache",
+        #     "--save_strategy", "no",
+        # ]
         result = subprocess.run(command)
 
     elif task == "stel":
@@ -108,6 +110,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--max_train_samples", "200000",  # use only 200k samples, which is roughly 10% of the dataset
             "--output_dir", output_dir,
             "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         # REGRESSION VERSION
         # command = [
@@ -139,7 +143,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         else:
             train_epochs = "3"
         command = [
-            "python", "run_glue.py",
+            "python", "run_glue.py",  # TODO: use the cleaner run_glue_old script
             "--model_name_or_path", model_path,
             "--task_name", f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}/",
             "--trust_remote_code", "True",
@@ -154,6 +158,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--num_train_epochs", train_epochs,
             "--output_dir", output_dir,
             "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -161,7 +167,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
 
     elif task == "CORE":
         command = [
-            "python", "run_classification.py",
+            "python", "run_classification.py",  # TODO: use the cleaner run_classification_old script
             "--model_name_or_path", model_path,
             "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_train.tsv",
             "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
@@ -177,6 +183,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--num_train_epochs", "5",
             "--output_dir", output_dir,
             "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         result = subprocess.run(command)
     elif task == "CGLU":
@@ -199,7 +207,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
             "--max_train_samples", "200000",
             "--max_eval_samples", "20000",
-            # "--overwrite_output_dir",
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         result = subprocess.run(command)
     elif task == "GYAFC":
@@ -219,6 +228,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--num_train_epochs", "3",
             "--output_dir", output_dir,
             "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         result = subprocess.run(command)
     elif task == "DIALECT":
@@ -239,6 +250,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--num_train_epochs", "3",
             "--output_dir", output_dir,
             "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
         ]
         result = subprocess.run(command)
 
