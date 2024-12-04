@@ -103,7 +103,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--remove_columns", "age,date,gender,horoscope,job",
             "--do_train",
             "--do_eval",
-            "--max_seq_length", "512",
+            "--max_seq_length", "128",
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "3",
