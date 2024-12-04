@@ -4,7 +4,8 @@ import os
 
 from styletokenizer.glue import GLUE_TASKS
 from styletokenizer.utility.custom_logger import log_and_flush
-from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator
+from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
+    _get_dist_and_vocab_size, calc_sim_renyi_efficiency_from_generator
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
@@ -55,24 +56,38 @@ def main(output_path=None):
         except KeyError:  # some of the datasets are not provided in split form
             eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task]
-        for tokenizer_path in TOKENIZER_PATHS:
-            text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
-                              for example in eval_dataset)
-            text_generator, t_gen1, t_gen2, t_gen3 = itertools.tee(text_generator, 4)
-            log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
-            renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
-            log_and_flush(f"Renyi Efficency (2.5): "
-                          f"{renyi_25}")
-            renyi_30 = calc_renyi_efficency_from_generator(t_gen2, tokenizer_path, power=3.0)
-            log_and_flush(f"Renyi Efficency (3.0): "
-                          f"{renyi_30}")
-            seq_len = calc_seq_len_from_generator(t_gen3, tokenizer_path)
-            log_and_flush(f"Avg Seq Len: {seq_len}")
-            result_dict["task_name"].append(task)
-            result_dict["tokenizer_path"].append(tokenizer_path)
-            result_dict["renyi_eff_2.5"].append(renyi_25)
-            result_dict["renyi_eff_3.0"].append(renyi_30)
-            result_dict["avg_seq_len"].append(seq_len)
+        text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
+                         for example in eval_dataset)
+        for tokenizer_group in TOKENIZER_PATHS:
+            # get the smallest vocab size
+            smallest_vocab_size = float("inf")
+            for tokenizer_path in tokenizer_group:
+                text_generator, t_gen1 = itertools.tee(text_generator, 2)
+                tok_gen = tok_generator(t_gen1, tokenizer_path)
+                vocab_size = _get_dist_and_vocab_size(tok_gen)[1]
+                if vocab_size < smallest_vocab_size:
+                    smallest_vocab_size = vocab_size
+            log_and_flush(f"Simulated vocab size: {smallest_vocab_size} for group {tokenizer_group}")
+            for tokenizer_path in tokenizer_group:
+                text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
+                log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
+                renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
+                log_and_flush(f"Renyi Efficency (2.5): "
+                              f"{renyi_25}")
+                sim_renyi_25 = calc_sim_renyi_efficiency_from_generator(t_gen4, tokenizer_path, smallest_vocab_size,
+                                                                        power=2.5)
+                log_and_flush(f"Sim Renyi Efficency (2.5): "
+                                f"{sim_renyi_25}")
+                renyi_30 = calc_renyi_efficency_from_generator(t_gen2, tokenizer_path, power=3.0)
+                log_and_flush(f"Renyi Efficency (3.0): "
+                              f"{renyi_30}")
+                seq_len = calc_seq_len_from_generator(t_gen3, tokenizer_path)
+                log_and_flush(f"Avg Seq Len: {seq_len}")
+                result_dict["task_name"].append(task)
+                result_dict["tokenizer_path"].append(tokenizer_path)
+                result_dict["renyi_eff_2.5"].append(renyi_25)
+                result_dict["renyi_eff_3.0"].append(renyi_30)
+                result_dict["avg_seq_len"].append(seq_len)
     import pandas as pd
     result_df = pd.DataFrame(result_dict)
     if output_path:

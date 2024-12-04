@@ -107,7 +107,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "3",
-            "--max_train_samples", "200000",  # use only 200k samples, which is roughly 10% of the dataset
+            "--max_train_samples", "100000",  # use only 200k samples, which is roughly 5% of the dataset
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
