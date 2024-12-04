@@ -93,7 +93,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         STEL.eval_on_STEL(style_objects=[SBERTSimilarity()])
     elif task == "age":
         command = [
-            "python", "run_classification.py",
+            "python", "run_classification_org.py",
             "--model_name_or_path", model_path,
             "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train.csv",
             "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
