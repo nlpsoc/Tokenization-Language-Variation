@@ -8,10 +8,14 @@ import os
 
 from styletokenizer.utility import datasets_helper
 from styletokenizer.utility.tokenizer_vars import PRE_TOKENIZER, VOCAB_SIZE
+from styletokenizer.utility.env_variables import at_uu, at_umich
 
 # the tokenizer variables
-
-OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
+if at_uu():
+    FOLDER_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER"
+elif at_umich():
+    FOLDER_BASE = "/shared/3/projects/hiatus/TOKENIZER_wegmann"
+OUT_PATH = os.path.join(FOLDER_BASE, "tokenizer")
 
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
@@ -88,6 +92,9 @@ def main(fitting_corpus_path: str, vocab_size: int, pre_tokenize: str, test=Fals
     corpus_name = os.path.basename(fitting_corpus_path)
     # set the output directory name for tokenizer
     dir_name = f"{OUT_PATH}/{corpus_name}-{pre_tokenize}-{vocab_size}"
+    # check if OUT PATH exists
+    if not os.path.exists(OUT_PATH):
+        raise FileNotFoundError(f"OUT_PATH does not exist: {OUT_PATH}")
 
     fit_tokenizer(fitting_corpus_path, vocab_size, pre_tokenize, dir_name, test=test)
 
