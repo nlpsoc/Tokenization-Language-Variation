@@ -243,6 +243,8 @@ def tok_generator(text_generator, tokenizer_path):
         yield " ".join(tokenizer.encode(text).tokens)
 
 
+
+
 def _renyi_sim(text, sim_vocab_size, power=2.5) -> float:
     vocab_size, word_probs = _get_vocabsize_and_dist(text)
     if vocab_size < sim_vocab_size:
@@ -251,6 +253,9 @@ def _renyi_sim(text, sim_vocab_size, power=2.5) -> float:
 
     word_probs = np.array(word_probs)
     sorted_probs = np.sort(word_probs)[::-1]
+
+
+
     trimmed_probs = sorted_probs[:sim_vocab_size]
     word_probs = trimmed_probs / np.sum(trimmed_probs)
     print(f"Actual vocabulary size {vocab_size}, with simulated vocabulary size {sim_vocab_size}",
