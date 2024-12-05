@@ -105,11 +105,16 @@ def main():
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
 
+        # get label key
+        label = "label"
+        if task == "CGLU":
+            label = "origin"
+
         sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
 
         def filter_none_labels(example):
-            return example['label'] is not None
+            return example[label] is not None
 
         # there might be labels of type None seeping through
         # Apply the filter to the datasets
@@ -136,8 +141,8 @@ def main():
             )
 
             # Extract labels
-            y_train = encoded_dataset["train"]["label"]
-            y_eval = encoded_dataset[val_key]["label"]
+            y_train = encoded_dataset["train"][label]
+            y_eval = encoded_dataset[val_key][label]
 
             if (len(sentence_keys) == 1) or (sentence_keys[1] is None):
                 # Single sentence tasks
