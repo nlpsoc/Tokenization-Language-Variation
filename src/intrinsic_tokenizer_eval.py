@@ -5,7 +5,7 @@ import os
 from styletokenizer.glue import GLUE_TASKS
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
-    _get_dist_and_vocab_size, calc_sim_renyi_efficiency_from_generator
+    _get_vocabsize_and_dist, calc_sim_renyi_efficiency_from_generator
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
@@ -28,8 +28,10 @@ def main(output_path=None):
         "task_name": [],
         "tokenizer_path": [],
         "renyi_eff_2.5": [],
+        "renyi_sim_eff_2.5": [],
         "renyi_eff_3.0": [],
-        "avg_seq_len": []
+        "avg_seq_len": [],
+        "vocab_size": []
     }
     for task_name_or_hfpath in (VARIETIES_TASKS + FITTING_CORPORA + GLUE_TASKS + VALUE_PATHS):
         split = None
@@ -64,9 +66,10 @@ def main(output_path=None):
             for tokenizer_path in tokenizer_group:
                 text_generator, t_gen1 = itertools.tee(text_generator, 2)
                 tok_gen = tok_generator(t_gen1, tokenizer_path)
-                vocab_size = _get_dist_and_vocab_size(tok_gen)[1]
+                vocab_size = _get_vocabsize_and_dist(tok_gen)[0]
                 if vocab_size < smallest_vocab_size:
                     smallest_vocab_size = vocab_size
+                result_dict["vocab_size"].append(vocab_size)
             log_and_flush(f"Simulated vocab size: {smallest_vocab_size} for group {tokenizer_group}")
             for tokenizer_path in tokenizer_group:
                 text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
@@ -86,6 +89,7 @@ def main(output_path=None):
                 result_dict["task_name"].append(task)
                 result_dict["tokenizer_path"].append(tokenizer_path)
                 result_dict["renyi_eff_2.5"].append(renyi_25)
+                result_dict["renyi_sim_eff_2.5"].append(sim_renyi_25)
                 result_dict["renyi_eff_3.0"].append(renyi_30)
                 result_dict["avg_seq_len"].append(seq_len)
     import pandas as pd

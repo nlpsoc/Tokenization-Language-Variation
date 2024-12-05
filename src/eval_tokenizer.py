@@ -244,7 +244,7 @@ def tok_generator(text_generator, tokenizer_path):
 
 
 def _renyi_sim(text, sim_vocab_size, power=2.5) -> float:
-    vocab_size, word_probs = _get_dist_and_vocab_size(text)
+    vocab_size, word_probs = _get_vocabsize_and_dist(text)
     if vocab_size < sim_vocab_size:
         raise ValueError(f"Actual vocabulary size {vocab_size} is smaller than "
                          f"the simulated vocabulary size {sim_vocab_size}")
@@ -264,7 +264,7 @@ def _renyi_sim(text, sim_vocab_size, power=2.5) -> float:
     return val
 
 
-def _get_dist_and_vocab_size(text):
+def _get_vocabsize_and_dist(text):
     import itertools
     if type(text) == str:
         text = [l.split() for l in tqdm.tqdm(text.split("\n"))]
