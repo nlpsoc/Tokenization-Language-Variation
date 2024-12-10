@@ -129,7 +129,7 @@ def main():
             # keep_in_memory=True
         )
 
-        for tokenizer_path in TOKENIZER_PATHS:
+        for tokenizer_path in [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
 
             # Use lambda to pass tokenizer and sentence keys to preprocess_function
