@@ -576,7 +576,11 @@ def main():
             examples["sentence"] = examples[text_column_names[0]]
             for column in text_column_names[1:]:
                 for i in range(len(examples[column])):
-                    examples["sentence"][i] += data_args.text_column_delimiter + examples[column][i]
+                    try:
+                        examples["sentence"][i] += data_args.text_column_delimiter + examples[column][i]
+                    except TypeError:
+                        print(f"DEBUG: column: {column}, i: {i}, examples[column]: {examples[column][i]},"
+                              f" examples[sentence]: {examples['sentence'][i]}")
         # Tokenize the texts
         result = tokenizer(examples["sentence"], padding=padding, max_length=max_seq_length, truncation=True)
         if label_to_id is not None and "label" in examples:
