@@ -264,7 +264,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.csv",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
-            "--label_column_name", "label",
+            "--label_column_name", "nli",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "128",
