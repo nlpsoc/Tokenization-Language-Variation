@@ -13,7 +13,7 @@
 #SBATCH -t 48:00:00
 
 ### Memory your job needs per node, e. g. 1 GB
-#SBATCH --mem 120G
+#SBATCH --mem 800G
 
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
