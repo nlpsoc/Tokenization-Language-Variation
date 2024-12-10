@@ -260,8 +260,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/snli_modified/train.csv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/snli_modified/dev.csv",
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.csv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.csv",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
             "--label_column_name", "label",
@@ -281,8 +281,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         command = [
             "python", "run_classification.py",
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/snli_modified/train.csv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/snli_modified/dev.csv",
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.csv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.csv",
             "--shuffle_train_dataset",
             "--text_column_name", "text",
             "--label_column_name", "style",
