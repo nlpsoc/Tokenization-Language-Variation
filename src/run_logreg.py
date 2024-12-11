@@ -78,7 +78,7 @@ def main():
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
 
-    for task_name_or_hfpath in (GLUE_TASKS + VARIETIES_TASKS + VALUE_PATHS):
+    for task_name_or_hfpath in (VARIETIES_TASKS + GLUE_TASKS + VALUE_PATHS):
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
@@ -111,6 +111,8 @@ def main():
             label = "origin"
         elif task == "DSL":
             label = "language"
+        elif task == "CORE":
+            label = "genre"
 
         sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
