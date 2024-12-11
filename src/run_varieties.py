@@ -174,7 +174,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
             # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_test.tsv",
             # "--shuffle_train_dataset",
-            "--max_train_samples", "100000",  # using longer seq length, so reduce samples
+            # "--max_train_samples", "100000",  # using longer seq length, so reduce samples --> only > 30k instances anyway
             "--text_column_name", "text",
             "--label_column_name", "label",
             "--do_train",
