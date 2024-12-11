@@ -221,12 +221,13 @@ VARIETIES_DEV_DICT = {
     "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
-    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
-    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
+    "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/dev.tsv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
+    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
     "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation.csv",
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
+    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
@@ -237,6 +238,7 @@ VARIETIES_TRAIN_DICT = {
     "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
+    "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/train.tsv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -246,6 +248,7 @@ VARIETIES_to_keys = {
     "GYAFC": ["text"],
     "DIALECT": ["text"],
     "sadiri": ("query_text", "candidate_text"),
+    "DSL": ["text"]
 }
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
 VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"

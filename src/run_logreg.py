@@ -109,6 +109,8 @@ def main():
         label = "label"
         if task == "CGLU":
             label = "origin"
+        elif task == "DSL":
+            label = "language"
 
         sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
