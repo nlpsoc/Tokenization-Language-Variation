@@ -70,6 +70,9 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   TASK_NAME=SNLI-Style
   python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
   --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+    TASK_NAME=SNLI
+  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
 
 done
 

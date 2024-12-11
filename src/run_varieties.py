@@ -4,7 +4,7 @@ import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
-         "SNLI-NLI", "SNLI-Style"]
+         "SNLI-NLI", "SNLI-Style", "SNLI"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):
@@ -286,6 +286,27 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--shuffle_train_dataset",
             "--text_column_name", "premise,hypothesis",
             "--label_column_name", "style",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "128",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "1",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "no",
+        ]
+        result = subprocess.run(command)
+    elif task == "SNLI":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.tsv",
+            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.tsv",
+            "--shuffle_train_dataset",
+            "--text_column_name", "premise_original,hypothesis_original",
+            "--label_column_name", "nli",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "128",
