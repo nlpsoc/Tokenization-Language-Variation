@@ -222,12 +222,12 @@ VARIETIES_DEV_DICT = {
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev_cleaned.tsv",
-    # "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation_sampled.csv",
-    # "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
-    # "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/dev.tsv",
-    # "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
-    # "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
-    # "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
+    "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation_sampled.csv",
+    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
+    "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/dev.tsv",
+    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
