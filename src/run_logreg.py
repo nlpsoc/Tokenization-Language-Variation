@@ -78,7 +78,7 @@ def main():
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
 
-    for task_name_or_hfpath in (VARIETIES_TASKS + VALUE_PATHS + GLUE_TASKS):
+    for task_name_or_hfpath in (VALUE_PATHS):  # + VARIETIES_TASKS + GLUE_TASKS):
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
