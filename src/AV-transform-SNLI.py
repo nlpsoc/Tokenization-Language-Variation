@@ -135,6 +135,30 @@ def compare_texts(text1, text2):
 
 
 def make_texts_similar(text1, text2):
+    # Now text1 and text2 should be similar in capitalization and end punctuation.
+    # Apostrophe and whitespace encoding is the same initially.
+    # Randomly decide if we want to change them for BOTH texts simultaneously.
+
+    # Random chance to change the dialect for both texts
+    if random.random() < 0.5:
+        # Randomly select a dialect from DIALECTS
+        attempts = 5  # limit attempts to avoid infinite loops
+        changed = False
+        org_text1 = " ".join(text1.split())
+        org_text2 = " ".join(text2.split())
+        while attempts > 0 and not changed:
+            try:
+                dialect = random.choice(DIALECTS)
+                text1 = dialect.transform(text1 + ".\n" + text2)  # function seems to do different transformations depending on call
+                text1, text2 = text1.split(".\n")
+                text1 = " ".join(text1.split())  # function seems to sometimes add whitespaces
+                text2 = " ".join(text2.split())
+                if text1 != org_text1 and text2 != org_text2:
+                    changed = True
+            except:  # if the dialect transformation fails
+                print(f"Failed to transform {text1} or {text2}. Retrying {attempts} more times ...")
+            attempts -= 1
+
     # Adjust Quotes
     if encased_with_apostrophes(text1) != encased_with_apostrophes(text2):
         if encased_with_apostrophes(text1) and not encased_with_apostrophes(text2):
@@ -164,27 +188,6 @@ def make_texts_similar(text1, text2):
             text2 = text2.rstrip()
             while text2 and text2[-1] in PUNCT:
                 text2 = text2[:-1]
-
-    # Now text1 and text2 should be similar in capitalization and end punctuation.
-    # Apostrophe and whitespace encoding is the same initially.
-    # Randomly decide if we want to change them for BOTH texts simultaneously.
-
-    # Random chance to change the dialect for both texts
-    if random.random() < 0.5:
-        # Randomly select a dialect from DIALECTS
-        attempts = 5  # limit attempts to avoid infinite loops
-        changed = False
-        while attempts > 0 and not changed:
-            try:
-                dialect = random.choice(DIALECTS)
-                text1 = dialect.transform(text1 + ".\n" + text2)  # function seems to do different transformations depending on call
-                text1, text2 = text1.split(".\n")
-                text1 = " ".join(text1.split())  # function seems to sometimes add whitespaces
-                text2 = " ".join(text2.split())
-                changed = True
-            except:  # if the dialect transformation fails
-                print(f"Failed to transform {text1} or {text2}. Retrying {attempts} more times ...")
-            attempts -= 1
 
     # Random chance to change whitespace encoding for both
     # For example, replace all regular spaces with non-breaking spaces in both texts
