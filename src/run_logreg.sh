@@ -6,11 +6,11 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_VALUE_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_CORE_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
-#SBATCH -t 48:00:00
+#SBATCH -t 24:00:00
 
 ### Memory your job needs per node, e. g. 1 GB
 #SBATCH --mem 120G
