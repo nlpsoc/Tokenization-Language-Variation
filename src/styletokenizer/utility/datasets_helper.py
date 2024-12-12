@@ -250,6 +250,17 @@ VARIETIES_to_keys = {
     "sadiri": ("query_text", "candidate_text"),
     "DSL": ["text"]
 }
+VARIETIES_to_label = {
+    "age": "age",
+    "stel": "complex",
+    "CORE": "label",
+    "CGLU": "label",
+    "GYAFC": "label",
+    "DIALECT": "label",
+    "sadiri": "label",
+    "DSL": "label"
+}
+
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
 VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
 VALUE_PATHS = [

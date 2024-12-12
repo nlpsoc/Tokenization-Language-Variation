@@ -1,3 +1,5 @@
+import argparse
+
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
 
@@ -64,7 +66,7 @@ def get_cross_words_features(tokens1_list, tokens2_list, max_tokens=50):
     return features
 
 
-def main():
+def main(task="all"):
     features_type = 'cross_words'  # Change to 'common_words' as needed
 
     result_dict = {
@@ -77,8 +79,12 @@ def main():
     }
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
+    if task == "all":
+        tasks = VALUE_PATHS + VARIETIES_TASKS + GLUE_TASKS
+    else:
+        tasks = [task]
 
-    for task_name_or_hfpath in (VALUE_PATHS):  # + VARIETIES_TASKS + GLUE_TASKS):
+    for task_name_or_hfpath in tasks:
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
@@ -97,13 +103,16 @@ def main():
                 "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
                 "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
             })
+            print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
         else:
             if task == "sadiri":
                 features_type = 'common_words'
                 raw_datasets = create_sadiri_class_dataset(train_path=VARIETIES_TRAIN_DICT[task],
                                                            validation_path=task_name_or_hfpath)
+                print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
+                print(f"loaded {task} from hf dataset {task_name_or_hfpath}")
 
         # get label key
         label = "label"
@@ -267,4 +276,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # add --task command line argument
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--task", type=str, default="all", help="task to evaluate")
+    args = parser.parse_args()
+    main(args.task)
