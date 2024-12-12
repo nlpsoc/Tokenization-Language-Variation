@@ -169,15 +169,6 @@ def make_texts_similar(text1, text2):
     # Apostrophe and whitespace encoding is the same initially.
     # Randomly decide if we want to change them for BOTH texts simultaneously.
 
-    # Random chance to change whitespace encoding for both
-    # For example, replace all regular spaces with non-breaking spaces in both texts
-    if random.random() < 0.5:
-        # Check if we have spaces
-        if " " in text1 or " " in text2:
-            # Replace all spaces with non-breaking spaces
-            text1 = text1.replace(" ", "\u00A0")
-            text2 = text2.replace(" ", "\u00A0")
-
     # Random chance to change the dialect for both texts
     if random.random() < 0.5:
         # Randomly select a dialect from DIALECTS
@@ -186,12 +177,22 @@ def make_texts_similar(text1, text2):
         while attempts > 0 and not changed:
             try:
                 dialect = random.choice(DIALECTS)
-                text1 = dialect.transform(text1)
-                text2 = dialect.transform(text2)
+                text1 = dialect.transform(text1).strip()  # function seems to sometimes add whitespaces
+                text2 = dialect.transform(text2).strip()
+                text2 = text2.strip()
                 changed = True
             except:  # if the dialect transformation fails
                 print(f"Failed to transform {text1} or {text2}. Retrying {attempts} more times ...")
             attempts -= 1
+
+    # Random chance to change whitespace encoding for both
+    # For example, replace all regular spaces with non-breaking spaces in both texts
+    if random.random() < 0.5:
+        # Check if we have spaces
+        if " " in text1 or " " in text2:
+            # Replace all spaces with non-breaking spaces
+            text1 = text1.replace(" ", "\u00A0")
+            text2 = text2.replace(" ", "\u00A0")
 
     # Random chance to toggle apostrophe encoding for both
     # If we have apostrophes, switch them from `'` to `’` or vice versa
@@ -319,7 +320,7 @@ def dialect_transform(text2):
         dialect = random.choice(DIALECTS)
         transformed_text = text2
         try:
-            transformed_text = dialect.transform(text2)
+            transformed_text = dialect.transform(text2).strip()
         except:  # if the dialect transformation fails
             print(f"Failed to transform with {text2}. Retrying {attempts} more times...")
         if transformed_text != text2:
