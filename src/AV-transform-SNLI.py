@@ -177,9 +177,10 @@ def make_texts_similar(text1, text2):
         while attempts > 0 and not changed:
             try:
                 dialect = random.choice(DIALECTS)
-                text1 = dialect.transform(text1).strip()  # function seems to sometimes add whitespaces
-                text2 = dialect.transform(text2).strip()
-                text2 = text2.strip()
+                text1 = dialect.transform(text1 + ".\n" + text2)  # function seems to do different transformations depending on call
+                text1, text2 = text1.split(".\n")
+                text1 = " ".join(text1.split())  # function seems to sometimes add whitespaces
+                text2 = " ".join(text2.split())
                 changed = True
             except:  # if the dialect transformation fails
                 print(f"Failed to transform {text1} or {text2}. Retrying {attempts} more times ...")
