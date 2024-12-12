@@ -423,10 +423,6 @@ for split in tqdm(dataset.keys(), desc="Processing splits"):
         # Flip a coin for similar/distinct
         want_similar = random.choice([True, False])
 
-        # Check current similarity
-        initial_sim = compare_texts(premise, hypothesis)
-        # currently_similar = (initial_sim == 1.0)
-
         if want_similar:
             # Make them similar
             premise, hypothesis = make_texts_similar(premise, hypothesis)
@@ -434,9 +430,7 @@ for split in tqdm(dataset.keys(), desc="Processing splits"):
             # Make them distinct
             hypothesis = make_texts_distinct(premise, hypothesis)
 
-        # Re-check similarity after transformations
-        final_sim = compare_texts(premise, hypothesis)
-        style = 1 if final_sim == 1.0 else 0  # 1 for similar, 0 for distinct
+        style = 1 if want_similar else 0  # 1 for similar, 0 for distinct
 
         rows.append({
             "premise": premise,

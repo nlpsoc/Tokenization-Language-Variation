@@ -9,7 +9,7 @@
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
-#SBATCH -t 2:00:00
+#SBATCH -t 30:00:00
 
 ### Memory your job needs per node, e. g. 1 GB
 ### SBATCH -p gpu --gpus-per-node=2g.20gb:1

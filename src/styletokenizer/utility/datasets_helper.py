@@ -239,6 +239,7 @@ VARIETIES_TRAIN_DICT = {
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
     "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/train.tsv",
+    "CoDS": "billray110/corpus-of-diverse-styles"
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -248,7 +249,8 @@ VARIETIES_to_keys = {
     "GYAFC": ["text"],
     "DIALECT": ["text"],
     "sadiri": ("query_text", "candidate_text"),
-    "DSL": ["text"]
+    "DSL": ["text"],
+    "CoDS": ["text"]
 }
 VARIETIES_to_label = {
     "age": "age",
@@ -258,7 +260,8 @@ VARIETIES_to_label = {
     "GYAFC": "label",
     "DIALECT": "label",
     "sadiri": "label",
-    "DSL": "label"
+    "DSL": "label",
+    "CoDS": "label"
 }
 
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
