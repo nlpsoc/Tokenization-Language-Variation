@@ -67,25 +67,25 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   MODEL_NAME="${MODEL_PATH#*/models/}"
   echo "MODEL_NAME: $MODEL_NAME"
 
-  TASK_NAME=SNLI-NLI
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
-  TASK_NAME=SNLI-Style
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
-    TASK_NAME=SNLI
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
-
-
-  TASK_NAME=stel
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
-
-  TASK_NAME=sadiri
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+  #  TASK_NAME=SNLI-NLI
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+  #  TASK_NAME=SNLI-Style
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+  #    TASK_NAME=SNLI
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+  #
+  #
+  #  TASK_NAME=stel
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
+  #
+  #  TASK_NAME=sadiri
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
   TASK_NAME=age
   SEED=42
