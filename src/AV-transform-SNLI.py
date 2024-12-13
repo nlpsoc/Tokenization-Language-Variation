@@ -134,13 +134,13 @@ def compare_texts(text1, text2):
     return similarity
 
 
-def make_texts_similar(text1, text2):
+def make_texts_similar(text1, text2, dialect_prob=0.5):
     # Now text1 and text2 should be similar in capitalization and end punctuation.
     # Apostrophe and whitespace encoding is the same initially.
     # Randomly decide if we want to change them for BOTH texts simultaneously.
 
     # Random chance to change the dialect for both texts
-    if random.random() < 0.5:
+    if random.random() < dialect_prob:
         # Randomly select a dialect from DIALECTS
         attempts = 5  # limit attempts to avoid infinite loops
         changed = False
@@ -362,7 +362,7 @@ def maybe_add_contraction(text1, text2):
     return text2, False
 
 
-def make_texts_distinct(text1, text2):
+def make_texts_distinct(text1, text2, dialect_prob=0.5):
     """
         Assumes to be called on SNLI text pairs
     :param text1:
@@ -378,11 +378,13 @@ def make_texts_distinct(text1, text2):
         toggle_number_format,
         lambda t: maybe_add_contraction(text1, t),
     ]
+    # flip coin which text to transform
+    to_transform = random.choice([0, 1])
 
     # flip coin to to dialect_transform as this is a transformation that needs to run before all other transformations
-    text_modified = text2
-    if random.random() < 0.5:
-        text_modified, changed = dialect_transform(text2)
+    text_modified = [text1, text2][to_transform]
+    if random.random() < dialect_prob:
+        text_modified, changed = dialect_transform([text1, text2][to_transform])
 
     attempts = 20  # limit attempts to avoid infinite loops
     while attempts > 0:
@@ -393,11 +395,11 @@ def make_texts_distinct(text1, text2):
             if changed:
                 text_modified = new_text
         attempts -= 1
-        if text_modified != text2:
-            return text_modified
-
-    # If we exit the loop, we failed to reduce similarity
-    return text_modified
+        if text_modified != [text1, text2][to_transform]:
+            break
+    result = [text1, text2]
+    result[to_transform] = text_modified
+    return result
 
 
 import pandas as pd
@@ -433,7 +435,7 @@ for split in tqdm(dataset.keys(), desc="Processing splits"):
             premise, hypothesis = make_texts_similar(premise, hypothesis)
         else:
             # Make them distinct
-            hypothesis = make_texts_distinct(premise, hypothesis)
+            premise, hypothesis = make_texts_distinct(premise, hypothesis)
 
         style = 1 if want_similar else 0  # 1 for similar, 0 for distinct
 
