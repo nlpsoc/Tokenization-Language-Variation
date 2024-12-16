@@ -422,6 +422,9 @@ for split in tqdm(dataset.keys(), desc="Processing splits"):
         # make sure that text is not empty
         if not premise or not hypothesis:
             continue
+        # make sure that text is not N/A
+        if pd.isna(premise) or pd.isna(hypothesis):
+            continue
 
         # Skip if label is not in {0, 1, 2}
         if label not in {0, 1, 2}:
