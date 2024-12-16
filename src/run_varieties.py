@@ -2,6 +2,7 @@ import os
 import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
          "SNLI-NLI", "SNLI-Style", "SNLI"]
@@ -176,8 +177,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         command = [
             "python", "run_classification.py",  # TODO: use the cleaner run_classification_old script
             "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multilabel_dev.tsv",
+            "--train_file", VARIETIES_TRAIN_DICT[task],
+            "--validation_file", VARIETIES_DEV_DICT[task],
             # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_test.tsv",
             # "--shuffle_train_dataset",
             # "--max_train_samples", "100000",  # using longer seq length, so reduce samples --> only > 30k instances anyway
