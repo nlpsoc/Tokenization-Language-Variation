@@ -228,6 +228,9 @@ VARIETIES_DEV_DICT = {
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
     "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
+    "SNLI-NLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
+    "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
+    "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
@@ -239,7 +242,10 @@ VARIETIES_TRAIN_DICT = {
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
     "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/train.tsv",
-    "CoDS": "billray110/corpus-of-diverse-styles"
+    "CoDS": "billray110/corpus-of-diverse-styles",
+    "SNLI-NLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
+    "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
+    "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -250,18 +256,24 @@ VARIETIES_to_keys = {
     "DIALECT": ["text"],
     "sadiri": ("query_text", "candidate_text"),
     "DSL": ["text"],
-    "CoDS": ["text"]
+    "CoDS": ["text"],
+    "SNLI-NLI": ["premise", "hypothesis"],
+    "SNLI-Style": ["premise", "hypothesis"],
+    "SNLI": ["premise_original", "hypothesis_original"],
 }
-VARIETIES_to_label = {
+VARIETIES_to_labels = {
     "age": "age",
     "stel": "complex",
-    "CORE": "label",
-    "CGLU": "label",
+    "CORE": "genre",
+    "CGLU": "origin",
     "GYAFC": "label",
     "DIALECT": "label",
     "sadiri": "label",
-    "DSL": "label",
-    "CoDS": "label"
+    "DSL": "language",
+    "CoDS": "label",
+    "SNLI-NLI": "nli",
+    "SNLI-Style": "style",
+    "SNLI": "nli",
 }
 
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())

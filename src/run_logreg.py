@@ -12,7 +12,8 @@ from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.glue import GLUE_TASKS
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
-                                                    VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS)
+                                                    VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS,
+                                                    VARIETIES_to_labels)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 import numpy as np
@@ -66,7 +67,7 @@ def get_cross_words_features(tokens1_list, tokens2_list, max_tokens=50):
     return features
 
 
-def main(task="all"):
+def main(tasks="all"):
     features_type = 'cross_words'  # Change to 'common_words' as needed
 
     result_dict = {
@@ -79,16 +80,14 @@ def main(task="all"):
     }
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
-    if task == "all":
+    if tasks == "all":
         tasks = VALUE_PATHS + VARIETIES_TASKS + GLUE_TASKS
-    else:
-        tasks = [task]
 
     for task_name_or_hfpath in tasks:
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
-            if task == "stel":  # not a training task
+            if tasks == "stel":  # not a training task
                 continue
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
@@ -116,12 +115,8 @@ def main(task="all"):
 
         # get label key
         label = "label"
-        if task == "CGLU":
-            label = "origin"
-        elif task == "DSL":
-            label = "language"
-        elif task == "CORE":
-            label = "genre"
+        if task in VARIETIES_to_labels.keys():
+            label = VARIETIES_to_labels[task]
 
         sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
@@ -280,4 +275,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="all", help="task to evaluate")
     args = parser.parse_args()
-    main(args.task)
+    # parse as list if includes ","
+    if args.task != "all":
+        tasks = args.task.split(",")
+    main(tasks=tasks)
