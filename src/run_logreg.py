@@ -67,7 +67,7 @@ def get_cross_words_features(tokens1_list, tokens2_list, max_tokens=50):
     return features
 
 
-def main(tasks="all"):
+def main(tasks="all", tokenizer_paths='all'):
     features_type = 'cross_words'  # Change to 'common_words' as needed
 
     result_dict = {
@@ -82,6 +82,8 @@ def main(tasks="all"):
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
     if tasks == "all":
         tasks = VALUE_PATHS + VARIETIES_TASKS + GLUE_TASKS
+    if tokenizer_paths == 'all':
+        tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
     for task_name_or_hfpath in tasks:
         csv_file = False
@@ -137,7 +139,7 @@ def main(tasks="all"):
             # keep_in_memory=True
         )
 
-        for tokenizer_path in [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]:
+        for tokenizer_path in tokenizer_paths:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
 
             # Use lambda to pass tokenizer and sentence keys to preprocess_function
@@ -274,8 +276,13 @@ if __name__ == "__main__":
     # add --task command line argument
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="all", help="task to evaluate")
+    parser.add_argument("--tokenizer_paths", type=str, default="all", help="tokenizer paths to evaluate")
     args = parser.parse_args()
     # parse as list if includes ","
-    if args.task != "all":
-        tasks = args.task.split(",")
-    main(tasks=tasks)
+    tasks = args.task
+    if tasks != "all":
+        tasks = tasks.split(",")
+    tokenizer_paths = args.tokenizer_paths
+    if tokenizer_paths != "all":
+        tokenizer_paths = tokenizer_paths.split(",")
+    main(tasks=tasks, tokenizer_paths=tokenizer_paths)
