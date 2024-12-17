@@ -20,7 +20,7 @@ OUT_PATH = os.path.join(FOLDER_BASE, "tokenizer")
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
-from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED
+from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOKS
 
 
 def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: str, test=False):
@@ -108,6 +108,7 @@ if __name__ == "__main__":
     group.add_argument("--twitter", action="store_true", help="Use Twitter as the fitting corpus.")
     group.add_argument("--wikipedia", action="store_true", help="Use Wikipedia as the fitting corpus.")
     group.add_argument("--mixed", action="store_true", help="Use a mixed corpus for fitting.")
+    group.add_argument("--webbook", action="store_true", help="Use a mixed corpus for fitting.")
 
     # Define the valid vocabulary sizes
     vocab_sizes = VOCAB_SIZE
@@ -132,6 +133,9 @@ if __name__ == "__main__":
     elif args.mixed:
         print("Fitting corpus: Mixed")
         fit_path = CORPORA_MIXED
+    elif args.webbook:
+        print("Fitting corpus: WebBook")
+        fit_path = CORPORA_WEBBOOKS
     # Output the selected vocabulary size
     print(f"Vocabulary size: {args.vocab_size}")
     # Output the pre-tokenization method

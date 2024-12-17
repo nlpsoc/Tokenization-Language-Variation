@@ -9,3 +9,5 @@ else:
 CORPORA_MIXED = f"{FOLDER_BASE}/data/fitting-corpora/mixed"
 CORPORA_TWITTER = f"{FOLDER_BASE}/data/fitting-corpora/twitter"
 CORPORA_WIKIPEDIA = f"{FOLDER_BASE}/data/fitting-corpora/wikipedia"
+CORPORA_WEBBOOKS = f"{FOLDER_BASE}/data/fitting-corpora/webbooks"
+CORPORA_PUBMED = f"{FOLDER_BASE}/data/fitting-corpora/pubmed"
