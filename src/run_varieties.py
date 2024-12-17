@@ -183,7 +183,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             # "--shuffle_train_dataset",
             # "--max_train_samples", "100000",  # using longer seq length, so reduce samples --> only > 30k instances anyway
             "--text_column_name", "text",
-            "--label_column_name", "label",
+            "--label_column_name", "grenre",  # "label"
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
