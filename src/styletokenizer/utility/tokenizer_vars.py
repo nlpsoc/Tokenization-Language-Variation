@@ -7,7 +7,7 @@ from styletokenizer.utility.env_variables import at_uu, at_umich
 
 PRE_TOKENIZER = ["no", "ws", "gpt2", "llama3"]
 VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
-FITTING_CORPORA = ["twitter", "wikipedia", "mixed"]
+FITTING_CORPORA = ["twitter", "wikipedia", "mixed", "webbooks", "pubmed"]
 
 DEFAULT_FITTING_CORPORA = "mixed"
 DEFAULT_VOCAB_SIZE = 32000

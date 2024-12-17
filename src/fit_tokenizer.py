@@ -109,7 +109,7 @@ if __name__ == "__main__":
     group.add_argument("--twitter", action="store_true", help="Use Twitter as the fitting corpus.")
     group.add_argument("--wikipedia", action="store_true", help="Use Wikipedia as the fitting corpus.")
     group.add_argument("--mixed", action="store_true", help="Use a mixed corpus for fitting.")
-    group.add_argument("--webbook", action="store_true", help="Use a mixed corpus for fitting.")
+    group.add_argument("--webbooks", action="store_true", help="Use a mixed corpus for fitting.")
 
     # Define the valid vocabulary sizes
     vocab_sizes = VOCAB_SIZE
@@ -134,8 +134,8 @@ if __name__ == "__main__":
     elif args.mixed:
         print("Fitting corpus: Mixed")
         fit_path = CORPORA_MIXED
-    elif args.webbook:
-        print("Fitting corpus: WebBook")
+    elif args.webbooks:
+        print("Fitting corpus: WebBooks")
         fit_path = UMICH_TRAIN_DATASET_PATH
     # Output the selected vocabulary size
     print(f"Vocabulary size: {args.vocab_size}")
