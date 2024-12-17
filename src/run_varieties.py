@@ -67,7 +67,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--metric_name", "f1",
+            # "--metric_name", "f1",
             "--save_strategy", "no",
         ]
         if overwrite:
@@ -91,7 +91,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--metric_name", "f1",
+            # "--metric_name", "f1",
             "--save_strategy", "no",
         ]
         if overwrite:
