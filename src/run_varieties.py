@@ -5,7 +5,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
-         "SNLI-NLI", "SNLI-Style", "SNLI"]
+         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):
@@ -57,6 +57,30 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--shuffle_train_dataset",
             "--text_column_name", "query_text,candidate_text",
             "--label_column_name", "label",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "512",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            # "--max_train_samples", "200000",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+            "--overwrite_cache",
+            "--metric_name", "f1",
+            "--save_strategy", "no",
+        ]
+        if overwrite:
+            command.append("--overwrite_output_dir")
+        result = subprocess.run(command)
+    elif task == "convo-style":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--dataset_name", "AnnaWegmann/StyleEmbeddingData",
+            # "--shuffle_train_dataset",
+            "--text_column_name", "Anchor (A),Utterance 1 (U1)",
+            "--label_column_name", "Same Author Label",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "512",
