@@ -574,13 +574,23 @@ def main():
             text_column_names = data_args.text_column_names.split(",")
             # join together text columns into "sentence" column
             examples["sentence"] = examples[text_column_names[0]]
+
             for column in text_column_names[1:]:
                 for i in range(len(examples[column])):
                     try:
                         examples["sentence"][i] += data_args.text_column_delimiter + examples[column][i]
                     except TypeError:
-                        print(f"DEBUG: column: {column}, i: {i}, examples[column]: {examples[column][i]},"
-                              f" examples[sentence]: {examples['sentence'][i]}")
+                        if examples["sentence"][i] is None:
+                            logging.debug(f"DEBUG: column {text_column_names[0]} is None, replacing with empty string")
+                            examples["sentence"][i] = data_args.text_column_delimiter + examples[column][i]
+                        elif examples[column][i] is None:
+                            logging.debug(f"DEBUG: column {column} is None, replacing with empty string")
+                            examples["sentence"][i] += data_args.text_column_delimiter + ""
+                        else:
+                            print(f"DEBUG: column: {column}, i: {i}, examples[column]: {examples[column][i]},"
+                                  f" examples[sentence]: {examples['sentence'][i]}")
+
+
         # Tokenize the texts
         result = tokenizer(examples["sentence"], padding=padding, max_length=max_seq_length, truncation=True)
         if label_to_id is not None and "label" in examples:
