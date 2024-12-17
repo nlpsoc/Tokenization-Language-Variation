@@ -1,3 +1,5 @@
+import argparse
+
 from styletokenizer.fitting_corpora import CORPORA_PUBMED
 import styletokenizer.utility.the_pile as the_pile
 from styletokenizer.utility.custom_logger import log_and_flush
@@ -18,4 +20,7 @@ def main(save_path=CORPORA_PUBMED, test=False):
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', action='store_true', help='Run the script in test mode')
+    args = parser.parse_args()
+    main(test=args.test)
