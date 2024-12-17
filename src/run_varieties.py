@@ -38,9 +38,9 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         #     "--loss", "SupConLoss"
         # ]
         #
-        # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
-        # train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
-        # train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
+        from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+        train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
+        train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
         train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
         # train_dataset.to_csv(train_csv_path, index=False)
         # validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
@@ -63,9 +63,11 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "3",
+            # "--max_train_samples", "200000",
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
+            "--metric_name", "f1",
             "--save_strategy", "no",
         ]
         if overwrite:
