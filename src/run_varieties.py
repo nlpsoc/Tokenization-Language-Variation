@@ -38,9 +38,9 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         #     "--loss", "SupConLoss"
         # ]
         #
-        from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
-        train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
-        train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
+        # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+        # train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
+        # train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
         train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
         # train_dataset.to_csv(train_csv_path, index=False)
         # validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
