@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_750M-45k-42_mixed-gpt2-16k_batch-64_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_750M-45k-42_mixed-gpt2-64k_batch-32_%j.txt
 ### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_TINY_3.3-75k-42_mixed-no-32k_batch-256_%j.txt
 
 ### Request the time you need for execution in minutes
