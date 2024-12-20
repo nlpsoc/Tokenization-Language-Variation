@@ -2,6 +2,8 @@
     script to transform GLUE tasks into multi-dialect tasks using multi-value (https://github.com/SALT-NLP/multi-value),
     meant to be run on the UU cluster
 """
+import os
+
 from styletokenizer.utility.env_variables import set_cache
 
 set_cache()
@@ -39,7 +41,7 @@ def main():
             output_path = (f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi/"
                            f"{split}.csv")
             # skip if file already exists
-            if output_path.exists():
+            if os.path.exists(output_path):
                 log_and_flush(f"File {output_path} already exists. Skipping.")
                 continue
 
