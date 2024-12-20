@@ -36,6 +36,13 @@ def main():
             # Dictionary to keep track of errors
             error_info = {"count": 0, "ids": []}
 
+            output_path = (f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi/"
+                           f"{split}.csv")
+            # skip if file already exists
+            if output_path.exists():
+                log_and_flush(f"File {output_path} already exists. Skipping.")
+                continue
+
             def transform_example(example):
                 new_example = {}
                 for key, value in example.items():
@@ -61,8 +68,7 @@ def main():
                 num_proc=1
             )
             # Save the transformed dataset to CSV
-            output_path = (f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi/"
-                           f"{split}.csv")
+
             transformed_dataset.to_csv(output_path)
             log_and_flush(f"Saved transformed dataset to {output_path}")
             # Log error information
