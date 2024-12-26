@@ -112,7 +112,7 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   TASK_NAME=CORE
   SEED=42
   python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED`
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
   #  TASK_NAME=CGLU
   #  SEED=42
