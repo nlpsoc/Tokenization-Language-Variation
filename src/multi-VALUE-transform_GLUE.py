@@ -83,7 +83,7 @@ def main():
             transformed_dataset = org_task_data[split].map(
                 transform_batch,
                 batched=True,
-                batch_size=32,
+                batch_size=8,
                 num_proc=1
             )
 
