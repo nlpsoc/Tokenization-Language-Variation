@@ -570,34 +570,82 @@ def main():
         return ids
 
     def preprocess_function(examples):
+        # Make sure we actually have columns to work with
         if data_args.text_column_names is not None:
             text_column_names = data_args.text_column_names.split(",")
-            # join together text columns into "sentence" column
-            examples["sentence"] = examples[text_column_names[0]]
 
-            for column in text_column_names[1:]:
-                for i in range(len(examples[column])):
-                    try:
-                        examples["sentence"][i] += data_args.text_column_delimiter + examples[column][i]
-                    except TypeError:
-                        if examples["sentence"][i] is None:
-                            logging.debug(f"DEBUG: column {text_column_names[0]} is None, replacing with empty string")
-                            examples["sentence"][i] = data_args.text_column_delimiter + examples[column][i]
-                        elif examples[column][i] is None:
-                            logging.debug(f"DEBUG: column {column} is None, replacing with empty string")
-                            examples["sentence"][i] += data_args.text_column_delimiter + ""
-                        else:
-                            print(f"DEBUG: column: {column}, i: {i}, examples[column]: {examples[column][i]},"
-                                  f" examples[sentence]: {examples['sentence'][i]}")
+            # If we have exactly 2 columns and the delimiter is '[SEP]',
+            # then we let the tokenizer handle them as text + text_pair
+            if len(text_column_names) == 2 and data_args.text_column_delimiter == "[SEP]":
+                # Safely extract each text column, converting None to ""
+                text1 = [str(x) if x is not None else "" for x in examples[text_column_names[0]]]
+                text2 = [str(x) if x is not None else "" for x in examples[text_column_names[1]]]
 
+                # Tokenize with text and text_pair -> actual [SEP] token is inserted
+                result = tokenizer(
+                    text1,
+                    text2,
+                    padding=padding,
+                    max_length=max_seq_length,
+                    truncation=True,
+                )
 
-        # Tokenize the texts
-        result = tokenizer(examples["sentence"], padding=padding, max_length=max_seq_length, truncation=True)
+            else:
+                # Fallback: your original join-logic
+                # Initialize "sentence" with the first column (convert None -> "")
+                examples["sentence"] = [
+                    str(x) if x is not None else "" for x in examples[text_column_names[0]]
+                ]
+
+                # For each additional column, append using data_args.text_column_delimiter
+                for column in text_column_names[1:]:
+                    for i in range(len(examples[column])):
+                        try:
+                            # original code had a comment about using += ...
+                            # but currently it's assigning =, so we keep it as-is
+                            examples["sentence"][i] += data_args.text_column_delimiter + str(examples[column][i])
+                        except TypeError:
+                            if examples["sentence"][i] is None:
+                                logging.debug(
+                                    f"DEBUG: column {text_column_names[0]} is None, "
+                                    "replacing with empty string"
+                                )
+                                examples["sentence"][i] = (
+                                        data_args.text_column_delimiter + str(examples[column][i])
+                                )
+                            elif examples[column][i] is None:
+                                logging.debug(
+                                    f"DEBUG: column {column} is None, replacing with empty string"
+                                )
+                                examples["sentence"][i] += data_args.text_column_delimiter + ""
+                            else:
+                                print(
+                                    f"DEBUG: column: {column}, i: {i}, "
+                                    f"examples[column]: {examples[column][i]}, "
+                                    f'examples["sentence"]: {examples["sentence"][i]}'
+                                )
+
+                # Now tokenize the "sentence" field
+                result = tokenizer(
+                    examples["sentence"],
+                    padding=padding,
+                    max_length=max_seq_length,
+                    truncation=True,
+                )
+
+        else:
+            # If no text_column_names are provided, we cannot proceed
+            raise ValueError("No text_column_names specified in data_args.")
+
+        # Handle labels if they exist
         if label_to_id is not None and "label" in examples:
             if is_multi_label:
                 result["label"] = [multi_labels_to_ids(l) for l in examples["label"]]
             else:
-                result["label"] = [(label_to_id[str(l)] if l != -1 else -1) for l in examples["label"]]
+                result["label"] = [
+                    (label_to_id[str(l)] if l != -1 else -1) for l in examples["label"]
+                ]
+
         return result
 
     def prepare_dataset(raw_datasets, dataset_keys, do_flag, max_samples=None, shuffle=False, seed=None, desc=None,
