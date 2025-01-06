@@ -79,7 +79,7 @@ MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-16000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
 )
 
 for MODEL_PATH in "${MODEL_PATHS[@]}"; do
@@ -114,26 +114,21 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
-  TASK_NAME=CORE
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-
-  #  TASK_NAME=CGLU
+  #  TASK_NAME=CORE
   #  SEED=42
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
-  TASK_NAME=GYAFC
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-  #
-  TASK_NAME=DIALECT
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
+  #  TASK_NAME=GYAFC
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
+  #  #
+  #  TASK_NAME=DIALECT
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
   #  TASK_NAME=sst2
   #  SEED=42
@@ -160,6 +155,11 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
 
 done
 
+
+#  TASK_NAME=CGLU
+#  SEED=42
+#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
 
 # CREATING the VALUE files
 #MAPPING_FILE='/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value/resources/sae_aave_mapping_dict.pkl'
