@@ -89,7 +89,7 @@ def main(tasks="all", tokenizer_paths='all'):
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
-            if tasks == "stel":  # not a training task
+            if task == "stel":  # not a training task
                 continue
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
