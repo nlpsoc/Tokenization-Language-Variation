@@ -66,12 +66,13 @@ def main():
                         for i, text_val in enumerate(value_list):
                             try:
                                 transformed_list.append(multidialect.transform(text_val))
-                            except Exception:
+                            except:
                                 transformed_list.append(text_val)  # fallback to original
                                 error_info["count"] += 1
                                 # If there's an 'idx' column, log the exact ID
                                 if "idx" in batch:
                                     error_info["ids"].append(batch["idx"][i])
+                                log_and_flush(f"Error transforming text: {text_val}")
                         new_batch[key] = transformed_list
                     else:
                         # Keep non-text fields as is
@@ -83,7 +84,7 @@ def main():
             transformed_dataset = org_task_data[split].map(
                 transform_batch,
                 batched=True,
-                batch_size=8,
+                batch_size=1,
                 num_proc=1
             )
 

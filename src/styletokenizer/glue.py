@@ -1,6 +1,6 @@
 GLUE_TASKS = [
-    "mnli",
     "qnli",
+    "mnli",
     "qqp",
     "sst2",
 ]
