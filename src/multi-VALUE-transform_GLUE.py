@@ -14,6 +14,15 @@ from styletokenizer.glue import GLUE_TASKS, task_to_keys
 from tqdm import tqdm
 from styletokenizer.utility.custom_logger import log_and_flush
 from multivalue import Dialects
+import nltk
+
+
+def approximate_sentence_count(text):
+    # NLTK’s default tokenizer can handle many abbreviations better
+    sentences = nltk.sent_tokenize(text)
+    if not sentences:
+        return 1
+    return len(sentences)
 
 
 class MultiDialect(Dialects.DialectFromVector):
@@ -64,15 +73,36 @@ def main():
                     if key in text_fields:
                         transformed_list = []
                         for i, text_val in enumerate(value_list):
-                            try:
-                                transformed_list.append(multidialect.transform(text_val))
-                            except:
-                                transformed_list.append(text_val)  # fallback to original
-                                error_info["count"] += 1
-                                # If there's an 'idx' column, log the exact ID
-                                if "idx" in batch:
-                                    error_info["ids"].append(batch["idx"][i])
-                                log_and_flush(f"Error transforming text: {text_val}")
+                            num_words = len(text_val.split())
+                            sent_count = approximate_sentence_count(text_val)
+
+                            # We'll define a ratio threshold. For example, 40 words per sentence is quite high.
+                            ratio_threshold = 40.0
+                            avg_sentence_len = num_words / sent_count
+
+                            # Condition to SKIP transform: (multi-value seems to have trouble otherwise)
+                            # - more than 100 words
+                            # - average sentence length above our threshold
+                            if num_words > 150 and avg_sentence_len > ratio_threshold:
+                                log_and_flush(f"Skipping transformation for text with  avg sent len {avg_sentence_len},"
+                                              f"text length {num_words} words,"
+                                              f" id {batch['idx'][i]}, text sample: {text_val[:200]}...")
+                                transformed_list.append(text_val)  # just keep the original
+                            else:
+                                try:
+                                    # Attempt to transform
+                                    transformed_text = multidialect.transform(text_val)
+                                    transformed_list.append(transformed_text)
+                                except Exception as e:
+                                    # On error, fallback to original text
+                                    transformed_list.append(text_val)
+                                    error_info["count"] += 1
+                                    if "idx" in batch:
+                                        error_info["ids"].append(batch["idx"][i])
+                                    log_and_flush(
+                                        f"Error transforming text: {e}\n"
+                                        f"Text sample: {text_val[:200]}..."
+                                    )
                         new_batch[key] = transformed_list
                     else:
                         # Keep non-text fields as is

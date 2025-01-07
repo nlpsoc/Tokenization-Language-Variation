@@ -268,12 +268,22 @@ if __name__ == '__main__':
     parser.add_argument("--test", action="store_true", help="use a tiny dataset for testing purposes")
     parser.add_argument("--batch_size", type=int, default=256, help="batch size for training")
 
+    # dataset (mixed or webbook), make it a group
+    train_dataset = parser.add_mutually_exclusive_group(required=True)
+    train_dataset.add_argument("--mixed", action="store_true", help="Use mixed dataset.")
+    train_dataset.add_argument("--webbook", action="store_true", help="Use webbook dataset.")
+
+
     # Login to WandB account (this might prompt for an API key if not logged in already)
     wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
     # Initialize a new run with a project name
     wandb.init(project="bert-tiny-pretraining", entity="annawegmann")
 
     args = parser.parse_args()
+
+    if args.webbook:
+        log_and_flush("Using webbook dataset")
+
 
     if args.uu:
         log_and_flush("Using UU cluster")
