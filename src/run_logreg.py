@@ -108,8 +108,15 @@ def main(tasks="all", tokenizer_paths='all'):
         else:
             if task == "sadiri":
                 features_type = 'common_words'
-                raw_datasets = create_sadiri_class_dataset(train_path=VARIETIES_TRAIN_DICT[task],
-                                                           validation_path=task_name_or_hfpath)
+                # raw_datasets = create_sadiri_class_dataset(train_path=VARIETIES_TRAIN_DICT[task],
+                #                                            validation_path=task_name_or_hfpath)
+                train_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
+                                  "train.csv")
+                val_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/val/val.csv"
+                raw_datasets = DatasetDict({
+                    "train": load_data(csv_file=train_csv_path),
+                    "validation": load_data(csv_file=val_csv_path)
+                })
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
             else:
                 raw_datasets = load_data(task_name_or_hfpath)
