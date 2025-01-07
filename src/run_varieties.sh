@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_tiny-3.3-75k-42_sadiri-acc_42_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_SADIRI-roberta_42_%j.txt
 ### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR_base-42_mixed-gpt2-32k_%j.txt
 ### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/SYNTH_tiny-42_Style-NLI_MIX-MODELS_%j.txt
 
@@ -78,7 +78,8 @@ MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-16000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
+  "roberta-base"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
 )
 
