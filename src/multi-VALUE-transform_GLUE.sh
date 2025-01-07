@@ -13,9 +13,9 @@
 
 ### Memory your job needs per node, e. g. 1 GB
 ### SBATCH -p gpu --gpus-per-node=2g.20gb:1
-### SBATCH -p gpu --gpus-per-node=7g.79gb:1
-#SBATCH --mem 800G
-### SBARCH --gres=tmpspace:200G
+#SBATCH -p gpu --gpus-per-node=7g.79gb:1
+### SBATCH --mem 800G
+#SBARCH --gres=tmpspace:79G
 
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer

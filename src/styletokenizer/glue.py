@@ -1,8 +1,8 @@
 GLUE_TASKS = [
-    "qnli",
-    "mnli",
     "qqp",
     "sst2",
+    "qnli",
+    "mnli",
 ]
 
 HUGGINGFACE_HANDLE = "nyu-mll/glue"
