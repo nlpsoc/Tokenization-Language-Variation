@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from fitting_corpora import CORPORA_MIXED
+
 from styletokenizer.webbook import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
 
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
@@ -9,7 +9,8 @@ import wandb
 import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
-from styletokenizer.utility.env_variables import UMICH_CACHE_DIR, UU_CACHE_DIR
+from styletokenizer.utility.env_variables import UU_CACHE_DIR
+from styletokenizer.fitting_corpora import CORPORA_MIXED
 
 
 def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
