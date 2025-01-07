@@ -1,6 +1,7 @@
 import argparse
 import os
 
+from fitting_corpora import CORPORA_MIXED
 from styletokenizer.webbook import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
 
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
@@ -283,20 +284,21 @@ if __name__ == '__main__':
 
     if args.webbook:
         log_and_flush("Using webbook dataset")
-
-
+        train_path = UU_TRAIN_DATASET_PATH
+        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/"
+    elif args.mixed:
+        log_and_flush("Using mixed dataset")
+        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/"
+        train_path = CORPORA_MIXED
+    else:
+        raise ValueError("Please specify a dataset to use")
     if args.uu:
         log_and_flush("Using UU cluster")
-        output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/"
-        train_path = UU_TRAIN_DATASET_PATH
+
         os.environ["TRANSFORMERS_CACHE"] = UU_CACHE_DIR
         os.environ["HF_DATASETS_CACHE"] = UU_CACHE_DIR
     elif args.umich:
-        log_and_flush("Using UMich cluster")
-        output_base_folder = "/shared/3/projects/hiatus/TOKENIZER_wegmann/models/"
-        train_path = UMICH_TRAIN_DATASET_PATH
-        os.environ["TRANSFORMERS_CACHE"] = UMICH_CACHE_DIR
-        os.environ["HF_DATASETS_CACHE"] = UMICH_CACHE_DIR
+        raise NotImplementedError("UMich not implemented")
     else:
         raise ValueError("Please specify a cluster to use")
 
