@@ -163,6 +163,7 @@ class Trainer(object):
                             print("===== saving model =====")
                             if hasattr(model, 'save_pretrained'):
                                 model.save_pretrained(self.args.out_dir + "/best_model")
+                                train_collator.tokenizer.save_pretrained(self.args.out_dir + "/best_model")  # ADDED
                             else:
                                 torch.save(model.state_dict(), self.args.out_dir + "/best_model/pytorch_model.pth")
                             best_perf = results['MRR']
