@@ -7,6 +7,29 @@ GLUE_TASKS = [
 
 HUGGINGFACE_HANDLE = "nyu-mll/glue"
 
+GLUE_TEXTFLINT = {
+    "sst2-textflint": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/SST2/"
+                 "sst2_train_textflint.csv",
+        "dev": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/eval-corpora/GLUE_textflint/SST2/sst2_dev_textflint.csv"},
+    "qqp-textflint": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QQP/qqp_train_textflint.csv",
+        "dev": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/eval-corpora/GLUE_textflint/QQP/qqp_val_textflint.csv"},
+    "mnli-textflint": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/MNLI/"
+                 "mnli_train_textflint.csv",
+        "dev": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/eval-corpora/GLUE_textflint/MNLI/"
+               "mnli_val_matched_textflint.csv"},
+    "qnli-textflint": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/"
+                 "qnli_train_textflint.csv",
+        "dev": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/eval-corpora/GLUE_textflint/QNLI/qnli_val_textflint.csv",
+    }
+}
+
+GLUE_TEXTFLINT_TASKS = list(GLUE_TEXTFLINT.keys())
+
+
 
 task_to_keys = {
     "cola": ("sentence", None),

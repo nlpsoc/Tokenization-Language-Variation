@@ -9,7 +9,7 @@ from styletokenizer.utility.umich_av import create_sadiri_class_dataset
 
 
 from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.glue import GLUE_TASKS
+from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
                                                     VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS,
@@ -81,12 +81,13 @@ def main(tasks="all", tokenizer_paths='all'):
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
     if tasks == "all":
-        tasks = VALUE_PATHS + VARIETIES_TASKS + GLUE_TASKS
+        tasks = VARIETIES_TASKS + GLUE_TASKS + GLUE_TEXTFLINT_TASKS  # VALUE_PATHS +
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
     for task_name_or_hfpath in tasks:
         csv_file = False
+
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
             if task == "stel":  # not a training task
@@ -94,19 +95,12 @@ def main(tasks="all", tokenizer_paths='all'):
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
             if task != "sadiri":
-                csv_file = True
-        else:
-            task = os.path.basename(os.path.normpath(task_name_or_hfpath))
-            task_to_keys = glue_task_to_keys
-
-        if csv_file:
-            raw_datasets = DatasetDict({
-                "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
-                "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
-            })
-            print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
-        else:
-            if task == "sadiri":
+                raw_datasets = DatasetDict({
+                    "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
+                    "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
+                })
+                print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
+            else:
                 features_type = 'common_words'
                 # raw_datasets = create_sadiri_class_dataset(train_path=VARIETIES_TRAIN_DICT[task],
                 #                                            validation_path=task_name_or_hfpath)
@@ -118,16 +112,27 @@ def main(tasks="all", tokenizer_paths='all'):
                     "validation": load_data(csv_file=val_csv_path)
                 })
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
-            else:
-                raw_datasets = load_data(task_name_or_hfpath)
-                print(f"loaded {task} from hf dataset {task_name_or_hfpath}")
+            sentence_keys = task_to_keys[task]
+        elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS:
+            task = task_name_or_hfpath
+            task_name_or_hfpath = GLUE_TEXTFLINT[task_name_or_hfpath]
+            raw_datasets = DatasetDict({
+                "train": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["train"]),
+                "validation": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["dev"])
+            })
+            sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
+        else:
+            task = os.path.basename(os.path.normpath(task_name_or_hfpath))
+            task_to_keys = glue_task_to_keys
+            raw_datasets = load_data(task_name_or_hfpath)
+            print(f"loaded {task} from hf dataset {task_name_or_hfpath}")
+            sentence_keys = task_to_keys[task]
 
         # get label key
         label = "label"
         if task in VARIETIES_to_labels.keys():
             label = VARIETIES_to_labels[task]
 
-        sentence_keys = task_to_keys[task]
         val_key = "validation_matched" if task == "mnli" else "validation"
 
         def filter_none_labels(example):
