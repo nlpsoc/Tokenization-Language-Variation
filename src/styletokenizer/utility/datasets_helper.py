@@ -262,6 +262,7 @@ VARIETIES_to_keys = {
     "SNLI-NLI": ["premise", "hypothesis"],
     "SNLI-Style": ["premise", "hypothesis"],
     "SNLI": ["premise_original", "hypothesis_original"],
+    "NUCLE": ["sentence"],
 }
 VARIETIES_to_labels = {
     "age": "age",
@@ -276,6 +277,7 @@ VARIETIES_to_labels = {
     "SNLI-NLI": "nli",
     "SNLI-Style": "style",
     "SNLI": "nli",
+    "NUCLE": "label",
 }
 
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
