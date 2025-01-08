@@ -287,7 +287,8 @@ def main():
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
-    if data_args.task_name is not None:
+    if ((data_args.task_name is not None)
+            and (data_args.train_file is None) and (data_args.validation_file is None)):  # ADDED
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(
             "nyu-mll/glue",
