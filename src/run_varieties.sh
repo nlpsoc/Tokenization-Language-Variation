@@ -18,12 +18,12 @@
 ### see https://hpcusers.op.umcutrecht.nl/xwiki/bin/view/Main/Setup/Cluster/GPU-nodes/
 ### --> 2g20gb is 1/3 of a A100 GPU
 ### --> 7g.79gb is A100 GPU (4 in the whole cluster)
-#SBATCH -p gpu --gpus-per-node=2g.20gb:1
-### SBATCH -p gpu --gpus-per-node=7g.79gb:1
+### SBATCH -p gpu --gpus-per-node=2g.20gb:1
+#SBATCH -p gpu --gpus-per-node=7g.79gb:1
 
 ### Memory your job needs per node, e. g. 1 GB
-#SBATCH --mem 120G
-#SBARCH --gres=tmpspace:100G
+#SBATCH --mem-per-gpu 79G
+### SBARCH --gres=tmpspace:100G
 
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
