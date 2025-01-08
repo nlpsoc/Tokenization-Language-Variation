@@ -81,7 +81,7 @@ def main(tasks="all", tokenizer_paths='all'):
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
     if tasks == "all":
-        tasks = VARIETIES_TASKS + GLUE_TASKS + GLUE_TEXTFLINT_TASKS  # VALUE_PATHS +
+        tasks = GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS   # VALUE_PATHS +
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
@@ -115,7 +115,6 @@ def main(tasks="all", tokenizer_paths='all'):
             sentence_keys = task_to_keys[task]
         elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS:
             task = task_name_or_hfpath
-            task_name_or_hfpath = GLUE_TEXTFLINT[task_name_or_hfpath]
             raw_datasets = DatasetDict({
                 "train": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["train"]),
                 "validation": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["dev"])

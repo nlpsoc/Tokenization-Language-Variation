@@ -24,7 +24,7 @@ GLUE_TEXTFLINT = {
         "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/"
                  "qnli_train_textflint.csv",
         "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/qnli_val_textflint.csv",
-    }
+    },
 }
 
 GLUE_TEXTFLINT_TASKS = list(GLUE_TEXTFLINT.keys())
