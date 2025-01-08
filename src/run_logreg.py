@@ -106,10 +106,11 @@ def main(tasks="all", tokenizer_paths='all'):
                 #                                            validation_path=task_name_or_hfpath)
                 train_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
                                   "train.csv")
-                val_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/val/val.csv"
+                val_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
+                                "validation.csv")
                 raw_datasets = DatasetDict({
-                    "train": load_data(csv_file=train_csv_path),
-                    "validation": load_data(csv_file=val_csv_path)
+                    "train": load_data(csv_file=train_csv_path)["validation"],
+                    "validation": load_data(csv_file=val_csv_path)["validation"]
                 })
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
             sentence_keys = task_to_keys[task]
