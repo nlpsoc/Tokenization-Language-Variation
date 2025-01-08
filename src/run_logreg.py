@@ -94,7 +94,7 @@ def main(tasks="all", tokenizer_paths='all'):
                 continue
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
-            if task != "sadiri":
+            if task != "sadiri" and task != "PAN":
                 raw_datasets = DatasetDict({
                     "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
                     "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
@@ -102,12 +102,8 @@ def main(tasks="all", tokenizer_paths='all'):
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
             else:
                 features_type = 'common_words'
-                # raw_datasets = create_sadiri_class_dataset(train_path=VARIETIES_TRAIN_DICT[task],
-                #                                            validation_path=task_name_or_hfpath)
-                train_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
-                                  "train.csv")
-                val_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
-                                "validation.csv")
+                train_csv_path = VARIETIES_TRAIN_DICT[task]
+                val_csv_path = VARIETIES_DEV_DICT[task]
                 raw_datasets = DatasetDict({
                     "train": load_data(csv_file=train_csv_path)["validation"],
                     "validation": load_data(csv_file=val_csv_path)["validation"]

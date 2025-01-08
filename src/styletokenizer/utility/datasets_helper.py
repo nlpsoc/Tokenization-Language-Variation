@@ -231,14 +231,17 @@ VARIETIES_DEV_DICT = {
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multiclass_dev_stratified.tsv",
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
     "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
+                                "validation.csv",
+    "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_validation.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
     "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/train.csv",
     "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train_sampled.tsv",
     # "age": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/age/train.csv",
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
+                                  "train.csv",
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multiclass_train_stratified.tsv",
     "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",
     "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
@@ -248,6 +251,7 @@ VARIETIES_TRAIN_DICT = {
     "SNLI-NLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
     "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
     "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
+    "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_train.csv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -263,6 +267,7 @@ VARIETIES_to_keys = {
     "SNLI-Style": ["premise", "hypothesis"],
     "SNLI": ["premise_original", "hypothesis_original"],
     "NUCLE": ["sentence"],
+    "PAN": ("text 1", "text 2"),
 }
 VARIETIES_to_labels = {
     "age": "age",
@@ -278,6 +283,7 @@ VARIETIES_to_labels = {
     "SNLI-Style": "style",
     "SNLI": "nli",
     "NUCLE": "label",
+    "PAN": "Author Change",
 }
 
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
