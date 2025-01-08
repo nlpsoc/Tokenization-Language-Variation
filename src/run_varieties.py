@@ -5,7 +5,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
-         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style"]
+         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):
@@ -69,7 +69,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
             "--overwrite_cache",
             # "--metric_name", "f1",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -93,7 +93,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--seed", str(seed),
             "--overwrite_cache",
             # "--metric_name", "f1",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -144,7 +144,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -194,7 +194,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -220,7 +220,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -246,7 +246,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--max_train_samples", "200000",
             "--max_eval_samples", "20000",
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -269,7 +269,30 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
+        ]
+        if overwrite:
+            command.append("--overwrite_output_dir")
+        result = subprocess.run(command)
+    elif task == "NUCLE":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--train_file", VARIETIES_TRAIN_DICT["NUCLE"],
+            "--validation_file", VARIETIES_DEV_DICT["NUCLE"],
+            "--shuffle_train_dataset",
+            "--text_column_name", "text",
+            "--label_column_name", "label",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "128",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -293,7 +316,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "eopch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -316,7 +339,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -339,7 +362,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
@@ -362,7 +385,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
-            "--save_strategy", "no",
+            "--save_strategy", "epoch",
         ]
         if overwrite:
             command.append("--overwrite_output_dir")

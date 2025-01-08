@@ -28,47 +28,12 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-# export MODEL_PATH=prajjwal1/bert-tiny
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-llama3-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-ws-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/twitter-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/wikipedia-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-500/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-1000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-2000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-4000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-8000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-16000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-64000/3270M/steps-150000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-128000/3270M/steps-300000/seed-42
-# -----
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/twitter-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/wikipedia-gpt2-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-ws-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-llama3-32000/3270M/steps-75000/seed-42
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/mini-BERT/mixed-gpt2-500/3270M/steps-75000/seed-42
-# -----
-# MODEL_PATH=/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-no-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-ws-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-llama3-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/wikipedia-gpt2-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/twitter-gpt2-32000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-500/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-4000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-16000/3270M/steps-75000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-64000/3270M/steps-150000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/tiny-BERT/mixed-gpt2-128000/3270M/steps-300000/seed-42"
 
 MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
@@ -79,7 +44,7 @@ MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-16000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
-  "roberta-base"
+  # "roberta-base"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
 )
 
@@ -101,10 +66,15 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
 
-  TASK_NAME=sadiri
+  TASK_NAME=NUCLE
   SEED=42
   python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
   --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+
+  #  TASK_NAME=sadiri
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
   #  TASK_NAME=convo-style
   #  SEED=42
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
