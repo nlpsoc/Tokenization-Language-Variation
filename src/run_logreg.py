@@ -25,13 +25,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 def preprocess_function(examples, tokenizer, sentence1_key, sentence2_key):
     if sentence2_key is None:
         # Tokenize single sentence
-        encodings1 = [tokenizer.encode(text) for text in examples[sentence1_key]]
+        encodings1 = [tokenizer.encode(text) for text in examples[sentence1_key] if text is not None]
         input_ids1 = [encoding.ids for encoding in encodings1]
         return {'input_ids1': input_ids1}
     else:
         # Tokenize both sentences separately
-        encodings1 = [tokenizer.encode(text1) for text1 in examples[sentence1_key]]
-        encodings2 = [tokenizer.encode(text2) for text2 in examples[sentence2_key]]
+        encodings1 = [tokenizer.encode(text1) for text1 in examples[sentence1_key] if text1 is not None]
+        encodings2 = [tokenizer.encode(text2) for text2 in examples[sentence2_key] if text2 is not None]
         input_ids1 = [encoding.ids for encoding in encodings1]
         input_ids2 = [encoding.ids for encoding in encodings2]
         return {'input_ids1': input_ids1, 'input_ids2': input_ids2}
