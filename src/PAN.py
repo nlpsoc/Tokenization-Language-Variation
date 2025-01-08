@@ -55,7 +55,7 @@ def gather_data(folder_path):
                 p1 = paragraphs[i]
                 p2 = paragraphs[i + 1]
                 if i >= len(changes):
-                    print(f"Ran out of changes for {txt_path} for pair {i}-{i+1}")
+                    print(f"Ran out of changes for {txt_path} for pair {i}-{i + 1}")
                 author_change_label = changes[i]
 
                 all_rows.append([p1, p2, author_change_label])
@@ -78,9 +78,28 @@ def write_combined_csv(rows, output_csv_path):
     # make pandas dataframe
     import pandas as pd
     df = pd.read_csv(output_csv_path)
-    # distribution of Author Change
-    print(df['Author Change'].value_counts())
 
+    df0 = df[df['Author Change'] == 0]
+    df1 = df[df['Author Change'] == 1]
+
+    # 2. Determine the minimum size between the two groups
+    min_size = min(len(df0), len(df1))
+
+    # 3. Randomly sample 'min_size' rows from each group
+    df0_sample = df0.sample(n=min_size, random_state=42)
+    df1_sample = df1.sample(n=min_size, random_state=42)
+
+    # 4. Concatenate the two sampled datasets
+    df_balanced = pd.concat([df0_sample, df1_sample], axis=0)
+
+    # 5. (Optional) Shuffle the resulting dataframe
+    df_balanced = df_balanced.sample(frac=1, random_state=42).reset_index(drop=True)
+
+    df_balanced.to_csv(output_csv_path, index=False)
+    # distribution of Author Change
+    print(df_balanced['Author Change'].value_counts())
+
+    # sample rows such that Author Change labels occur in equal proportions
 
 
 def main():
