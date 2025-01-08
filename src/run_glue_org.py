@@ -309,6 +309,11 @@ def main():
         # Loading a dataset from your local files.
         # CSV/JSON training and evaluation files are needed.
         data_files = {"train": data_args.train_file, "validation": data_args.validation_file}
+        if data_args.task_name is not None and data_args.task_name == "mnli":
+            # rename validation to validation_matched
+            data_files["validation_matched"] = data_args.validation_file
+            del data_files["validation"]
+            data_files["validation_mismatched"] = data_args.validation_file
 
         # Get the test dataset: you can provide your own CSV/JSON test file (see below)
         # when you use `do_predict` without specifying a GLUE benchmark task.
