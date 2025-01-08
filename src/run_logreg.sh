@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_TEXTFLINT_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_mVALUE_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -18,5 +18,6 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-python run_logreg.py --task "sst2-textflint,qqp-textflint,mnli-textflint,qnli-textflint"  --tokenizer_paths "all"
+# python run_logreg.py --task "sst2-textflint,qqp-textflint,mnli-textflint,qnli-textflint"  --tokenizer_paths "all"
+python run_logreg.py --task "sst2-mVALUE,qqp-mVALUE,mnli-mVALUE,qnli-mVALUE"  --tokenizer_paths "all"
 # --tokenizer_paths "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/pubmed-gpt2-32000/tokenizer.json,/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/webbook-gpt2-32000/tokenizer.json"

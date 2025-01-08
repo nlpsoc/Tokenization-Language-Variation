@@ -27,7 +27,27 @@ GLUE_TEXTFLINT = {
     },
 }
 
+GLUE_MVALUE = {
+    "sst2-mVALUE": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/sst2_multi/train.csv",
+        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/sst2_multi/validation.csv",
+    },
+    "qqp-mVALUE": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/qqp_multi/train.csv",
+        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/qqp_multi/validation.csv",
+    },
+    "mnli-mVALUE": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/mnli_multi/train.csv",
+        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/mnli_multi/validation.csv",
+    },
+    "qnli-mVALUE": {
+        "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/qnli_multi/train.csv",
+        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/qnli_multi/validation.csv",
+    },
+}
+
 GLUE_TEXTFLINT_TASKS = list(GLUE_TEXTFLINT.keys())
+GLUE_MVALUE_TASKS = list(GLUE_MVALUE.keys())
 
 
 

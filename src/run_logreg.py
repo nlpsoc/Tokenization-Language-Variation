@@ -9,7 +9,7 @@ from styletokenizer.utility.umich_av import create_sadiri_class_dataset
 
 
 from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT
+from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
                                                     VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS,
@@ -81,7 +81,7 @@ def main(tasks="all", tokenizer_paths='all'):
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
     if tasks == "all":
-        tasks = GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS   # VALUE_PATHS +
+        tasks = GLUE_MVALUE_TASKS + GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS   # VALUE_PATHS +
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
@@ -118,6 +118,13 @@ def main(tasks="all", tokenizer_paths='all'):
             raw_datasets = DatasetDict({
                 "train": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["train"])["validation"],
                 "validation": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["dev"])["validation"]
+            })
+            sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
+        elif task_name_or_hfpath in GLUE_MVALUE_TASKS:
+            task = task_name_or_hfpath
+            raw_datasets = DatasetDict({
+                "train": load_data(csv_file=GLUE_MVALUE[task_name_or_hfpath]["train"])["validation"],
+                "validation": load_data(csv_file=GLUE_MVALUE[task_name_or_hfpath]["dev"])["validation"]
             })
             sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
         else:
