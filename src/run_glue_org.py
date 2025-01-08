@@ -488,7 +488,8 @@ def main():
             max_eval_samples = min(len(eval_dataset), data_args.max_eval_samples)
             eval_dataset = eval_dataset.select(range(max_eval_samples))
 
-    if training_args.do_predict or data_args.task_name is not None or data_args.test_file is not None:
+    if (training_args.do_predict and
+            (data_args.task_name is not None or data_args.test_file is not None)):  # CHANGED
         if "test" not in raw_datasets and "test_matched" not in raw_datasets:
             raise ValueError("--do_predict requires a test dataset")
         predict_dataset = raw_datasets["test_matched" if data_args.task_name == "mnli" else "test"]
