@@ -1,12 +1,12 @@
 import argparse
 
 from styletokenizer.utility.env_variables import set_cache
+
 set_cache()
 
 import os
 from datasets import DatasetDict
 from styletokenizer.utility.umich_av import create_sadiri_class_dataset
-
 
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
@@ -30,10 +30,11 @@ def preprocess_function(examples, tokenizer, sentence1_key, sentence2_key):
         return {'input_ids1': input_ids1}
     else:
         # Tokenize both sentences separately
-        encodings1 = [tokenizer.encode(text1) for text1 in examples[sentence1_key] if text1 is not None]
-        encodings2 = [tokenizer.encode(text2) for text2 in examples[sentence2_key] if text2 is not None]
-        input_ids1 = [encoding.ids for encoding in encodings1]
-        input_ids2 = [encoding.ids for encoding in encodings2]
+        encodings = [[tokenizer.encode(text1), tokenizer.encode(text2)]
+                     for text1, text2 in zip(examples[sentence1_key], examples[sentence2_key])
+                     if text1 is not None and text2 is not None]
+        input_ids1 = [encoding[0].ids for encoding in encodings]
+        input_ids2 = [encoding[1].ids for encoding in encodings]
         return {'input_ids1': input_ids1, 'input_ids2': input_ids2}
 
 
@@ -81,7 +82,7 @@ def main(tasks="all", tokenizer_paths='all'):
 
     # glue_task_to_keys["snli"] = ("premise", "hypothesis")
     if tasks == "all":
-        tasks = GLUE_MVALUE_TASKS + GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS   # VALUE_PATHS +
+        tasks = GLUE_MVALUE_TASKS + GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS  # VALUE_PATHS +
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
