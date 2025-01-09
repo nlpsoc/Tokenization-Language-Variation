@@ -142,6 +142,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         ]
         if overwrite:
             command.append("--overwrite_output_dir")
+        result = subprocess.run(command)
     elif task == "convo-style":
         command = [
             "python", "run_classification.py",
