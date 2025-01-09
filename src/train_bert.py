@@ -109,7 +109,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Seed set to: {random_seed}")
 
     dataset = load_train_dataset(word_count, data_path, test=test)
-    # actual_word_count = len(dataset) * COUNT_PER_ROW
+    actual_word_count = len(dataset) * COUNT_PER_ROW
     log_and_flush(f"Dataset rows: {len(dataset)}")
 
     # set parameters
