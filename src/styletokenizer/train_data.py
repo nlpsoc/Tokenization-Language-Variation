@@ -12,19 +12,17 @@ UU_MIXED_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/trai
 
 
 def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
+    assert "webbook" in data_path or "mixed" in data_path, "Only webbook and mixed datasets are supported."
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
     log_and_flush(f"Loading dataset from {data_path}")
     train_data = load_from_disk(data_path)["train"]
     log_and_flush(f"Loaded dataset with {len(train_data)} rows.")
 
     if not "webbook" in data_path:
-        if not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH) or not "mixed" in data_path:
+        if not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH):
             log_and_flush(f"Using {word_count} words for pre-training.")
-            train_data = create_dataset_with_target_word_count(train_data, word_count)
-        if "mixed" in data_path and not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH):
+            train_data = create_dataset_with_fixed_row_length(train_data, word_count)
             train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
-        if test:
-            train_data = train_data.select(range(256))
     else:
         # for COUNT_PER_ROW get the number of rows to sample for word_count
         nbr_rows = int(word_count // WEBBOOK_COUNT_PER_ROW)
@@ -32,56 +30,78 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
         log_and_flush(f"Using {nbr_rows * WEBBOOK_COUNT_PER_ROW} words for pre-training.")
         # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW,
         #   this is not affected by random seed
-        if test:
-            train_data = train_data.select(range(256))
-        else:
-            train_data = train_data.select(range(nbr_rows))
+    if test:
+        train_data = train_data.select(range(256))
+    else:
+        train_data = train_data.select(range(nbr_rows))
     return train_data
 
 
-def truncate_text(text, max_words=512):
-    """Truncate the text to the specified maximum number of words."""
-    words = text.split()
-    return " ".join(words[:max_words])
-
-
-def create_dataset_with_target_word_count(dataset, target_word_count):
+def truncate_or_merge_text_preserving_whitespace(rows, max_words=512):
     """
-    Create a new dataset with a cumulative word count that reaches the target.
-
-    Parameters:
-        dataset (Dataset): Original Hugging Face dataset with 'text' and 'word_count' columns.
-        target_word_count (int): Target total word count for the new dataset.
-
-    Returns:
-        Dataset: New dataset with cumulative word count reaching the target.
+    Merge or truncate rows to create a single text entry of exactly max_words,
+    preserving original whitespacing by using character positions.
     """
-    # Initialize cumulative word count and new dataset storage
-    cumulative_word_count = 0
-    new_rows = []
+    combined_text = ""
+    current_word_count = 0
 
-    for row in tqdm(dataset):
-        # If word count exceeds 512, truncate the text and adjust the word count
-        if row['word_count'] > 512:
-            row['text'] = truncate_text(row['text'], max_words=512)
-            row['word_count'] = 512
+    for row in rows:
+        words = row["text"].split()
+        remaining_space = max_words - current_word_count
 
-        # Check if adding this row exceeds the target
-        if cumulative_word_count + row['word_count'] <= target_word_count:
-            new_rows.append(row)
-            cumulative_word_count += row['word_count']
+        if len(words) <= remaining_space:
+            combined_text += row["text"]
+            current_word_count += len(words)
         else:
-            # Calculate the remaining word count
-            remaining_words = target_word_count - cumulative_word_count
-            if remaining_words > 0:
-                row['text'] = truncate_text(row['text'], max_words=remaining_words)
-                row['word_count'] = remaining_words
-                new_rows.append(row)
-                cumulative_word_count += remaining_words
-            log_and_flush(f"Reached target word count of {target_word_count}.")
-            break  # Stop adding rows once the target is reached
+            # Find the character position for the remaining words
+            text = row["text"]
+            words_split = text.split()
+            char_position = len(" ".join(words_split[:remaining_space]))
+            combined_text += text[:char_position]
+            current_word_count += remaining_space
+            break  # Once we reach max_words, stop combining rows
 
+    return combined_text.strip(), max_words  # Return combined text and fixed word count
+
+
+def create_dataset_with_fixed_row_length(dataset, target_word_count):
+    """
+    Create a new dataset where each row is exactly 512 words by merging rows
+    within the same domain, preserving original whitespacing.
+    """
+    # Group rows by domain
+    grouped_data = {}
+    for row in dataset:
+        domain = row["domain"]
+        if domain not in grouped_data:
+            grouped_data[domain] = []
+        grouped_data[domain].append(row)
+
+    new_rows = []
+    cumulative_word_count = 0
+
+    # Process each domain group
+    for domain, rows in grouped_data.items():
+        temp_rows = []
+        for row in rows:
+            temp_rows.append(row)
+
+            # If the cumulative word count of temp_rows reaches 512, combine them
+            total_words = sum(r["word_count"] for r in temp_rows)
+            if total_words >= 512:
+                combined_text, final_word_count = truncate_or_merge_text_preserving_whitespace(temp_rows, max_words=512)
+                new_rows.append({"domain": domain, "text": combined_text, "word_count": final_word_count})
+                cumulative_word_count += final_word_count
+                temp_rows = []  # Reset temp_rows
+
+            # Stop adding rows once the target is reached
+            if cumulative_word_count >= target_word_count:
+                break
+
+        if cumulative_word_count >= target_word_count:
+            break
+
+    log_and_flush(f"Created a new dataset with {cumulative_word_count} words.")
     # Create a new Dataset
     new_dataset = Dataset.from_dict({key: [row[key] for row in new_rows] for key in new_rows[0].keys()})
-    log_and_flush(f"New dataset has {len(new_dataset)} rows and {cumulative_word_count} words.")
     return new_dataset
