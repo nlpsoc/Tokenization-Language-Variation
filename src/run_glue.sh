@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE-textflint_mixed-train_base-750M-45k_42_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE-mVALUE_mixed-train_base-750M-45k_42_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
