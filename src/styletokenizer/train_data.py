@@ -81,9 +81,9 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     cumulative_word_count = 0
 
     # Process each domain group
-    for domain, rows in grouped_data.items():
+    for domain, rows in tqdm(grouped_data.items()):
         temp_rows = []
-        for row in rows:
+        for row in tqdm(rows):
             temp_rows.append(row)
 
             # If the cumulative word count of temp_rows reaches 512, combine them
