@@ -472,7 +472,14 @@ def main():
             result["label"] = [(label_to_id[l] if l != -1 else -1) for l in examples["label"]]
         return result
 
+    def filter_none_labels(example):  # ADDED function
+        if sentence2_key is None:
+            return example[sentence1_key] is not None
+        else:
+            return example[sentence1_key] is not None and example[sentence2_key] is not None
+
     with training_args.main_process_first(desc="dataset map pre-processing"):
+        raw_datasets = raw_datasets.filter(filter_none_labels)  # ADDED call
         raw_datasets = raw_datasets.map(
             preprocess_function,
             batched=True,
