@@ -139,18 +139,22 @@ def main(tasks="all", tokenizer_paths='all'):
 
         val_key = "validation_matched" if task == "mnli" else "validation"
 
-        def filter_none_labels(example):
-            return example[label] is not None
+        def filter_none_labels(example, sentence1_key, sentence2_key=None):
+            if sentence2_key is None:
+                return example[sentence1_key] is not None and example[label] is not None
+            else:
+                return example[sentence1_key] is not None and example[sentence2_key] is not None and \
+                       example[label] is not None
 
         # there might be labels of type None seeping through
         # Apply the filter to the datasets
         raw_datasets['train'] = raw_datasets['train'].filter(
-            filter_none_labels,
+            lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None),
             # load_from_cache_file=False,
             # keep_in_memory=True
         )
         raw_datasets[val_key] = raw_datasets[val_key].filter(
-            filter_none_labels,
+            lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None),
             # load_from_cache_file=False,
             # keep_in_memory=True
         )
