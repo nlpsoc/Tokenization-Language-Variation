@@ -83,4 +83,5 @@ def create_dataset_with_target_word_count(dataset, target_word_count):
 
     # Create a new Dataset
     new_dataset = Dataset.from_dict({key: [row[key] for row in new_rows] for key in new_rows[0].keys()})
+    log_and_flush(f"New dataset has {len(new_dataset)} rows and {cumulative_word_count} words.")
     return new_dataset
