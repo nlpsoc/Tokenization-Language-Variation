@@ -21,7 +21,7 @@ cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
 os.environ["TRANSFORMERS_CACHE"] = cache_dir
 os.environ["HF_DATASETS_CACHE"] = cache_dir
 from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_PUBMED
-from styletokenizer.webbook import UMICH_TRAIN_DATASET_PATH
+from styletokenizer.train_data import UMICH_TRAIN_DATASET_PATH
 
 
 def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: str, test=False):

@@ -307,7 +307,7 @@ if __name__ == '__main__':
                               Trainer, TrainingArguments, PreTrainedTokenizerFast)
     from datasets import load_from_disk
     from styletokenizer.utility import seed
-    from styletokenizer.webbook import COUNT_PER_ROW
+    from styletokenizer.train_data import COUNT_PER_ROW
 
     log_and_flush(f"Dataset path: {data_path}")
     log_and_flush(f"Tokenizer: {args.tokenizer}")
