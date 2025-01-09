@@ -285,12 +285,12 @@ if __name__ == '__main__':
 
     if args.webbook:
         log_and_flush("Using webbook dataset")
-        train_path = UU_TRAIN_DATASET_PATH
+        data_path = UU_TRAIN_DATASET_PATH
         output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/"
     elif args.mixed:
         log_and_flush("Using mixed dataset")
         output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/"
-        train_path = CORPORA_MIXED
+        data_path = CORPORA_MIXED
     else:
         raise ValueError("Please specify a dataset to use")
     if args.uu:
@@ -309,6 +309,7 @@ if __name__ == '__main__':
     from styletokenizer.utility import seed
     from styletokenizer.webbook import COUNT_PER_ROW
 
+    log_and_flush(f"Dataset path: {data_path}")
     log_and_flush(f"Tokenizer: {args.tokenizer}")
     log_and_flush(f"Seed: {args.seed}")
     log_and_flush(f"Word count: {args.word_count}")
@@ -317,7 +318,7 @@ if __name__ == '__main__':
     log_and_flush(f"Tiny BERT params in millions: {args.model_size}")
     main(tokenizer_path=args.tokenizer, word_count=args.word_count, steps=args.steps, random_seed=args.seed,
          output_base_folder=output_base_folder,
-         data_path=train_path, batch_size=args.batch_size, model_size=args.model_size, test=args.test)
+         data_path=data_path, batch_size=args.batch_size, model_size=args.model_size, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt

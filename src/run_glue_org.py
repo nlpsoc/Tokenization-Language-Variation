@@ -17,6 +17,8 @@
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
+import os
+os.environ["WANDB_DISABLED"] = "true"
 
 import logging
 import os
