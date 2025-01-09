@@ -71,7 +71,7 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     """
     # Group rows by domain
     grouped_data = {}
-    for row in dataset:
+    for row in tqdm(dataset):
         domain = row["domain"]
         if domain not in grouped_data:
             grouped_data[domain] = []
