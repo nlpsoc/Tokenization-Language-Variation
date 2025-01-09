@@ -1,7 +1,7 @@
 import os
 
 from datasets import load_from_disk, Dataset
-
+from tqdm import tqdm
 from styletokenizer.utility.custom_logger import log_and_flush
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
@@ -44,6 +44,7 @@ def truncate_text(text, max_words=512):
     words = text.split()
     return " ".join(words[:max_words])
 
+
 def create_dataset_with_target_word_count(dataset, target_word_count):
     """
     Create a new dataset with a cumulative word count that reaches the target.
@@ -59,7 +60,7 @@ def create_dataset_with_target_word_count(dataset, target_word_count):
     cumulative_word_count = 0
     new_rows = []
 
-    for row in dataset:
+    for row in tqdm(dataset):
         # If word count exceeds 512, truncate the text and adjust the word count
         if row['word_count'] > 512:
             row['text'] = truncate_text(row['text'], max_words=512)
@@ -77,6 +78,7 @@ def create_dataset_with_target_word_count(dataset, target_word_count):
                 row['word_count'] = remaining_words
                 new_rows.append(row)
                 cumulative_word_count += remaining_words
+            log_and_flush(f"Reached target word count of {target_word_count}.")
             break  # Stop adding rows once the target is reached
 
     # Create a new Dataset

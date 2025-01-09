@@ -2,7 +2,7 @@ import argparse
 import os
 
 
-from styletokenizer.webbook import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
+from styletokenizer.train_data import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
 
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
 import wandb
@@ -109,8 +109,8 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     log_and_flush(f"Seed set to: {random_seed}")
 
     dataset = load_train_dataset(word_count, data_path, test=test)
-    actual_word_count = len(dataset) * COUNT_PER_ROW
-    log_and_flush(f"Dataset size: {len(dataset)}")
+    # actual_word_count = len(dataset) * COUNT_PER_ROW
+    log_and_flush(f"Dataset rows: {len(dataset)}")
 
     # set parameters
     batch_size = batch_size  # 256 * 8
