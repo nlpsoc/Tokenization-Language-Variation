@@ -50,8 +50,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         import pandas as pd
         from torch.nn.functional import cosine_similarity
         import numpy as np
-        validation_csv_path = ("/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
-                               "/validation.csv")
+        validation_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/validation.csv"
         validation_df = pd.read_csv(validation_csv_path)
         query_embeddings = model.encode(validation_df["query_text"].tolist(), convert_to_tensor=True)
         candidate_embeddings = model.encode(validation_df["candidate_text"].tolist(), convert_to_tensor=True)
@@ -62,7 +61,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         best_accuracy = 0.0
 
         for t in np.linspace(0, 1, 101):  # 0.0, 0.01, 0.02, ... 1.0
-            y_pred = (similarities >= t).long().numpy()  # or .astype(int)
+            y_pred = (similarities >= t).long().cpu().numpy()  # or .astype(int)
             accuracy = (y_true == y_pred).mean()
             if accuracy > best_accuracy:
                 best_accuracy = accuracy
@@ -73,19 +72,25 @@ def main(task, model_path, seed, output_dir, overwrite=False):
 
         # calculate accuracy on test set
         test_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv"
+        if not os.exists(test_csv_path):  # only called the once, in parallel for the train/val split
+            test_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test"
+            from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+            test_df = create_singplesplit_sadiri_classification_dataset(test_folder)
+            test_df.to_csv(test_csv_path, index=False)
         test_df = pd.read_csv(test_csv_path)
 
         query_embeddings = model.encode(test_df["query_text"].tolist(), convert_to_tensor=True)
         candidate_embeddings = model.encode(test_df["candidate_text"].tolist(), convert_to_tensor=True)
         similarities = cosine_similarity(query_embeddings, candidate_embeddings)
+        y_true = test_df["label"].values
 
-        y_pred = (similarities >= best_threshold).long().numpy()
+        y_pred = (similarities >= best_threshold).long().cpu().numpy()
         accuracy = (y_true == y_pred).mean()
 
         print("Test accuracy:", accuracy)
         # print accuracy on test set
         # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
-        from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
+        # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
         # train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
         # train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
         # train_dataset.to_csv(train_csv_path, index=False)
