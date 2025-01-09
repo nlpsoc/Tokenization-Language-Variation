@@ -349,7 +349,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--train_file", VARIETIES_TRAIN_DICT["NUCLE"],
             "--validation_file", VARIETIES_DEV_DICT["NUCLE"],
             "--shuffle_train_dataset",
-            "--text_column_name", "text",
+            "--text_column_name", "sentence",
             "--label_column_name", "label",
             "--do_train",
             "--do_eval",
