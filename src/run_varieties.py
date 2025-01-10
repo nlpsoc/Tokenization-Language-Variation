@@ -5,7 +5,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT, VARIETIES_to_labels
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
-         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN"]
+         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN", "simplification"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):
@@ -357,6 +357,29 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--validation_file", VARIETIES_DEV_DICT["NUCLE"],
             "--shuffle_train_dataset",
             "--text_column_name", "sentence",
+            "--label_column_name", "label",
+            "--do_train",
+            "--do_eval",
+            "--max_seq_length", "128",
+            "--per_device_train_batch_size", "32",
+            "--learning_rate", "2e-5",
+            "--num_train_epochs", "3",
+            "--output_dir", output_dir,
+            "--seed", str(seed),
+            "--overwrite_cache",
+            "--save_strategy", "epoch",
+        ]
+        if overwrite:
+            command.append("--overwrite_output_dir")
+        result = subprocess.run(command)
+    elif task == "simplification":
+        command = [
+            "python", "run_classification.py",
+            "--model_name_or_path", model_path,
+            "--train_file", VARIETIES_TRAIN_DICT["simplification"],
+            "--validation_file", VARIETIES_DEV_DICT["simplification"],
+            "--shuffle_train_dataset",
+            "--text_column_name", "text",
             "--label_column_name", "label",
             "--do_train",
             "--do_eval",
