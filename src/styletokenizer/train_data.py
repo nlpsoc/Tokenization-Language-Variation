@@ -6,6 +6,7 @@ from tqdm import tqdm
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT, WORD_COUNT_TOTAL
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import at_uu, at_local
+import re
 
 TEST_ROWS = 1048 * 2
 
@@ -49,6 +50,20 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
     return train_data
 
 
+def get_end_position_n_word(input_string, n):
+    # Match all words in the string
+    word_matches = list(re.finditer(r'\S+', input_string))
+
+    # If there are fewer than n words, return the whole string
+    if len(word_matches) < n:
+        return -1
+
+    # Get the end position of the nth word
+    end_position = word_matches[n - 1].end()
+
+    # Return the substring up to that position
+    return end_position
+
 def truncate_or_merge_text_preserving_whitespace(rows, leftover_text="", max_words=512):
     """
     Merge or truncate rows to create a single text entry of exactly max_words,
@@ -57,6 +72,12 @@ def truncate_or_merge_text_preserving_whitespace(rows, leftover_text="", max_wor
     combined_text = leftover_text
     current_word_count = len(combined_text.split())
     remaining_text = ""
+
+    if current_word_count >= max_words:
+        char_position = get_end_position_n_word(combined_text, max_words)
+        remaining_text = combined_text[char_position:]
+        combined_text = combined_text[:char_position]
+        return combined_text, max_words, remaining_text
 
     for row in rows:
         remaining_space = max_words - current_word_count
@@ -68,8 +89,7 @@ def truncate_or_merge_text_preserving_whitespace(rows, leftover_text="", max_wor
         else:
             # Find the character position for the remaining words
             text = row["text"]
-            words_split = text.split()
-            char_position = len(" ".join(words_split[:remaining_space]))
+            char_position = get_end_position_n_word(text, remaining_space)
             combined_text += "\n" + text[:char_position]
             current_word_count += remaining_space
             remaining_text = text[char_position:]
@@ -113,13 +133,14 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
             temp_rows.append(row)
 
             # If the cumulative word count of temp_rows reaches 512, combine them
-            total_words = sum(r["word_count"] for r in temp_rows)
-            if total_words >= 512:
+            total_words = sum(r["word_count"] for r in temp_rows) + len(remaining_text.split())
+            while total_words >= 512:
                 combined_text, final_word_count, remaining_text = (
                     truncate_or_merge_text_preserving_whitespace(temp_rows, remaining_text, max_words=512))
                 new_rows.append({"domain": domain, "text": combined_text, "word_count": final_word_count})
                 domain_word_count += final_word_count
                 temp_rows = []  # Reset temp_rows
+                total_words = len(remaining_text.split())  # Update total words
 
             # Stop adding rows once the target is reached
             if domain_word_count >= relative_contribution_per_domain[domain]:

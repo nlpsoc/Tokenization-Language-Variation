@@ -234,6 +234,7 @@ VARIETIES_DEV_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
                                 "validation.csv",
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_validation.csv",
+    "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/dev.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
@@ -252,6 +253,7 @@ VARIETIES_TRAIN_DICT = {
     "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
     "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_train.csv",
+    "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/train.csv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -268,6 +270,7 @@ VARIETIES_to_keys = {
     "SNLI": ["premise_original", "hypothesis_original"],
     "NUCLE": ["sentence"],
     "PAN": ("text 1", "text 2"),
+    "simplification": ["text"],
 }
 VARIETIES_to_labels = {
     "age": "age",
@@ -284,6 +287,7 @@ VARIETIES_to_labels = {
     "SNLI": "nli",
     "NUCLE": "label",
     "PAN": "Author Change",
+    "simplification": "label",
 }
 
 VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
