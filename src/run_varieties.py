@@ -16,34 +16,35 @@ def main(task, model_path, seed, output_dir, overwrite=False):
     log_and_flush(f"output_dir: {output_dir}")
 
     if task == "sadiri":
-        # MRR calculation
-        command = [
-            "python", "sadiri_main.py",
-            "--train",
-            "--validate",
-            "--out_dir", output_dir,
-            "--pretrained_model", model_path,
-            "--train_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
-            "--dev_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
-            "--learning_rate", "0.00001",
-            "--batch_size", "128",
-            "--epochs", "5",
-            "--max_length", "512",
-            "--grad_acc", "1",
-            "--gradient_checkpointing", "False",
-            "--saving_step", "100",
-            "--mask", "0",
-            "--seed", str(seed),
-            "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
-            "--loss", "SupConLoss"
-        ]
-        result = subprocess.run(command)
+        model_path = os.path.join(output_dir, "best_model")
+        # only call calculation if model does not exist
+        if not os.path.exists(model_path):
+            # MRR calculation
+            command = [
+                "python", "sadiri_main.py",
+                "--train",
+                "--validate",
+                "--out_dir", output_dir,
+                "--pretrained_model", model_path,
+                "--train_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train",
+                "--dev_data", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation",
+                "--learning_rate", "0.00001",
+                "--batch_size", "128",
+                "--epochs", "5",
+                "--max_length", "512",
+                "--grad_acc", "1",
+                "--gradient_checkpointing", "False",
+                "--saving_step", "100",
+                "--mask", "0",
+                "--seed", str(seed),
+                "--corpus", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle",
+                "--loss", "SupConLoss"
+            ]
+            result = subprocess.run(command)
         # then, on validation set, load best model and find the best threshold for cosine similarities
-
-
         # load model
         from sentence_transformers import SentenceTransformer
-        model_path = os.path.join(output_dir, "best_model")
+
         model = SentenceTransformer(model_path)
 
         # get threshold on validation set
@@ -67,12 +68,12 @@ def main(task, model_path, seed, output_dir, overwrite=False):
                 best_accuracy = accuracy
                 best_threshold = t
 
-        print("Best threshold:", best_threshold)
-        print("Best accuracy on validation set:", best_accuracy)
+        log_and_flush("Best threshold:", best_threshold)
+        log_and_flush("Best accuracy on validation set:", best_accuracy)
 
         # calculate accuracy on test set
         test_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv"
-        if not os.exists(test_csv_path):  # only called the once, in parallel for the train/val split
+        if not os.path.exists(test_csv_path):  # only called the once, in parallel for the train/val split
             test_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test"
             from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
             test_df = create_singplesplit_sadiri_classification_dataset(test_folder)
@@ -87,7 +88,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         y_pred = (similarities >= best_threshold).long().cpu().numpy()
         accuracy = (y_true == y_pred).mean()
 
-        print("Test accuracy:", accuracy)
+        log_and_flush("Test accuracy:", accuracy)
         # print accuracy on test set
         # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
         # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
