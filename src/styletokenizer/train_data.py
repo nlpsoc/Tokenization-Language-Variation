@@ -3,26 +3,34 @@ import os
 from datasets import load_from_disk, Dataset
 from tqdm import tqdm
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.env_variables import at_uu, at_local
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
 COUNT_PER_ROW = 512
 
 UU_MIXED_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/mixed"
+LOCAL_MIXED_TRAIN_DATASET_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/train-corpora/mixed"
 
 
 def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PATH, test=False):
     assert "webbook" in data_path or "mixed" in data_path, "Only webbook and mixed datasets are supported."
+    assert at_local() or at_uu(), "Only local and UU paths are supported."
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi
     log_and_flush(f"Loading dataset from {data_path}")
     train_data = load_from_disk(data_path)["train"]
     log_and_flush(f"Loaded dataset with {len(train_data)} rows.")
 
     if not "webbook" in data_path:
-        if not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH):
+        if (at_uu() and not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH) or
+                at_local() and not os.path.exists(LOCAL_MIXED_TRAIN_DATASET_PATH)):
             log_and_flush(f"Using {word_count} words for pre-training.")
             train_data = create_dataset_with_fixed_row_length(train_data, word_count)
-            train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
+
+            if at_uu():
+                train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
+            else:
+                train_data.save_to_disk(LOCAL_MIXED_TRAIN_DATASET_PATH)
 
     # for COUNT_PER_ROW get the number of rows to sample for word_count
     nbr_rows = int(word_count // COUNT_PER_ROW)

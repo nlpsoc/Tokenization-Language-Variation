@@ -11,7 +11,11 @@ import datetime
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UU_CACHE_DIR
 from styletokenizer.fitting_corpora import CORPORA_MIXED
-
+from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
+                          Trainer, TrainingArguments, PreTrainedTokenizerFast)
+from datasets import load_from_disk
+from styletokenizer.utility import seed
+from styletokenizer.train_data import COUNT_PER_ROW
 
 def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
     dev_data = load_from_disk(data_path)["dev"]
@@ -97,7 +101,7 @@ def tokenize_and_encode(tokenizer, examples):
 
 
 def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, data_path, batch_size=256, model_size=4,
-         test=False):
+         lr=1e-4, test=False):
     # print time
     now = datetime.datetime.now()
     log_and_flush(f"Current date and time : {now.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -184,7 +188,7 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
         report_to="wandb",  # Enables WandB integration
         warmup_steps=warm_up_steps,  # as in original BERT pretraining
         weight_decay=0.01,  # as in original BERT pretraining
-        learning_rate=1e-4,  # as in original BERT pretraining
+        learning_rate=lr,
         lr_scheduler_type="linear",  # as in original BERT pretraining
         adam_beta1=0.9,  # as in original BERT pretraining
         adam_beta2=0.999,  # as in original BERT pretraining
@@ -275,6 +279,9 @@ if __name__ == '__main__':
     train_dataset.add_argument("--mixed", action="store_true", help="Use mixed dataset.")
     train_dataset.add_argument("--webbook", action="store_true", help="Use webbook dataset.")
 
+    # learning rate, 1e-4 from original BERT pretraining
+    parser.add_argument("--lr", type=float, default=1e-4, help="learning rate for training")
+
 
     # Login to WandB account (this might prompt for an API key if not logged in already)
     wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
@@ -303,11 +310,7 @@ if __name__ == '__main__':
     else:
         raise ValueError("Please specify a cluster to use")
 
-    from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
-                              Trainer, TrainingArguments, PreTrainedTokenizerFast)
-    from datasets import load_from_disk
-    from styletokenizer.utility import seed
-    from styletokenizer.train_data import COUNT_PER_ROW
+
 
     log_and_flush(f"Dataset path: {data_path}")
     log_and_flush(f"Tokenizer: {args.tokenizer}")
@@ -318,7 +321,7 @@ if __name__ == '__main__':
     log_and_flush(f"Tiny BERT params in millions: {args.model_size}")
     main(tokenizer_path=args.tokenizer, word_count=args.word_count, steps=args.steps, random_seed=args.seed,
          output_base_folder=output_base_folder,
-         data_path=data_path, batch_size=args.batch_size, model_size=args.model_size, test=args.test)
+         data_path=data_path, batch_size=args.batch_size, model_size=args.model_size, lr=args.lr, test=args.test)
 
     # example call:
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt

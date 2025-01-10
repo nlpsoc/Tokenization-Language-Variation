@@ -85,3 +85,6 @@ def at_uu() -> bool:
 
 def at_umich() -> bool:
     return "annaweg" in os.getcwd()
+
+def at_local() -> bool:
+    return "anna/Documents/git projects.nosync" in os.getcwd()
