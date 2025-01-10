@@ -96,6 +96,12 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     new_rows = []
     cumulative_word_count = 0
 
+    # assert that the domain keys in relative_contribution_per_domain are the same keys as in grouped_data
+    if not set(relative_contribution_per_domain.keys()) == set(grouped_data.keys()):
+        print(set(relative_contribution_per_domain.keys()))
+        print(set(grouped_data.keys()))
+        raise ValueError("The keys in relative_contribution_per_domain must match the keys in grouped")
+
     # Process each domain group
     for domain, rows in tqdm(grouped_data.items(), "Domains"):
         temp_rows = []
