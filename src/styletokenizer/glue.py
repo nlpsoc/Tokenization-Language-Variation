@@ -38,7 +38,7 @@ GLUE_MVALUE = {
     },
     "mnli-mVALUE": {
         "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/mnli_multi/train.csv",
-        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/mnli_multi/validation.csv",
+        "dev":   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/mnli_multi/validation_matched.csv",
     },
     "qnli-mVALUE": {
         "train": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/qnli_multi/train.csv",
