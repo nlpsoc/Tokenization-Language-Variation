@@ -2,8 +2,12 @@ import os
 
 from datasets import load_from_disk, Dataset
 from tqdm import tqdm
+
+from utility.mixed import DOMAIN_WORDCOUNT_DICT, WORD_COUNT_TOTAL
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import at_uu, at_local
+
+TEST_ROWS = 1048 * 2
 
 UMICH_TRAIN_DATASET_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
@@ -39,7 +43,7 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
     # select as many rows as needed to reach the desired train_size, given one row has count COUNT_PER_ROW,
     #   this is not affected by random seed
     if test:
-        train_data = train_data.select(range(256))
+        train_data = train_data.select(range(TEST_ROWS))
     else:
         train_data = train_data.select(range(nbr_rows))
     return train_data
@@ -88,10 +92,9 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     new_rows = []
     cumulative_word_count = 0
 
-    # get total number of domains
-    total_domains = len(grouped_data.keys())
     # words per domain
-    words_per_domain = target_word_count // total_domains
+    relative_contribution_per_domain = {domain: int((word_count / WORD_COUNT_TOTAL)*target_word_count)
+                                        for domain, word_count in DOMAIN_WORDCOUNT_DICT}
 
     # Process each domain group
     for domain, rows in tqdm(grouped_data.items(), "Domains"):
@@ -109,7 +112,7 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
                 temp_rows = []  # Reset temp_rows
 
             # Stop adding rows once the target is reached
-            if domain_word_count >= words_per_domain:
+            if domain_word_count >= relative_contribution_per_domain[domain]:
                 cumulative_word_count += domain_word_count
                 break
 

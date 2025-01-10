@@ -3,9 +3,10 @@ import random
 
 from styletokenizer.utility.env_variables import make_text_fit_word_max
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 GMANE_PATH = "/shared/3/projects/hiatus/data/processed_data/english/gmane/gmane_cleaned_filtered.json"
-WORD_COUNT = 150_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["gmane"]  # 150_000_000
 
 
 def sample_from_json(target_word_count, json_path, id_column, text_column, source, test=False, w_langdetect=False):

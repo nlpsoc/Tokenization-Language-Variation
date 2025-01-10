@@ -1,9 +1,10 @@
 import pandas as pd
 from styletokenizer.utility.sadiri import sample_texts_from_dataframe
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 BLOG_PATH = "/shared/3/projects/hiatus/blog-corpus/blogtext.csv"
-WORD_COUNT = 10_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["blogcorpus"]  # 10_000_000
 
 
 def sample_blogcorpus_texts(word_count=WORD_COUNT, test=False):

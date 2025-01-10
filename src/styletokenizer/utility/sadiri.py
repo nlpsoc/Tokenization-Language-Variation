@@ -3,6 +3,7 @@ import pandas as pd
 from collections import defaultdict
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import make_text_fit_word_max
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 project_base = "/shared/3/projects/hiatus/aggregated_trainset_v2/content_masking_research/"
 SET_PATHS = [  # "reddit",
@@ -12,7 +13,7 @@ SET_PATHS = [  # "reddit",
 ]  # "bookcorpus"
 SET_PATHS = [project_base + folder_name for folder_name in SET_PATHS]
 WORD_COUNTS = [  # 249000000,
-    150_000_000,  # increase by 50M because bookcorpus was removed
+    DOMAIN_WORDCOUNT_DICT["ao3"]  # 150_000_000,  # increase by 50M because bookcorpus was removed
     # 169000000,
     # 24131163,
     # 3007117,

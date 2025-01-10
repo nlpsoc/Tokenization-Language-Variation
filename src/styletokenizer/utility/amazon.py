@@ -4,9 +4,10 @@ import random
 
 from styletokenizer.utility.env_variables import make_text_fit_word_max
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 AMAZON_PATH = "/shared/3/datasets/amazon-reviews/All_Amazon_Review.json.gz"
-WORD_COUNT = 50_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["amazon"]  # 50_000_000
 
 
 def sample_amazon_texts(word_count=WORD_COUNT, test=False):

@@ -1,8 +1,9 @@
 import dask.dataframe as dd
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import make_text_fit_word_max
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
-WORD_COUNT = 100_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["YouTubeCommons"]  # 100_000_000
 
 
 def sample_YouTubeCommons_texts(required_word_count=WORD_COUNT, test=False):

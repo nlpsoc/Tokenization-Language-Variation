@@ -2,10 +2,11 @@ import pandas as pd
 
 from styletokenizer.utility.sadiri import sample_texts_from_dataframe
 from styletokenizer.utility.custom_logger import log_and_flush
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 SFUSOCC_PATH = "/shared/3/projects/hiatus/sfu-socc/SOCC/raw/gnm_articles.csv"
 SFUSOCC_COMMENTS_PATH = "/shared/3/projects/hiatus/sfu-socc/SOCC/raw/gnm_comments.csv"
-WORD_COUNT = 3_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["sfu-socc"]  # 3_000_000
 
 
 def sample_sfusocc_texts(word_count=WORD_COUNT, test=False):

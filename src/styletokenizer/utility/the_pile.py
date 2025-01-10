@@ -5,14 +5,16 @@ from styletokenizer.utility.custom_logger import log_and_flush
 import re
 
 from styletokenizer.utility.env_variables import make_text_fit_word_max
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 PILE_SET_NAMES = ['Gutenberg (PG-19)', 'StackExchange', 'OpenSubtitles', 'Github', 'Pile-CC', 'DM Mathematics']
-WORD_COUNTS = [50_000_000,
-               200_000_000,
-               50_000_000,
-               50_000_000,
-               100_000_000,
-               20_000_000]
+# WORD_COUNTS = [50_000_000,
+#                200_000_000,
+#                50_000_000,
+#                50_000_000,
+#                100_000_000,
+#                20_000_000]
+WORD_COUNTS = [DOMAIN_WORDCOUNT_DICT[name] for name in PILE_SET_NAMES]
 
 
 def read_lines_from_zst(file_path):

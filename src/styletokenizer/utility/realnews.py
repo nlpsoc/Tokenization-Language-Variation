@@ -1,7 +1,8 @@
 from styletokenizer.utility.gmane import sample_from_json
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 REALNEWS_PATH = "/shared/3/datasets/realnews/realnews/realnews.jsonl"
-WORD_COUNT = 150_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["realnews"]  #  150_000_000
 
 
 def sample_realnews_texts(word_count=WORD_COUNT, test=False):

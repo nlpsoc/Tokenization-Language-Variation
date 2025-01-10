@@ -4,10 +4,11 @@ import random
 
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import make_text_fit_word_max
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 s2orc_path = "/shared/3/projects/citation-context/s2orc/s2orc"
 
-WORD_COUNT = 100_000_000
+WORD_COUNT = DOMAIN_WORDCOUNT_DICT["s2orc"]  # 100_000_000
 
 
 def count_words(text):
