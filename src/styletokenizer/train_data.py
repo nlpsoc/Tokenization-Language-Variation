@@ -88,9 +88,15 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     new_rows = []
     cumulative_word_count = 0
 
+    # get total number of domains
+    total_domains = len(grouped_data.keys())
+    # words per domain
+    words_per_domain = target_word_count // total_domains
+
     # Process each domain group
     for domain, rows in tqdm(grouped_data.items(), "Domains"):
         temp_rows = []
+        domain_word_count = 0
         for row in tqdm(rows, f"Rows in {domain}"):
             temp_rows.append(row)
 
@@ -99,11 +105,12 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
             if total_words >= 512:
                 combined_text, final_word_count = truncate_or_merge_text_preserving_whitespace(temp_rows, max_words=512)
                 new_rows.append({"domain": domain, "text": combined_text, "word_count": final_word_count})
-                cumulative_word_count += final_word_count
+                domain_word_count += final_word_count
                 temp_rows = []  # Reset temp_rows
 
             # Stop adding rows once the target is reached
-            if cumulative_word_count >= target_word_count:
+            if domain_word_count >= words_per_domain:
+                cumulative_word_count += domain_word_count
                 break
 
         if cumulative_word_count >= target_word_count:
@@ -112,4 +119,6 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     log_and_flush(f"Created a new dataset with {cumulative_word_count} words.")
     # Create a new Dataset
     new_dataset = Dataset.from_dict({key: [row[key] for row in new_rows] for key in new_rows[0].keys()})
+    # shuffle the new dataset
+    new_dataset = new_dataset.shuffle(seed=42)
     return new_dataset

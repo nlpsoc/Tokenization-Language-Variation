@@ -124,9 +124,11 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     epoch_steps = len(dataset) // batch_size
     log_and_flush(f"Number of steps for one epoch: {epoch_steps}")
 
-    if test:
-        steps = 100
+
     warm_up_steps = int(steps * 0.01)  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
+    if test:
+        steps = 1000
+        warm_up_steps = 10
     log_and_flush(f"Number of warm-up steps: {warm_up_steps}")
     log_and_flush(f"Number of steps: {steps}")
     log_and_flush(f"Number of Epochs: {steps / len(dataset) * batch_size}")
