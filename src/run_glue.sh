@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE-textflint_mixed-train_base-750M-45k_42_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/GLUE_64k_base-750M-45k_42_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -27,9 +27,9 @@ source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 MODEL_PATHS=(
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
@@ -39,7 +39,7 @@ MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-16000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
@@ -57,57 +57,57 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
 
   # ========= GLUE =========
 
-  #  export TASK_NAME=sst2
-  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
-  #  #
-  #  export TASK_NAME=qqp
-  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
-  #  #
-  #  export TASK_NAME=mnli
-  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
-  #  #
-  #  export TASK_NAME=qnli
-  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
-  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
-
-  # ===== TEXTFLINT-TRANSFORMED GLUE =====
-
-  MODEL_NAME="GLUE/textflint/${MODEL_PATH#*/models/}"
-
   export TASK_NAME=sst2
   python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
   --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
-  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/SST2/sst2_train_textflint.csv \
-  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/SST2/sst2_dev_textflint.csv
-
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
+  #
   export TASK_NAME=qqp
   python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
   --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
-  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QQP/qqp_train_textflint.csv \
-  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QQP/qqp_val_textflint.csv
-
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
+  #
   export TASK_NAME=mnli
   python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
   --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
-  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/MNLI/mnli_train_textflint.csv \
-  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/MNLI/mnli_val_matched_textflint.csv
-
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
+  #
   export TASK_NAME=qnli
   python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
   --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
-  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/qnli_train_textflint.csv \
-  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/qnli_val_textflint.csv
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch
+
+  # ===== TEXTFLINT-TRANSFORMED GLUE =====
+
+  #  MODEL_NAME="GLUE/textflint/${MODEL_PATH#*/models/}"
+  #
+  #  export TASK_NAME=sst2
+  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
+  #  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/SST2/sst2_train_textflint.csv \
+  #  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/SST2/sst2_dev_textflint.csv
+  #
+  #  export TASK_NAME=qqp
+  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
+  #  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QQP/qqp_train_textflint.csv \
+  #  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QQP/qqp_val_textflint.csv
+  #
+  #  export TASK_NAME=mnli
+  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
+  #  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/MNLI/mnli_train_textflint.csv \
+  #  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/MNLI/mnli_val_matched_textflint.csv
+  #
+  #  export TASK_NAME=qnli
+  #  python run_glue_org.py --model_name_or_path $MODEL_PATH --task_name $TASK_NAME --do_train --do_eval \
+  #  --max_seq_length $MAX_SEQ_LENGTH --per_device_train_batch_size $PER_DEVICE_TRAIN_BATCH_SIZE --learning_rate 2e-5 --num_train_epochs 3 \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/$MODEL_NAME/42/$TASK_NAME --seed 42 --overwrite_cache --save_strategy epoch \
+  #  --train_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/qnli_train_textflint.csv \
+  #  --validation_file /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GLUE_textflint/QNLI/qnli_val_textflint.csv
 
   # ==== multi-VALUE Transformation ====
 

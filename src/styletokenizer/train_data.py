@@ -81,6 +81,10 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     Create a new dataset where each row is exactly 512 words by merging rows
     within the same domain, preserving original whitespacing.
     """
+    # words per domain
+    relative_contribution_per_domain = {domain: int((word_count / WORD_COUNT_TOTAL)*target_word_count)
+                                        for domain, word_count in DOMAIN_WORDCOUNT_DICT.items()}
+
     # Group rows by domain
     grouped_data = {}
     for row in tqdm(dataset, "Grouping Domains"):
@@ -91,10 +95,6 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
 
     new_rows = []
     cumulative_word_count = 0
-
-    # words per domain
-    relative_contribution_per_domain = {domain: int((word_count / WORD_COUNT_TOTAL)*target_word_count)
-                                        for domain, word_count in DOMAIN_WORDCOUNT_DICT}
 
     # Process each domain group
     for domain, rows in tqdm(grouped_data.items(), "Domains"):
