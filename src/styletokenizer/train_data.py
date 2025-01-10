@@ -3,7 +3,7 @@ import os
 from datasets import load_from_disk, Dataset
 from tqdm import tqdm
 
-from utility.mixed import DOMAIN_WORDCOUNT_DICT, WORD_COUNT_TOTAL
+from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT, WORD_COUNT_TOTAL
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import at_uu, at_local
 
