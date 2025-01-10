@@ -49,31 +49,33 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
     return train_data
 
 
-def truncate_or_merge_text_preserving_whitespace(rows, max_words=512):
+def truncate_or_merge_text_preserving_whitespace(rows, leftover_text="", max_words=512):
     """
     Merge or truncate rows to create a single text entry of exactly max_words,
     preserving original whitespacing by using character positions.
     """
-    combined_text = ""
-    current_word_count = 0
+    combined_text = leftover_text
+    current_word_count = len(combined_text.split())
+    remaining_text = ""
 
     for row in rows:
-        words = row["text"].split()
         remaining_space = max_words - current_word_count
-
-        if len(words) <= remaining_space:
+        if row["word_count"] <= remaining_space:
+            if len(combined_text) > 0:
+                combined_text += "\n"
             combined_text += row["text"]
-            current_word_count += len(words)
+            current_word_count += row["word_count"]
         else:
             # Find the character position for the remaining words
             text = row["text"]
             words_split = text.split()
             char_position = len(" ".join(words_split[:remaining_space]))
-            combined_text += text[:char_position]
+            combined_text += "\n" + text[:char_position]
             current_word_count += remaining_space
+            remaining_text = text[char_position:]
             break  # Once we reach max_words, stop combining rows
 
-    return combined_text.strip(), max_words  # Return combined text and fixed word count
+    return combined_text, current_word_count, remaining_text  # Return combined text and fixed word count
 
 
 def create_dataset_with_fixed_row_length(dataset, target_word_count):
@@ -106,13 +108,15 @@ def create_dataset_with_fixed_row_length(dataset, target_word_count):
     for domain, rows in tqdm(grouped_data.items(), "Domains"):
         temp_rows = []
         domain_word_count = 0
+        remaining_text = ""
         for row in tqdm(rows, f"Rows in {domain}"):
             temp_rows.append(row)
 
             # If the cumulative word count of temp_rows reaches 512, combine them
             total_words = sum(r["word_count"] for r in temp_rows)
             if total_words >= 512:
-                combined_text, final_word_count = truncate_or_merge_text_preserving_whitespace(temp_rows, max_words=512)
+                combined_text, final_word_count, remaining_text = (
+                    truncate_or_merge_text_preserving_whitespace(temp_rows, remaining_text, max_words=512))
                 new_rows.append({"domain": domain, "text": combined_text, "word_count": final_word_count})
                 domain_word_count += final_word_count
                 temp_rows = []  # Reset temp_rows
