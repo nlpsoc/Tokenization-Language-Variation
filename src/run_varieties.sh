@@ -30,9 +30,9 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 
 MODEL_PATHS=(
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
@@ -41,8 +41,8 @@ MODEL_PATHS=(
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
   # "roberta-base"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
 )

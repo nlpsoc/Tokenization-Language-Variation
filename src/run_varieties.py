@@ -71,8 +71,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
                 best_accuracy = accuracy
                 best_threshold = t
 
-        log_and_flush("Best threshold:", best_threshold)
-        log_and_flush("Best accuracy on validation set:", best_accuracy)
+        log_and_flush(f"Best threshold: {best_threshold}")
+        log_and_flush(f"Best accuracy on validation set: {best_accuracy}")
 
         # calculate accuracy on test set
         test_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv"
@@ -91,7 +91,12 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         y_pred = (similarities >= best_threshold).long().cpu().numpy()
         accuracy = (y_true == y_pred).mean()
 
-        log_and_flush("Test accuracy:", accuracy)
+        log_and_flush(f"Test accuracy: {accuracy}")
+        # save accuracy in a txt file in the output_dir
+        with open(os.path.join(output_dir, "test_accuracy.txt"), "w") as f:
+            f.write(f"Best threshold: {best_threshold}\n")
+            f.write(f"Best accuracy on validation set: {best_accuracy}\n")
+            f.write(f"Test accuracy: {accuracy}\n")
         # print accuracy on test set
         # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
         # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
