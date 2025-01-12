@@ -20,6 +20,6 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 # python run_logreg.py --task "mnli-textflint,qnli-textflint"  --tokenizer_paths "all"  # qqp-textflint,sst2-textflint,mnli-textflint,qnli-textflint
 # python run_logreg.py --task "mnli-mVALUE,qnli-mVALUE"  --tokenizer_paths "all"
-python run_logreg.py --task "PAN"  --tokenizer_paths "all"
+python run_logreg.py --task "simplification"  --tokenizer_paths "all"
 # python run_logreg.py --task "simplification"  --tokenizer_paths "all"
 # --tokenizer_paths "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/pubmed-gpt2-32000/tokenizer.json,/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/webbook-gpt2-32000/tokenizer.json"
