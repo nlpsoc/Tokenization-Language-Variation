@@ -19,6 +19,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         model_path = os.path.join(output_dir, "best_model")
         # only call calculation if model does not exist
         if not os.path.exists(model_path):
+            log_and_flush("Model does not exist, training.")
             # MRR calculation
             command = [
                 "python", "sadiri_main.py",
@@ -41,6 +42,8 @@ def main(task, model_path, seed, output_dir, overwrite=False):
                 "--loss", "SupConLoss"
             ]
             result = subprocess.run(command)
+        else:
+            log_and_flush("Model already exists, skipping training.")
         # then, on validation set, load best model and find the best threshold for cosine similarities
         # load model
         from sentence_transformers import SentenceTransformer
