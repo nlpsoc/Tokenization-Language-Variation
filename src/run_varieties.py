@@ -16,9 +16,9 @@ def main(task, model_path, seed, output_dir, overwrite=False):
     log_and_flush(f"output_dir: {output_dir}")
 
     if task == "sadiri":
-        model_path = os.path.join(output_dir, "best_model")
+        out_model_path = os.path.join(output_dir, "best_model")
         # only call calculation if model does not exist
-        if not os.path.exists(model_path):
+        if not os.path.exists(out_model_path):
             log_and_flush("Model does not exist, training.")
             # MRR calculation
             command = [
@@ -48,7 +48,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         # load model
         from sentence_transformers import SentenceTransformer
 
-        model = SentenceTransformer(model_path)
+        model = SentenceTransformer(out_model_path)
 
         # get threshold on validation set
         import pandas as pd
