@@ -26,7 +26,7 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
     train_data = load_from_disk(data_path)["train"]
     log_and_flush(f"Loaded dataset with {len(train_data)} rows.")
 
-    if not "webbook" in data_path:
+    if "mixed" in data_path:
         if (at_uu() and not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH) or
                 at_local() and not os.path.exists(LOCAL_MIXED_TRAIN_DATASET_PATH)):
             log_and_flush(f"Using {word_count} words for pre-training.")
@@ -36,6 +36,9 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
                 train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
             else:
                 train_data.save_to_disk(LOCAL_MIXED_TRAIN_DATASET_PATH)
+        else:
+            if data_path != UU_MIXED_TRAIN_DATASET_PATH and data_path != LOCAL_MIXED_TRAIN_DATASET_PATH:
+                raise ValueError("The dataset path does not match the expected path for train mixed data.")
 
     # for COUNT_PER_ROW get the number of rows to sample for word_count
     nbr_rows = int(word_count // COUNT_PER_ROW)
