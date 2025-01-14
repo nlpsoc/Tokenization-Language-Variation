@@ -13,7 +13,7 @@ from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
                                                     VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS,
-                                                    VARIETIES_to_labels)
+                                                    VARIETIES_to_labels, VARIETIES_TEST_DICT)
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 import numpy as np
@@ -68,7 +68,7 @@ def get_cross_words_features(tokens1_list, tokens2_list, max_tokens=50):
     return features
 
 
-def main(tasks="all", tokenizer_paths='all'):
+def main(tasks="all", tokenizer_paths='all', on_test_set=False):
     features_type = 'cross_words'  # Change to 'common_words' as needed
 
     result_dict = {
@@ -86,14 +86,22 @@ def main(tasks="all", tokenizer_paths='all'):
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
+    if on_test_set:
+        testing_dict = VARIETIES_TEST_DICT
+    else:
+        testing_dict = VARIETIES_DEV_DICT
+
     for task_name_or_hfpath in tasks:
         csv_file = False
 
-        if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
+        if task_name_or_hfpath not in testing_dict.keys():
+            raise ValueError(f"Task {task_name_or_hfpath} is not in testing set.")
+
+        if task_name_or_hfpath in testing_dict.keys():
             task = task_name_or_hfpath
             if task == "stel":  # not a training task
                 continue
-            task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
+            task_name_or_hfpath = testing_dict[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
             if task != "sadiri" and task != "PAN":
                 raw_datasets = DatasetDict({
@@ -104,7 +112,7 @@ def main(tasks="all", tokenizer_paths='all'):
             else:
                 features_type = 'common_words'
                 train_csv_path = VARIETIES_TRAIN_DICT[task]
-                val_csv_path = VARIETIES_DEV_DICT[task]
+                val_csv_path = testing_dict[task]
                 raw_datasets = DatasetDict({
                     "train": load_data(csv_file=train_csv_path)["validation"],
                     "validation": load_data(csv_file=val_csv_path)["validation"]
@@ -297,6 +305,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default="all", help="task to evaluate")
     parser.add_argument("--tokenizer_paths", type=str, default="all", help="tokenizer paths to evaluate")
+    parser.add_argument("--on_test_set", action="store_true", help="evaluate on test set")
     args = parser.parse_args()
     # parse as list if includes ","
     tasks = args.task
@@ -305,4 +314,4 @@ if __name__ == "__main__":
     tokenizer_paths = args.tokenizer_paths
     if tokenizer_paths != "all":
         tokenizer_paths = tokenizer_paths.split(",")
-    main(tasks=tasks, tokenizer_paths=tokenizer_paths)
+    main(tasks=tasks, tokenizer_paths=tokenizer_paths, on_test_set=args.on_test_set)

@@ -255,6 +255,9 @@ VARIETIES_TRAIN_DICT = {
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_train.csv",
     "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/train.csv",
 }
+VARIETIES_TEST_DICT = {
+    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv",
+}
 VARIETIES_to_keys = {
     "age": ["text"],
     "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
