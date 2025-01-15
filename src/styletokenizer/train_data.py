@@ -27,18 +27,14 @@ def load_train_dataset(word_count=750_000_000, data_path=UMICH_TRAIN_DATASET_PAT
     if "mixed" in data_path:
         if data_path != CORPORA_MIXED:
             raise ValueError("Expecting the path to the original fitting corpus here to use it's val and test splits.")
-        if (at_uu() and not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH) or
-                at_local() and not os.path.exists(LOCAL_MIXED_TRAIN_DATASET_PATH)):
+        if not os.path.exists(UU_MIXED_TRAIN_DATASET_PATH):
             log_and_flush(f"Using {word_count} words for pre-training.")
             train_data = load_from_disk(data_path)
             train_data = create_dataset_with_fixed_row_length(train_data, word_count)
-            if at_uu():
-                train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
-            else:
-                train_data.save_to_disk(LOCAL_MIXED_TRAIN_DATASET_PATH)
+            train_data.save_to_disk(UU_MIXED_TRAIN_DATASET_PATH)
         else:
-            log_and_flush(f"Loading dataset from {data_path}")
-            train_data = load_from_disk(data_path)
+            log_and_flush(f"Loading dataset from {UU_MIXED_TRAIN_DATASET_PATH}")
+            train_data = load_from_disk(UU_MIXED_TRAIN_DATASET_PATH)
             log_and_flush(f"Loaded dataset with {len(train_data)} rows.")
     else:
         log_and_flush(f"Loading dataset from {data_path}")
