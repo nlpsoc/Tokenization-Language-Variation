@@ -18,18 +18,29 @@ import nltk
 import random
 
 from multivalue import Dialects
-# dialectal variations used in the multi-VALUE paper: https://aclanthology.org/2023.acl-long.44.pdf
+# dialectal variations used for synthetic variations in the multi-VALUE paper: https://aclanthology.org/2023.acl-long.44.pdf
 #   - AppE (Appalachian English), in library as AppalachianDialect
 #   - ChcE (Chicano English), in library as ChicanoDialect
 #   - CollSgE (Colloquial Singapore English), in library as ColloquialSingaporeDialect
 #   - IndE (Indian English), in library as IndianDialect
 #   - UAAVE (Urban African American English), in library as AfricanAmericanVernacular
+# Validated the following dialects in their transformation rules:
+#   - Appalachian (4)
+#   - Chicano (29 annotators)
+#   - Indian (11)
+#   - Urban African American (1)
+#   - Colloquial American (13)
+#   - Aboriginal (4)
+#   - North of England(3)
+#   - Ozark (3)
+#   - Southeast American Enclave (3)
+#   - Black South African English (1).
 DIALECTS = {
     "AppE": Dialects.AppalachianDialect(),
     "ChcE": Dialects.ChicanoDialect(),
     "CollSgE": Dialects.ColloquialSingaporeDialect(),
     "IndE": Dialects.IndianDialect(),
-    "UAAVE": Dialects.AfricanAmericanVernacular(),
+    "UAA5VE": Dialects.AfricanAmericanVernacular(),
 }
 
 def approximate_sentence_count(text):

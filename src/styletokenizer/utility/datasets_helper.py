@@ -271,7 +271,7 @@ VARIETIES_to_keys = {
     "SNLI-NLI": ["premise", "hypothesis"],
     "SNLI-Style": ["premise", "hypothesis"],
     "SNLI": ["premise_original", "hypothesis_original"],
-    "NUCLE": ["sentence"],
+    "NUCLE": ["sentence1", "sentence2"],
     "PAN": ("text 1", "text 2"),
     "simplification": ["text"],
 }
@@ -288,7 +288,7 @@ VARIETIES_to_labels = {
     "SNLI-NLI": "nli",
     "SNLI-Style": "style",
     "SNLI": "nli",
-    "NUCLE": "label",
+    "NUCLE": "Error Overlap",
     "PAN": "Author Change",
     "simplification": "label",
 }

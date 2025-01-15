@@ -2,6 +2,7 @@ import csv
 import nltk
 from bs4 import BeautifulSoup
 import pandas as pd
+import random
 
 
 # Make sure you've downloaded NLTK’s punkt tokenizer once:
@@ -41,7 +42,7 @@ def extract_mistakes_from_sgml(filename, csv_out):
       - mistake
       - correction
       - character span
-      - sentence id
+      - sentence_id
 
     Every sentence (with or without mistakes) will appear in the CSV:
       - If no mistakes are in that sentence, the fields for type/mistake/correction/character span
@@ -139,7 +140,7 @@ def extract_mistakes_from_sgml(filename, csv_out):
                         "",  # mistake
                         "",  # correction
                         "",  # character span
-                        f"{doc_id}-{p_idx + 1}-{sent_start}"  # sentence id
+                        f"{doc_id}-{p_idx + 1}-{sent_start}"  # sentence_id
                     ])
                 else:
                     # One or more mistakes in this sentence => output multiple rows
@@ -156,12 +157,12 @@ def extract_mistakes_from_sgml(filename, csv_out):
                             m['mistake_text'],  # mistake
                             m['correction'],  # correction
                             char_span_str,  # character span
-                            f"{doc_id}-{p_idx + 1}-{sent_start}"  # sentence id
+                            f"{doc_id}-{p_idx + 1}-{sent_start}"  # sentence_id
                         ])
 
     # Create a Pandas DataFrame
     df = pd.DataFrame(rows_for_csv, columns=[
-        'sentence', 'type', 'mistake', 'correction', 'character span', 'sentence id'
+        'sentence', 'type', 'mistake', 'correction', 'character span', 'sentence_id'
     ])
     df.to_csv(csv_out, index=False, encoding='utf-8')
 
@@ -169,30 +170,31 @@ def extract_mistakes_from_sgml(filename, csv_out):
     # print how many sentences are in each label
     print(balanced_sentences_df["label"].value_counts())
 
-    # split into train, dev, test as 80/10/10
-    train_size = int(0.8 * len(balanced_sentences_df))
-    dev_size = int(0.1 * len(balanced_sentences_df))
-    train_df = balanced_sentences_df[:train_size]
-    dev_df = balanced_sentences_df[train_size:train_size + dev_size]
-    test_df = balanced_sentences_df[train_size + dev_size:]
-    train_df.to_csv("train.csv", index=False, encoding="utf-8")
-    dev_df.to_csv("dev.csv", index=False, encoding="utf-8")
-    test_df.to_csv("test.csv", index=False, encoding="utf-8")
-    # balanced_sentences_df.to_csv("collapsed_and_balanced.csv", index=False, encoding="utf-8")
+    return balanced_sentences_df
+    # # split into train, dev, test as 80/10/10
+    # train_size = int(0.8 * len(balanced_sentences_df))
+    # dev_size = int(0.1 * len(balanced_sentences_df))
+    # train_df = balanced_sentences_df[:train_size]
+    # dev_df = balanced_sentences_df[train_size:train_size + dev_size]
+    # test_df = balanced_sentences_df[train_size + dev_size:]
+    # train_df.to_csv("train.csv", index=False, encoding="utf-8")
+    # dev_df.to_csv("dev.csv", index=False, encoding="utf-8")
+    # test_df.to_csv("test.csv", index=False, encoding="utf-8")
 
 
 def collapse_and_balance_sentences(df):
     """
-    Takes the initial DataFrame (with columns like 'sentence', 'type', 'sentence id'),
+    Takes the initial DataFrame (with columns like 'sentence', 'type', 'sentence_id'),
     collapses all mistakes by sentence, then balances the classes (0 vs. 1),
     and finally shuffles the result.
 
     Returns a new DataFrame with columns:
       - 'sentence'
-      - 'sentence id'
+      - 'sentence_id'
       - 'types'  (comma-separated list of unique error types)
       - 'label'  ('0' if no mistakes, '1' if at least one)
     """
+
     # 1) Define helper functions
 
     def collapse_types(type_series):
@@ -212,17 +214,17 @@ def collapse_and_balance_sentences(df):
                 return '1'
         return '0'
 
-    # 2) Group by "sentence id" + "sentence", then aggregate
+    # 2) Group by "sentence_id" + "sentence", then aggregate
     grouped = (
-        df.groupby(["sentence id", "sentence"], as_index=False)
-          .agg({"type": [collapse_types, has_mistake]})
+        df.groupby(["sentence_id", "sentence"], as_index=False)
+        .agg({"type": [collapse_types, has_mistake]})
     )
 
     # Flatten multi-level columns
-    grouped.columns = ["sentence id", "sentence", "types", "label"]
+    grouped.columns = ["sentence_id", "sentence", "types", "label"]
 
     # Reorder columns if desired
-    grouped = grouped[["sentence", "sentence id", "types", "label"]]
+    grouped = grouped[["sentence", "sentence_id", "types", "label"]]
 
     # 3) Balance classes
     df_0 = grouped[grouped["label"] == "0"]
@@ -246,9 +248,81 @@ def collapse_and_balance_sentences(df):
     return balanced_df
 
 
+def build_pairs(df):
+    # type_counts = df["types"].str.split(",").explode().value_counts()
+    # print(type_counts) --> distribution of error types is very imbalanced; as a result will not try to make balanced pairs
+
+    # change df to only contain a maxmimum of 5k sentences with no types
+    df_no_types = df[df["types"] == ""]
+    df_with_types = df[df["types"] != ""]
+    df_no_types = df_no_types.sample(n=5000, random_state=42)
+    df = pd.concat([df_no_types, df_with_types], ignore_index=True)
+
+    # split into 80/10/10
+    train_size = int(0.8 * len(df))
+    dev_size = int(0.1 * len(df))
+    train_df = df[:train_size]
+    dev_df = df[train_size:train_size + dev_size]
+    test_df = df[train_size + dev_size:]
+
+    def check_overlap(types1, types2):
+        return bool(set(types1.split(',')) & set(types2.split(',')))
+
+    for i, overlap_size in enumerate([25_000 * 0.8, 25_000 * 0.1, 25_000 * 0.1]):
+        overlap_pairs = []
+        non_overlap_pairs = []
+
+        # Iteratively sample pairs
+        while len(overlap_pairs) < overlap_size or len(non_overlap_pairs) < overlap_size:
+            # Randomly sample two rows
+            row1, row2 = df.sample(n=2).itertuples(index=False)
+
+            # Check overlap
+            overlap = check_overlap(row1.types, row2.types)
+
+            if overlap and len(overlap_pairs) < overlap_size:
+                overlap_pairs.append({
+                    'sentence1': row1.sentence,
+                    'sentence2': row2.sentence,
+                    'types1': row1.types,
+                    'types2': row2.types,
+                    'sentence1_id': row1.sentence_id,
+                    'sentence2_id': row2.sentence_id,
+                    'Error Overlap': 1
+                })
+
+            elif not overlap and len(non_overlap_pairs) < overlap_size:
+                non_overlap_pairs.append({
+                    'sentence1': row1.sentence,
+                    'sentence2': row2.sentence,
+                    'types1': row1.types,
+                    'types2': row2.types,
+                    'sentence1_id': row1.sentence_id,
+                    'sentence2_id': row2.sentence_id,
+                    'Error Overlap': 0
+                })
+
+        # build DataFrame out of the pairs
+        pairs_df = pd.DataFrame(overlap_pairs + non_overlap_pairs)
+        # shuffle
+        pairs_df = pairs_df.sample(frac=1).reset_index(drop=True)
+        split = "train" if i == 0 else "dev" if i == 1 else "test"
+        # save to csv
+        pairs_df.to_csv(f"overlap_pairs_{split}.csv", index=False, encoding="utf-8")
+
+        # print occurence per IDs
+        print(pd.concat([pairs_df["sentence1_id"], pairs_df["sentence2_id"]]).value_counts())
+        # occurence of types
+        print(pd.concat(
+            [pairs_df["types1"].str.split(",").explode(), pairs_df["types1"].str.split(",").explode()]).value_counts())
+
+
 if __name__ == "__main__":
     # Usage example
     sgml_file = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/NUCLE/release3.3/data/nucle3.2.sgml"  # Your SGML input file
     csv_output = "output.csv"  # Desired output CSV
-    extract_mistakes_from_sgml(sgml_file, csv_output)
+    # set seed
+    random.seed(42)
+    balanced_sentences = extract_mistakes_from_sgml(sgml_file, csv_output)
+    build_pairs(balanced_sentences)
     print(f"CSV written to {csv_output}")
