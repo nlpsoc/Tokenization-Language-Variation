@@ -2,7 +2,8 @@ import argparse
 import os
 
 
-from styletokenizer.train_data import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
+from styletokenizer.train_data import (UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, UU_MIXED_TRAIN_DATASET_PATH,
+                                       load_train_dataset)
 
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
 import wandb
@@ -10,7 +11,6 @@ import datetime
 
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UU_CACHE_DIR
-from styletokenizer.fitting_corpora import CORPORA_MIXED
 from transformers import (DataCollatorForLanguageModeling, BertConfig, BertForMaskedLM, AutoTokenizer,
                           Trainer, TrainingArguments, PreTrainedTokenizerFast)
 from datasets import load_from_disk
@@ -299,7 +299,7 @@ if __name__ == '__main__':
     elif args.mixed:
         log_and_flush("Using mixed dataset")
         output_base_folder = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/"
-        data_path = CORPORA_MIXED
+        data_path = UU_MIXED_TRAIN_DATASET_PATH
     else:
         raise ValueError("Please specify a dataset to use")
     if args.uu:
@@ -311,7 +311,6 @@ if __name__ == '__main__':
         raise NotImplementedError("UMich not implemented")
     else:
         raise ValueError("Please specify a cluster to use")
-
 
 
     log_and_flush(f"Dataset path: {data_path}")
