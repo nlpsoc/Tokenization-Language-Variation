@@ -1,3 +1,36 @@
+"""
+
+ERROR TAG    ERROR CATEGORY
+---------------------------
+Vt	     Verb tense
+Vm	     Verb modal
+V0	     Missing verb
+Vform	     Verb form
+SVA	     Subject-verb-agreement
+ArtOrDet     Article or Determiner
+Nn	     Noun number
+Npos	     Noun possesive
+Pform	     Pronoun form
+Pref	     Pronoun reference
+Wcip	     Wrong collocation/idiom/preposition
+Wa	     Acronyms
+Wform	     Word form
+Wtone	     Tone
+Srun	     Runons, comma splice
+Smod	     Dangling modifier
+Spar	     Parallelism
+Sfrag	     Fragment
+Ssub	     Subordinate clause
+WOinc	     Incorrect sentence form
+WOadv	     Adverb/adjective position
+Trans	     Link word/phrases
+Mec	     Punctuation, capitalization, spelling, typos
+Rloc	     Local redundancy
+Cit	     Citation
+Others	     Other errors
+Um	     Unclear meaning (cannot be corrected)
+
+"""
 import os
 import argparse
 import subprocess
@@ -364,8 +397,9 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--train_file", VARIETIES_TRAIN_DICT["NUCLE"],
             "--validation_file", VARIETIES_DEV_DICT["NUCLE"],
             "--shuffle_train_dataset",
-            "--text_column_name", "sentence",
-            "--label_column_name", "label",
+            "--text_column_name", "sentence1,sentence2",
+            "--label_column_name", VARIETIES_to_labels["NUCLE"],
+            "--text_column_delimiter", "[SEP]",
             "--do_train",
             "--do_eval",
             "--max_seq_length", "128",
