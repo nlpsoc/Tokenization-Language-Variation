@@ -15,7 +15,22 @@ from tqdm import tqdm
 from styletokenizer.utility.custom_logger import log_and_flush
 from multivalue import Dialects
 import nltk
+import random
 
+from multivalue import Dialects
+# dialectal variations used in the multi-VALUE paper: https://aclanthology.org/2023.acl-long.44.pdf
+#   - AppE (Appalachian English), in library as AppalachianDialect
+#   - ChcE (Chicano English), in library as ChicanoDialect
+#   - CollSgE (Colloquial Singapore English), in library as ColloquialSingaporeDialect
+#   - IndE (Indian English), in library as IndianDialect
+#   - UAAVE (Urban African American English), in library as AfricanAmericanVernacular
+DIALECTS = {
+    "AppE": Dialects.AppalachianDialect(),
+    "ChcE": Dialects.ChicanoDialect(),
+    "CollSgE": Dialects.ColloquialSingaporeDialect(),
+    "IndE": Dialects.IndianDialect(),
+    "UAAVE": Dialects.AfricanAmericanVernacular(),
+}
 
 def approximate_sentence_count(text):
     # NLTK’s default tokenizer can handle many abbreviations better
@@ -23,11 +38,6 @@ def approximate_sentence_count(text):
     if not sentences:
         return 1
     return len(sentences)
-
-
-class MultiDialect(Dialects.DialectFromVector):
-    def __init__(self, **kwargs):
-        super().__init__(dialect_name="all", **kwargs)
 
 
 def main():
@@ -40,7 +50,6 @@ def main():
 
         This version uses batched map and explicit cleanup to help avoid OOM.
     """
-    multidialect = MultiDialect()
     for task in GLUE_TASKS:
         log_and_flush(f"=== Processing task: {task} ===")
         org_task_data = load_data(task)
@@ -67,46 +76,104 @@ def main():
 
             # Define a batched transformation function
             def transform_batch(batch):
+                # Prepare the new batch storage
                 new_batch = {}
-                # We'll iterate over each column in the batch
-                for key, value_list in batch.items():
-                    if key in text_fields:
-                        transformed_list = []
-                        for i, text_val in enumerate(value_list):
+
+                # Initialize lists for each field to append per row
+                for col in batch.keys():
+                    new_batch[col] = []
+
+                # Create a list to store the dialect used per row
+                dialect_used_list = []
+
+                # Number of rows in this batch
+                n_rows = len(batch["idx"])
+
+                # Iterate over each row i
+                for i in range(n_rows):
+                    # Shuffle dialects
+                    dialect_order = list(DIALECTS.keys())
+                    random.shuffle(dialect_order)
+
+                    chosen_dialect = "SAE"  # default
+                    dialect_found = False
+
+                    # Store candidate transformed text for row i in a dict
+                    candidate_transforms = {}
+
+                    # Attempt to find a working dialect
+                    for d_key in dialect_order:
+                        transformation_failed = False
+                        candidate_transforms[d_key] = {}
+
+                        # For each column in the row
+                        for key, value_list in batch.items():
+                            # If it's not a text field, skip
+                            if key not in text_fields:
+                                continue
+
+                            text_val = value_list[i]
+
+                            # Define a ratio threshold. For example, 40 words per sentence is quite high.
                             num_words = len(text_val.split())
                             sent_count = approximate_sentence_count(text_val)
-
-                            # We'll define a ratio threshold. For example, 40 words per sentence is quite high.
                             ratio_threshold = 40.0
-                            avg_sentence_len = num_words / sent_count
+                            avg_sentence_len = num_words / sent_count if sent_count else num_words
 
                             # Condition to SKIP transform: (multi-value seems to have trouble otherwise)
                             # - more than 100 words
                             # - average sentence length above our threshold
-                            if num_words > 150 and avg_sentence_len > ratio_threshold:
-                                log_and_flush(f"Skipping transformation for text with  avg sent len {avg_sentence_len},"
-                                              f"text length {num_words} words,"
-                                              f" id {batch['idx'][i]}, text sample: {text_val[:200]}...")
-                                transformed_list.append(text_val)  # just keep the original
+                            if (num_words > 150) and (avg_sentence_len > ratio_threshold):
+                                # Keep original
+                                candidate_transforms[d_key][key] = text_val
+                                log_and_flush(
+                                    f"Skipping transformation: row={i}, dialect={d_key}, "
+                                    f"avg sent len={avg_sentence_len}, text length={num_words}, "
+                                    f"id={batch['idx'][i]}, snippet={text_val[:200]}..."
+                                )
                             else:
+                                # Attempt transform with current dialect
                                 try:
-                                    # Attempt to transform
-                                    transformed_text = multidialect.transform(text_val)
-                                    transformed_list.append(transformed_text)
+                                    transformed_text = DIALECTS[d_key].transform(text_val)
+                                    candidate_transforms[d_key][key] = transformed_text
                                 except Exception as e:
-                                    # On error, fallback to original text
-                                    transformed_list.append(text_val)
                                     error_info["count"] += 1
                                     if "idx" in batch:
                                         error_info["ids"].append(batch["idx"][i])
+
                                     log_and_flush(
-                                        f"Error transforming text: {e}\n"
-                                        f"Text sample: {text_val[:200]}..."
+                                        f"Error transforming text: row={i}, dialect={d_key}, "
+                                        f"error={e}, snippet={text_val[:200]}..."
                                     )
-                        new_batch[key] = transformed_list
-                    else:
-                        # Keep non-text fields as is
-                        new_batch[key] = value_list
+                                    transformation_failed = True
+                                    break
+
+                        if not transformation_failed:
+                            # Found a dialect that works for all text fields
+                            chosen_dialect = d_key
+                            dialect_found = True
+                            break
+
+                    # Save the final results for row i
+                    # If we found a working dialect, use candidate_transforms[chosen_dialect]
+                    # Otherwise, fallback to the original text for text fields
+                    for key, value_list in batch.items():
+                        if key in text_fields:
+                            if dialect_found:
+                                new_batch[key].append(candidate_transforms[chosen_dialect][key])
+                            else:
+                                # Fallback to original
+                                new_batch[key].append(value_list[i])
+                        else:
+                            # Non-text field: just copy original
+                            new_batch[key].append(value_list[i])
+
+                    # Save the dialect used for this row
+                    dialect_used_list.append(chosen_dialect)
+
+                # Finally, store the dialect_used column as well
+                new_batch["dialect_used"] = dialect_used_list
+
                 return new_batch
 
             # Apply the batched transformation
