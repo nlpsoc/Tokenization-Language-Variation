@@ -1,4 +1,5 @@
 import argparse
+import ast
 
 from styletokenizer.utility.env_variables import set_cache
 
@@ -27,6 +28,17 @@ from sklearn.metrics import (
 )
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.multiclass import OneVsRestClassifier
+
+
+def parse_label_if_str(example):
+    label_val = example["label"]
+    if isinstance(label_val, str):
+        try:
+            label_val = ast.literal_eval(label_val)
+        except:
+            label_val = [label_val]  # fallback
+    example["label"] = label_val
+    return example
 
 
 def preprocess_function(examples, tokenizer, sentence1_key, sentence2_key):
@@ -154,6 +166,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             })
             print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
 
+        raw_dataset = raw_dataset.map(parse_label_if_str)
         sentence_keys = task_to_keys[task]
 
         # get label key
