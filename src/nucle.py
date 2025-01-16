@@ -314,13 +314,8 @@ def build_pairs(df):
             [pairs_df["types1"].str.split(",").explode(), pairs_df["types1"].str.split(",").explode()]).value_counts())
 
 
-if __name__ == "__main__":
-    # Usage example
-    sgml_file = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/NUCLE/release3.3/data/nucle3.2.sgml"  # Your SGML input file
-    csv_output = "output.csv"  # Desired output CSV
-    # set seed
-    random.seed(42)
-    balanced_sentences = extract_mistakes_from_sgml(sgml_file, csv_output)
+def create_multilabel_dataset():
+    global item, count, valid_elements
     # change df to only contain a maxmimum of 5k sentences with no types
     df_no_types = balanced_sentences[balanced_sentences["types"] == ""]
     df_with_types = balanced_sentences[balanced_sentences["types"] != ""]
@@ -328,7 +323,6 @@ if __name__ == "__main__":
     df = pd.concat([df_no_types, df_with_types], ignore_index=True)
     # shuffle
     df = df.sample(frac=1, random_state=42).reset_index(drop=True)
-
     # replace label column with list of types
     df["label"] = df["types"].apply(lambda x: x.split(",") if x != "" else ["no_error"])
     # remove error types that occur less than 1k times, i.e.,
@@ -339,7 +333,6 @@ if __name__ == "__main__":
     # remove empty lists if they exist
     df = df[df["label"].apply(lambda x: len(x) > 0)]
     print(df["label"].explode().value_counts())
-
     # save dataframe with train, dev, test split of 80/10/10
     train_size = int(0.8 * len(df))
     dev_size = int(0.1 * len(df))
@@ -349,12 +342,20 @@ if __name__ == "__main__":
     train_df.to_csv("train.csv", index=False)
     dev_df.to_csv("dev.csv", index=False)
     test_df.to_csv("test.csv", index=False)
-    # print distribution of error types
-
-
-    # build_pairs(balanced_sentences)
-    print(f"CSV written to {csv_output}")
     # print sizes
     print(f"Train size: {len(train_df)}")
     print(f"Dev size: {len(dev_df)}")
     print(f"Test size: {len(test_df)}")
+
+
+if __name__ == "__main__":
+    # Usage example
+    sgml_file = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/NUCLE/release3.3/data/nucle3.2.sgml"  # Your SGML input file
+    csv_output = "output.csv"  # Desired output CSV
+    # set seed
+    random.seed(42)
+    balanced_sentences = extract_mistakes_from_sgml(sgml_file, csv_output)
+    # create_multilabel_dataset()
+    build_pairs(balanced_sentences)
+    print(f"CSV written to {csv_output}")
+
