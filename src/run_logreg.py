@@ -166,7 +166,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             })
             print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
 
-        raw_dataset = raw_dataset.map(parse_label_if_str)
+        raw_datasets = raw_datasets.map(parse_label_if_str)
         sentence_keys = task_to_keys[task]
 
         # get label key
