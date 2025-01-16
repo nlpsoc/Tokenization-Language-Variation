@@ -289,7 +289,7 @@ VARIETIES_to_labels = {
     "SNLI-NLI": "nli",
     "SNLI-Style": "style",
     "SNLI": "nli",
-    "NUCLE": "Error Overlap",
+    "NUCLE": "label",
     "PAN": "Author Change",
     "simplification": "label",
 }
