@@ -146,7 +146,10 @@ def main():
                                 # Attempt transform with current dialect
                                 try:
                                     transformed_text = DIALECTS[d_key].transform(text_val)
-                                    candidate_transforms[d_key][key] = transformed_text
+                                    if transformed_text.strip() != text_val.strip():  # transformation successful
+                                        candidate_transforms[d_key][key] = transformed_text
+                                    else:  # no meaningful transformation, basically failed
+                                        transformation_failed = True
                                 except Exception as e:
                                     error_info["count"] += 1
                                     if "idx" in batch:

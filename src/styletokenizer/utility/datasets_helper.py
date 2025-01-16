@@ -224,7 +224,7 @@ VARIETIES_DEV_DICT = {
     # "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
     # "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation_sampled.tsv",
     # "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/dev.csv",
+    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/two_sentence_matching/dev.csv",
     "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
              "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
@@ -238,7 +238,7 @@ VARIETIES_DEV_DICT = {
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/train.csv",
+    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/two_sentence_matching/train.csv",
     "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train_sampled.tsv",
     # "age": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/age/train.csv",
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
@@ -257,7 +257,7 @@ VARIETIES_TRAIN_DICT = {
 }
 VARIETIES_TEST_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv",
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/test.csv",
+    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/two_sentence_matching/test.csv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -272,7 +272,7 @@ VARIETIES_to_keys = {
     "SNLI-NLI": ["premise", "hypothesis"],
     "SNLI-Style": ["premise", "hypothesis"],
     "SNLI": ["premise_original", "hypothesis_original"],
-    "NUCLE": ["sentence"],
+    "NUCLE": ["sentence1", "sentence2"],
     "PAN": ("text 1", "text 2"),
     "simplification": ["text"],
 }
@@ -289,7 +289,7 @@ VARIETIES_to_labels = {
     "SNLI-NLI": "nli",
     "SNLI-Style": "style",
     "SNLI": "nli",
-    "NUCLE": "label",
+    "NUCLE": "Error Overlap",
     "PAN": "Author Change",
     "simplification": "label",
 }
