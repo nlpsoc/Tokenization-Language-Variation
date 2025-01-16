@@ -257,6 +257,7 @@ VARIETIES_TRAIN_DICT = {
 }
 VARIETIES_TEST_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv",
+    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/test.csv",
 }
 VARIETIES_to_keys = {
     "age": ["text"],
@@ -271,7 +272,7 @@ VARIETIES_to_keys = {
     "SNLI-NLI": ["premise", "hypothesis"],
     "SNLI-Style": ["premise", "hypothesis"],
     "SNLI": ["premise_original", "hypothesis_original"],
-    "NUCLE": ["sentence1", "sentence2"],
+    "NUCLE": ["sentence"],
     "PAN": ("text 1", "text 2"),
     "simplification": ["text"],
 }
