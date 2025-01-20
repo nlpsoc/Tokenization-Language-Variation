@@ -133,41 +133,58 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
-    if on_test_set:
+    if on_test_set:  # no testing data for GLUE publicly available
         testing_dict = VARIETIES_TEST_DICT
     else:
         testing_dict = VARIETIES_DEV_DICT
 
     for task_name_or_hfpath in tasks:
-        if task_name_or_hfpath not in testing_dict.keys():
-            raise ValueError(f"Task {task_name_or_hfpath} is not in testing set.")
-
         task = task_name_or_hfpath
-        if task == "stel":  # not a training task
-            continue
-        task_name_or_hfpath = testing_dict[task_name_or_hfpath]
-        task_to_keys = VARIETIES_to_keys
 
-        # Load dataset
-        if task != "sadiri" and task != "PAN" and task != "NUCLE":
+        if task in VARIETIES_TASKS:
+            if task == "stel":  # not a training task
+                continue
+            if task_name_or_hfpath not in testing_dict.keys():
+                raise ValueError(f"Task {task_name_or_hfpath} is not in testing set.")
+
+            task_name_or_hfpath = testing_dict[task_name_or_hfpath]
+            task_to_keys = VARIETIES_to_keys
+            sentence_keys = task_to_keys[task]
+
+            # Load dataset
+            if task != "sadiri" and task != "PAN" and task != "NUCLE":
+                raw_datasets = DatasetDict({
+                    "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
+                    "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
+                })
+                print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
+            else:
+                # Some tasks override the features_type to 'common_words'
+                features_type = 'common_words'
+                train_csv_path = VARIETIES_TRAIN_DICT[task]
+                val_csv_path = testing_dict[task]
+                raw_datasets = DatasetDict({
+                    "train": load_data(csv_file=train_csv_path)["validation"],
+                    "validation": load_data(csv_file=val_csv_path)["validation"]
+                })
+                print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
+        elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS or task_name_or_hfpath in GLUE_MVALUE_TASKS:
+            task = task_name_or_hfpath
             raw_datasets = DatasetDict({
-                "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
-                "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
+                "train": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["train"])["validation"],
+                "validation": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["dev"])["validation"]
             })
-            print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
+            sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
+        elif task_name_or_hfpath in GLUE_TASKS:
+            task = os.path.basename(os.path.normpath(task_name_or_hfpath))
+            task_to_keys = glue_task_to_keys
+            raw_datasets = load_data(task_name_or_hfpath)
+            print(f"loaded {task} from hf dataset {task_name_or_hfpath}")
+            sentence_keys = task_to_keys[task]
         else:
-            # Some tasks override the features_type to 'common_words'
-            features_type = 'common_words'
-            train_csv_path = VARIETIES_TRAIN_DICT[task]
-            val_csv_path = testing_dict[task]
-            raw_datasets = DatasetDict({
-                "train": load_data(csv_file=train_csv_path)["validation"],
-                "validation": load_data(csv_file=val_csv_path)["validation"]
-            })
-            print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
+            raise ValueError(f"Task {task_name_or_hfpath} not recognized.")
 
         raw_datasets = raw_datasets.map(parse_label_if_str)
-        sentence_keys = task_to_keys[task]
 
         # get label key
         label = "label"
