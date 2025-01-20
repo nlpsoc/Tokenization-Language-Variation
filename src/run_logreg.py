@@ -168,11 +168,18 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                     "validation": load_data(csv_file=val_csv_path)["validation"]
                 })
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
-        elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS or task_name_or_hfpath in GLUE_MVALUE_TASKS:
+        elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS:
             task = task_name_or_hfpath
             raw_datasets = DatasetDict({
                 "train": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["train"])["validation"],
                 "validation": load_data(csv_file=GLUE_TEXTFLINT[task_name_or_hfpath]["dev"])["validation"]
+            })
+            sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
+        elif task_name_or_hfpath in GLUE_MVALUE_TASKS:
+            task = task_name_or_hfpath
+            raw_datasets = DatasetDict({
+                "train": load_data(csv_file=GLUE_MVALUE[task_name_or_hfpath]["train"])["validation"],
+                "validation": load_data(csv_file=GLUE_MVALUE[task_name_or_hfpath]["dev"])["validation"]
             })
             sentence_keys = glue_task_to_keys[task_name_or_hfpath.split("-")[0]]
         elif task_name_or_hfpath in GLUE_TASKS:
