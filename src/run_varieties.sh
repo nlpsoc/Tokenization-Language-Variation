@@ -45,7 +45,7 @@ MODEL_PATHS=(
   #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
   # "roberta-base"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
 )
 
@@ -67,10 +67,10 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
 
-  TASK_NAME=NUCLE
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #  TASK_NAME=NUCLE
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
   #  TASK_NAME=simplification
   #  SEED=42
@@ -78,15 +78,15 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
 
-  TASK_NAME=sadiri
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-  TASK_NAME=PAN
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #  TASK_NAME=sadiri
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #
+  #  TASK_NAME=PAN
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
   #  TASK_NAME=convo-style
   #  SEED=42
