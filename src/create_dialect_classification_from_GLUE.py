@@ -22,26 +22,21 @@ def get_text(example, task):
 
 def create_datasets():
     tasks = ['sst2', 'qqp', 'mnli', 'qnli']
-    sample_sizes = {'train': 25000, 'validation': 2500, 'test': 2500}
+    sample_sizes = {'train': 50000, 'validation': 5000, 'test': 5000}
 
     split_mapping = {
         'mnli': {
             'train': ['train'],
-            'validation': ['validation_matched', 'validation_mismatched'],
-            'test': ['test_matched', 'test_mismatched']
+            'validation': ['validation_matched', 'validation_mismatched']
         },
         'default': {
             'train': ['train'],
-            'validation': ['validation'],
-            'test': ['test']
+            'validation': ['validation']
         }
     }
 
-    for split in ['train', 'validation', 'test']:
+    for split in ['train', 'validation']:
         print(f"Processing split: {split}")
-
-        total_original_texts = []
-        total_perturbed_texts = []
 
         # Compute the total number of available samples across tasks
         total_available_samples = 0
@@ -55,8 +50,12 @@ def create_datasets():
 
             # Load the original and perturbed datasets
             original_dataset = load_dataset('nyu-mll/glue', task)
-            perturbed_dataset_path = f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}"
-            perturbed_dataset = load_from_disk(perturbed_dataset_path)
+            # perturbed_dataset_path = f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi"
+            perturbed_dataset_path = f"/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/multi-VALUE/{task}_multi"
+            # load .csv files and make it a datasets dataset
+            perturbed_dataset = load_dataset('csv',
+                                             data_files={'train': os.path.join(perturbed_dataset_path, 'train.csv'),
+                                                         'validation': os.path.join(perturbed_dataset_path, 'validation.csv')})
 
             # Initialize combined splits
             combined_original_split = None
@@ -70,18 +69,21 @@ def create_datasets():
                 original_split = original_dataset[actual_split]
                 perturbed_split = perturbed_dataset[actual_split]
 
+                # remove entries from original and perturbed dataset at locations where
+                #   "dialect_used" is SAE in perturbed dataset
+                filtered_original_split = original_dataset[actual_split].filter(
+                    lambda x: perturbed_split[x['idx']]['dialect_used'] != 'SAE')
+                filtered_perturbed_split = perturbed_dataset[actual_split].filter(lambda x: x['dialect_used'] != 'SAE')
                 # Ensure datasets are aligned
-                min_length = min(len(original_split), len(perturbed_split))
-                original_split = original_split.select(range(min_length))
-                perturbed_split = perturbed_split.select(range(min_length))
+                assert len(filtered_original_split) == len(filtered_perturbed_split)
 
                 # Combine splits if necessary
                 if combined_original_split is None:
-                    combined_original_split = original_split
-                    combined_perturbed_split = perturbed_split
+                    combined_original_split = filtered_original_split
+                    combined_perturbed_split = filtered_perturbed_split
                 else:
-                    combined_original_split = concatenate_datasets([combined_original_split, original_split])
-                    combined_perturbed_split = concatenate_datasets([combined_perturbed_split, perturbed_split])
+                    combined_original_split = concatenate_datasets([combined_original_split, filtered_original_split])
+                    combined_perturbed_split = concatenate_datasets([combined_perturbed_split, filtered_perturbed_split])
 
             if combined_original_split is None:
                 print(f"No valid splits found for task {task} and split {split}, skipping.")
@@ -121,35 +123,68 @@ def create_datasets():
         print(f"Samples per task for {split}: {samples_per_task}")
 
         # Collect samples
+        #   Calculate the minimum number of samples for each label
+        label_counts = {}
         for task, (original_split, perturbed_split) in task_splits.items():
-            num_samples = samples_per_task[task]
+            for example in perturbed_split:
+                label = example['dialect_used']
+                if label not in label_counts:
+                    label_counts[label] = 0
+                label_counts[label] += 1
+        min_samples_per_label = min(label_counts.values())
 
-            indices = list(range(len(original_split)))
-            random.seed(42)
+        # Sample the same, maximally possible, number of examples for each label
+        total_texts = []
+        total_labels = []
+        for task, (original_split, perturbed_split) in task_splits.items():
+            label_samples = {label: [] for label in label_counts.keys()}
+
+            for example in perturbed_split:
+                label = example['dialect_used']
+                if len(label_samples[label]) < min_samples_per_label:
+                    label_samples[label].append(example)
+
+            for label, samples in label_samples.items():
+                indices = list(range(len(samples)))
+                random.seed(42)
+                random.shuffle(indices)
+                indices = indices[:min_samples_per_label]
+
+                sampled_texts = [get_text(samples[i], task) for i in indices]
+                total_texts.extend(sampled_texts)
+                total_labels.extend([label] * min_samples_per_label)
+
+            # Add 'SAE' samples from the original dataset
+            original_indices = list(range(len(original_split)))
+            random.seed(43)
+            random.shuffle(original_indices)
+            original_indices = original_indices[:min_samples_per_label]
+
+            original_texts = [get_text(original_split[i], task) for i in original_indices]
+            total_texts.extend(original_texts)
+            total_labels.extend(['SAE'] * min_samples_per_label)
+
+        # Ensure the total number of samples equals the previously calculated samples_per_task
+        total_samples = sum(samples_per_task.values())
+        if len(total_texts) > total_samples:
+            indices = list(range(len(total_texts)))
+            random.seed(44)
             random.shuffle(indices)
-            indices = indices[:num_samples]
+            indices = indices[:total_samples]
+            total_texts = [total_texts[i] for i in indices]
+            total_labels = [total_labels[i] for i in indices]
+        elif len(total_texts) < total_samples:
+            raise ValueError("Not enough samples collected.")
 
-            original_samples = original_split.select(indices)
-            perturbed_samples = perturbed_split.select(indices)
-
-            original_texts = [get_text(x, task) for x in original_samples]
-            perturbed_texts = [get_text(x, task) for x in perturbed_samples]
-
-            total_original_texts.extend(original_texts)
-            total_perturbed_texts.extend(perturbed_texts)
-
-        # Labels
-        texts = total_original_texts + total_perturbed_texts
-        labels = [0] * len(total_original_texts) + [1] * len(total_perturbed_texts)
 
         # Combine and shuffle
-        combined = list(zip(texts, labels))
-        random.seed(42)
+        combined = list(zip(total_texts, total_labels))
+        random.seed(45)
         random.shuffle(combined)
-        texts[:], labels[:] = zip(*combined)
+        total_texts[:], total_labels[:] = zip(*combined)
 
         # Create dataframe
-        df = pd.DataFrame({'text': texts, 'label': labels})
+        df = pd.DataFrame({'text': total_texts, 'label': total_labels})
 
         # Save to CSV
         output_dir = f"./combined_{split}"
@@ -157,6 +192,7 @@ def create_datasets():
         df.to_csv(os.path.join(output_dir, f"combined_{split}.csv"), index=False)
 
         print(f"Saved {len(df)} samples for {split}")
+        print(f"Saved to {os.path.join(output_dir, f'combined_{split}.csv')}")
 
 
 if __name__ == '__main__':
