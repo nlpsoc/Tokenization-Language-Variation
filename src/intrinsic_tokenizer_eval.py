@@ -38,6 +38,7 @@ def main(output_path=None):
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
             task = task_name_or_hfpath
+            task_key = task
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
             if task != "sadiri":
@@ -47,14 +48,17 @@ def main(output_path=None):
             task_name_or_hfpath = GLUE_TEXTFLINT[task]["dev"]
             task_to_keys = glue_task_to_keys
             csv_file = True
+            task_key = task.split('-')[0]
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"],
                             "pubmed": ["text"]}
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))  # doesn't really matter which one
             split = "test"
+            task_key = task
         else:
             task = os.path.basename(os.path.normpath(task_name_or_hfpath))
             task_to_keys = glue_task_to_keys
+            task_key = task
         if csv_file:
             raw_datasets = load_data(csv_file=task_name_or_hfpath, split=split)
         else:
@@ -63,7 +67,7 @@ def main(output_path=None):
             eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
         except KeyError:  # some of the datasets are not provided in split form
             eval_dataset = raw_datasets
-        sentence_keys = task_to_keys[task]
+        sentence_keys = task_to_keys[task_key]
         text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
                          for example in eval_dataset)
         for tokenizer_group in TOKENIZER_PATHS:
