@@ -1,5 +1,6 @@
 import argparse
 import ast
+import json
 
 from styletokenizer.utility.env_variables import set_cache
 
@@ -221,6 +222,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         for tokenizer_path in tokenizer_paths:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
 
+            out_path = f"{tokenizer_path}/{task}"
+            os.makedirs(out_path, exist_ok=True)
+
             # Preprocess / tokenize
             encoded_dataset = raw_datasets.map(
                 lambda examples: preprocess_function(
@@ -301,6 +305,17 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 # Evaluate: multi-label
                 f1_weighted = f1_score(y_eval_binary, y_pred_binary, average='weighted', zero_division=0)
                 f1_macro = f1_score(y_eval_binary, y_pred_binary, average='macro', zero_division=0)
+                f1_per_label = f1_score(y_eval_binary, y_pred_binary, average=None, zero_division=0)
+
+                # Print F1 score per label
+                for label, f1 in zip(all_labels, f1_per_label):
+                    print(f"F1 score for label {label}: {f1:.4f}")
+
+                # save F1 per label in text and the weighted, macro F1 scores
+                with open(f"{out_path}/f1_per_label.txt", "w") as f:
+                    f.write(f"F1 per label: {f1_per_label}\n")
+                    f.write(f"F1 weighted: {f1_weighted}\n")
+                    f.write(f"F1 macro: {f1_macro}\n")
 
                 # Subset accuracy (exact match ratio)
                 # fraction of samples that have ALL labels correct
@@ -347,6 +362,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                     }
 
                 result_dict["predictive_features"].append(top_features_for_all)
+                # save top features as dict to out_path
+                with open(f"{out_path}/top_features.json", "w") as f:
+                    json.dump(top_features_for_all, f)
 
                 print(f"Multi-label Classification Scores for {task} w/ {tokenizer_path}:")
                 print(f"  F1 (weighted): {f1_weighted:.4f}")
@@ -380,6 +398,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 feature_names = vectorizer.get_feature_names_out()
                 coefs = clf.coef_
 
+                # save coefficients to out_path
+                np.save(f"{out_path}/coefs.npy", coefs)
+
                 # If binary classification, stack negative & positive
                 if len(clf.classes_) == 2:
                     coefs = np.vstack([-coefs[0], coefs[0]])
@@ -406,6 +427,10 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                         "top_negative": [(feature_names[j], coef[j]) for j in top_negative_indices]
                     }
 
+                # save top features as dict to out_path
+                with open(f"{out_path}/top_features.json", "w") as f:
+                    json.dump(top_features, f)
+
                 result_dict["predictive_features"].append(top_features)
 
                 # Print classification report for single-label
@@ -414,6 +439,15 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 print("------------------------------------------------------")
                 print(f"Predictive Features for {task} with tokenizer {tokenizer_path}:")
                 print(top_features)
+
+                # save Classification report
+                with open(f"{out_path}/classification_report.txt", "w") as f:
+                    f.write(classification_report(y_eval, y_pred))
+
+
+            # save results
+            result_df = pd.DataFrame(result_dict)
+
 
     # -------------------------
     #   Print and Save Results
