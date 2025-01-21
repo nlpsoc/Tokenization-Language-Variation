@@ -20,26 +20,38 @@ def main():
     tasks = GLUE_TEXTFLINT_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
+    unique_tokenizer_paths = set()
+    for tokenizer_path in tokenizer_paths:
+        for path in tokenizer_path:
+            unique_tokenizer_paths.add(path)
+
     # collect the BERT performance scores of the tasks
     BERT_PERFORMANCE = {}
-    # local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
     GLUE_OUT_BASE_PATH = os.path.join(server_finder_addition, "TOKENIZER/output/GLUE/textflint/base-BERT/")
     BERT_PATH = "749M/steps-45000/seed-42/42/"
-    bert_out_path = os.path.join(GLUE_OUT_BASE_PATH, BERT_PATH)
 
     for task in tasks:
         task_key = task
         if task in GLUE_TEXTFLINT_TASKS:
             task_key = task.split('-')[0]
-        # get the BERT output for the task
-        result_path = os.path.join(bert_out_path, task_key)
 
-        # read in json file
-        with open(result_path, "r") as f:
-            data_dict = json.load(f)
-        # get the performance from the performance keys
-        BERT_PERFORMANCE[task_key] = data_dict[performance_keys[task_key]]
+        for tokenizer_path in unique_tokenizer_paths:
+            # get tokenizer name
+            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+            # get the BERT output for the task
+            result_path = os.path.join(GLUE_OUT_BASE_PATH, tokenizer_name, BERT_PATH, task)
+            # check that path exists
+            if not os.path.exists(result_path):
+                print(f"Path {result_path} does not exist")
+                continue
+
+            # read in json file
+            with open(result_path, "r") as f:
+                data_dict = json.load(f)
+            # get the performance from the performance keys
+            BERT_PERFORMANCE[task_key] = data_dict[performance_keys[task_key]]
 
     print(BERT_PERFORMANCE)
 
