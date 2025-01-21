@@ -35,14 +35,44 @@ def main():
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition)
     print(BERT_PERFORMANCE)
 
-    LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, local_finder_addition)
+    STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
+    LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     print(LOG_REGRESSION)
 
     # calculate the correlation between the BERT performance and the logistic regression
     x, y = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {statistics.correlation(x, y)}")
 
-    #
+    # get intrinisic measures
+    intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
+
+    INTRINSIC_MEASURE = {}
+    intrinsic_addition = "intrinsic"
+
+    for task in tasks:
+        task_key = task
+        if task in GLUE_TEXTFLINT_TASKS:
+            task_key = task.split('-')[0]
+        for tokenizer_path in unique_tokenizer_paths:
+            # get tokenizer name
+            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+            if tokenizer_name not in INTRINSIC_MEASURE:
+                INTRINSIC_MEASURE[tokenizer_name] = {}
+            # get the BERT output for the task
+            result_path = os.path.join(STATS_BASE_PATH, tokenizer_name, intrinsic_addition, task, "eval_results.csv")
+            # check that path exists
+            if not os.path.exists(result_path):
+                print(f"Path {result_path} does not exist")
+                continue
+            # read in csv file
+            with open(result_path, "r") as f:
+                data_dict = {}
+                for line in f:
+                    key, value = line.strip().split(",")
+                    data_dict[key] = float(value)
+            # get the performance from the performance keys
+            INTRINSIC_MEASURE[tokenizer_name][task] = data_dict[intrinsic_key][0]
+    print(INTRINSIC_MEASURE)
 
 
 def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION):
@@ -56,8 +86,7 @@ def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION):
     return x, y
 
 
-def get_logreg_performances(tasks, unique_tokenizer_paths, local_finder_addition):
-    STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
+def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
     # collect the logistic regression
     LOG_REGRESSION = {}
     LR_ADDITION = "LR"
@@ -71,7 +100,7 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, local_finder_addition
             if tokenizer_name not in LOG_REGRESSION:
                 LOG_REGRESSION[tokenizer_name] = {}
             # get the BERT output for the task
-            result_path = os.path.join(STATS_BASE_PATH, tokenizer_name, LR_ADDITION, task, "classification_report.txt")
+            result_path = os.path.join(stats_base_path, tokenizer_name, LR_ADDITION, task, "classification_report.txt")
 
             # check that path exists
             if not os.path.exists(result_path):
