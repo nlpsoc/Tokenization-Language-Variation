@@ -364,7 +364,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 result_dict["predictive_features"].append(top_features_for_all)
                 # save top features as dict to out_path
                 with open(f"{out_path}/top_features.json", "w") as f:
-                    json.dump(top_features_for_all, f)
+                    json.dump({str(k): v for k, v in top_features_for_all.items()}, f)
 
                 print(f"Multi-label Classification Scores for {task} w/ {tokenizer_path}:")
                 print(f"  F1 (weighted): {f1_weighted:.4f}")
@@ -429,7 +429,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
                 # save top features as dict to out_path
                 with open(f"{out_path}/top_features.json", "w") as f:
-                    json.dump(top_features, f)
+                    json.dump({str(k): v for k, v in top_features.items()}, f)
 
                 result_dict["predictive_features"].append(top_features)
 
