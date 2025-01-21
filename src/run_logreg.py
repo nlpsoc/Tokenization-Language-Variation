@@ -152,7 +152,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             sentence_keys = task_to_keys[task]
 
             # Load dataset
-            if task != "sadiri" and task != "PAN" and task != "NUCLE":
+            if task != "sadiri" and task != "PAN": #  and task != "NUCLE":
                 raw_datasets = DatasetDict({
                     "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
                     "validation": load_data(csv_file=task_name_or_hfpath)["validation"]
