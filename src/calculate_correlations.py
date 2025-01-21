@@ -22,9 +22,9 @@ def main():
 
     # collect the BERT performance scores of the tasks
     BERT_PERFORMANCE = {}
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
+    # local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
-    GLUE_OUT_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/output/GLUE/textflint/base-BERT/")
+    GLUE_OUT_BASE_PATH = os.path.join(server_finder_addition, "TOKENIZER/output/GLUE/textflint/base-BERT/")
     BERT_PATH = "749M/steps-45000/seed-42/42/"
     bert_out_path = os.path.join(GLUE_OUT_BASE_PATH, BERT_PATH)
 
