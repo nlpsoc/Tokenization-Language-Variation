@@ -2,7 +2,7 @@ import argparse
 import itertools
 import os
 
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS
+from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
     _get_vocabsize_and_dist, calc_sim_renyi_efficiency_from_generator
@@ -44,8 +44,9 @@ def main(output_path=None):
                 csv_file = True
         elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS:
             task = task_name_or_hfpath
+            task_name_or_hfpath = GLUE_TEXTFLINT[task]["dev"]
             task_to_keys = glue_task_to_keys
-            split = "dev"
+            csv_file = True
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"],
                             "pubmed": ["text"]}
@@ -77,7 +78,7 @@ def main(output_path=None):
                 result_dict["vocab_size"].append(vocab_size)
             log_and_flush(f"Simulated vocab size: {smallest_vocab_size} for group {tokenizer_group}")
             for tokenizer_path in tokenizer_group:
-                out_path = f"{tokenizer_path}/intrinsic/{task}"
+                out_path = f"{os.path.dirname(tokenizer_path)}/intrinsic/{task}"
                 text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
                 log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
                 renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
