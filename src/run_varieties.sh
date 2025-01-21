@@ -46,8 +46,11 @@ MODEL_PATHS=(
   # "roberta-base"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
   # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
+  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
 )
 
 for MODEL_PATH in "${MODEL_PATHS[@]}"; do
