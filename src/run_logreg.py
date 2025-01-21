@@ -222,7 +222,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         for tokenizer_path in tokenizer_paths:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
 
-            out_path = f"{tokenizer_path}/{task}"
+            out_path = f"{os.path.dirname(tokenizer_path)}/LR/{task}"
             os.makedirs(out_path, exist_ok=True)
 
             # Preprocess / tokenize
