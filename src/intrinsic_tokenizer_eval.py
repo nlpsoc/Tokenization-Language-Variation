@@ -77,7 +77,7 @@ def main(output_path=None):
                     smallest_vocab_size = vocab_size
                 result_dict["vocab_size"].append(vocab_size)
             log_and_flush(f"Simulated vocab size: {smallest_vocab_size} for group {tokenizer_group}")
-            for tokenizer_path in tokenizer_group:
+            for i, tokenizer_path in enumerate(tokenizer_group):
                 out_path = f"{os.path.dirname(tokenizer_path)}/intrinsic/{task}"
                 os.makedirs(out_path, exist_ok=True)
                 text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
@@ -103,7 +103,8 @@ def main(output_path=None):
                 # save renyi, avg seq len, vocab size to a csv
                 with open(os.path.join(out_path, "eval_results.csv"), "w") as f:
                     f.write(f"renyi_eff_2.5,renyi_sim_eff_2.5,renyi_eff_3.0,avg_seq_len,vocab_size\n")
-                    f.write(f"{renyi_25},{sim_renyi_25},{renyi_30},{seq_len}\n")
+                    f.write(f"{renyi_25},{sim_renyi_25},{renyi_30},{seq_len},"
+                            f"{result_dict['vocab_size'][-(len(tokenizer_group)-i)]}\n")
 
     import pandas as pd
     result_df = pd.DataFrame(result_dict)
