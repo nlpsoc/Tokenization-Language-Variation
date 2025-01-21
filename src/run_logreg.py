@@ -30,14 +30,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.multiclass import OneVsRestClassifier
 
 
-def parse_label_if_str(example):
-    label_val = example["label"]
+def parse_label_if_str(example, label="label"):
+    label_val = example[label]
     if isinstance(label_val, str):
         try:
             label_val = ast.literal_eval(label_val)
         except:
             label_val = [label_val]  # fallback
-    example["label"] = label_val
+    example[label] = label_val
     return example
 
 
@@ -190,13 +190,13 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         else:
             raise ValueError(f"Task {task_name_or_hfpath} not recognized.")
 
-        raw_datasets = raw_datasets.map(parse_label_if_str)
-
         # get label key
         label = "label"
         if task in VARIETIES_to_labels.keys():
             label = VARIETIES_to_labels[task]
         print(f"Task: {task}, label: {label}")
+
+        raw_datasets = raw_datasets.map(lambda x: parse_label_if_str(x, label))
 
         val_key = "validation_matched" if task == "mnli" else "validation"
 
