@@ -161,10 +161,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             else:
                 # Some tasks override the features_type to 'common_words'
                 features_type = 'common_words'
-                train_csv_path = VARIETIES_TRAIN_DICT[task]
                 val_csv_path = testing_dict[task]
                 raw_datasets = DatasetDict({
-                    "train": load_data(csv_file=train_csv_path)["validation"],
+                    "train": load_data(csv_file=VARIETIES_TRAIN_DICT[task])["validation"],
                     "validation": load_data(csv_file=val_csv_path)["validation"]
                 })
                 print(f"loaded {task} from csv files {VARIETIES_TRAIN_DICT[task]} and {task_name_or_hfpath}")
@@ -197,6 +196,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         label = "label"
         if task in VARIETIES_to_labels.keys():
             label = VARIETIES_to_labels[task]
+        print(f"Task: {task}, label: {label}")
 
         val_key = "validation_matched" if task == "mnli" else "validation"
 
