@@ -79,6 +79,7 @@ def main(output_path=None):
             log_and_flush(f"Simulated vocab size: {smallest_vocab_size} for group {tokenizer_group}")
             for tokenizer_path in tokenizer_group:
                 out_path = f"{os.path.dirname(tokenizer_path)}/intrinsic/{task}"
+                os.makedirs(out_path, exist_ok=True)
                 text_generator, t_gen1, t_gen2, t_gen3, t_gen4 = itertools.tee(text_generator, 5)
                 log_and_flush(f"\n{task_name_or_hfpath} - {tokenizer_path}")
                 renyi_25 = calc_renyi_efficency_from_generator(t_gen1, tokenizer_path, power=2.5)
