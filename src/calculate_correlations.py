@@ -6,6 +6,8 @@ import os
 import re
 import statistics
 
+import pandas as pd
+
 from styletokenizer.glue import GLUE_TEXTFLINT_TASKS
 from styletokenizer.tokenizer import TOKENIZER_PATHS
 
@@ -38,21 +40,30 @@ def main():
     STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     print(LOG_REGRESSION)
-
     # calculate the correlation between the BERT performance and the logistic regression
-    x, y = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
-    print(f"Correlation between BERT and LR: {statistics.correlation(x, y)}")
+    c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
+    print(f"Correlation between BERT and LR: {c}")
 
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
+    INTRINSIC_MEASURE = method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    print(INTRINSIC_MEASURE)
+    # calculate the correlation between the BERT performance and the intrinsic measures
+    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
+    print(f"Correlation between BERT and seq len: {c}")
 
+    intrinsic_key = "renyi_eff_2.5"
+    INTRINSIC_MEASURE = method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    print(INTRINSIC_MEASURE)
+    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
+    print(f"Correlation between BERT and renyi eff 2.5: {c}")
+
+
+
+def method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH):
     INTRINSIC_MEASURE = {}
     intrinsic_addition = "intrinsic"
-
     for task in tasks:
-        task_key = task
-        if task in GLUE_TEXTFLINT_TASKS:
-            task_key = task.split('-')[0]
         for tokenizer_path in unique_tokenizer_paths:
             # get tokenizer name
             tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
@@ -64,15 +75,11 @@ def main():
             if not os.path.exists(result_path):
                 print(f"Path {result_path} does not exist")
                 continue
-            # read in csv file
-            with open(result_path, "r") as f:
-                data_dict = {}
-                for line in f:
-                    key, value = line.strip().split(",")
-                    data_dict[key] = float(value)
+            # read in csv file with pandas
+            df = pd.read_csv(result_path)
             # get the performance from the performance keys
-            INTRINSIC_MEASURE[tokenizer_name][task] = data_dict[intrinsic_key][0]
-    print(INTRINSIC_MEASURE)
+            INTRINSIC_MEASURE[tokenizer_name][task] = df[intrinsic_key].values[0]
+    return INTRINSIC_MEASURE
 
 
 def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION):
@@ -83,7 +90,7 @@ def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION):
             if task in LOG_REGRESSION[tokenizer_name]:
                 x.append(BERT_PERFORMANCE[tokenizer_name][task])
                 y.append(LOG_REGRESSION[tokenizer_name][task])
-    return x, y
+    return statistics.correlation(x, y)
 
 
 def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
