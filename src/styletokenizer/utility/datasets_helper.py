@@ -230,11 +230,12 @@ VARIETIES_DEV_DICT = {
     #          "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
     "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multiclass_dev_stratified.tsv",
     # "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
-    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
+    # "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
                                 "validation.csv",
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_validation.csv",
     # "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/dev.csv",
+    "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/validation.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
@@ -254,6 +255,7 @@ VARIETIES_TRAIN_DICT = {
     "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_train.csv",
     "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/train.csv",
+    "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/train.csv",
 }
 VARIETIES_TEST_DICT = {
     "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv",
@@ -266,6 +268,7 @@ VARIETIES_to_keys = {
     "CGLU": ["Text"],
     "GYAFC": ["text"],
     "DIALECT": ["text"],
+    "multi-DIALECT": ["text"],
     "sadiri": ("query_text", "candidate_text"),
     "DSL": ["text"],
     "CoDS": ["text"],
@@ -283,6 +286,7 @@ VARIETIES_to_labels = {
     "CGLU": "origin",
     "GYAFC": "label",
     "DIALECT": "label",
+    "multi-DIALECT": "label",
     "sadiri": "label",
     "DSL": "language",
     "CoDS": "label",

@@ -27,15 +27,21 @@ def create_datasets():
     split_mapping = {
         'mnli': {
             'train': ['train'],
-            'validation': ['validation_matched', 'validation_mismatched']
+            'validation': ['validation_matched', 'validation_mismatched'],
+            "test": ["test_matched", "test_mismatched"]
+
         },
         'default': {
             'train': ['train'],
-            'validation': ['validation']
+            'validation': ['validation'],
+            'test': ['test']
         }
     }
 
-    for split in ['train', 'validation']:
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/"
+    out_dir = os.path.join(local_finder_addition, "02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT")
+
+    for split in ['train', 'validation', 'test']:
         print(f"Processing split: {split}")
 
         # Compute the total number of available samples across tasks
@@ -50,12 +56,16 @@ def create_datasets():
 
             # Load the original and perturbed datasets
             original_dataset = load_dataset('nyu-mll/glue', task)
+
             # perturbed_dataset_path = f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi"
-            perturbed_dataset_path = f"/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/multi-VALUE/{task}_multi"
+            perturbed_dataset_path = os.path.join(local_finder_addition,
+                                                  f"02-awegmann/TOKENIZER/data/eval-corpora/multi-VALUE/{task}_multi")
             # load .csv files and make it a datasets dataset
             perturbed_dataset = load_dataset('csv',
-                                             data_files={'train': os.path.join(perturbed_dataset_path, 'train.csv'),
-                                                         'validation': os.path.join(perturbed_dataset_path, 'validation.csv')})
+                                             data_files=
+                                             {f"{actual_split}":
+                                                  os.path.join(perturbed_dataset_path, f"{actual_split}.csv")
+                                              for actual_split in actual_splits})
 
             # Initialize combined splits
             combined_original_split = None
@@ -76,6 +86,9 @@ def create_datasets():
                 filtered_perturbed_split = perturbed_dataset[actual_split].filter(lambda x: x['dialect_used'] != 'SAE')
                 # Ensure datasets are aligned
                 assert len(filtered_original_split) == len(filtered_perturbed_split)
+                # print how many samples were removed
+                print(f"Removed {(len(original_split) - len(filtered_original_split))/len(original_split)} samples "
+                      f"for {task} {actual_split} because of multi-VALUE transformation errors.")
 
                 # Combine splits if necessary
                 if combined_original_split is None:
@@ -83,7 +96,8 @@ def create_datasets():
                     combined_perturbed_split = filtered_perturbed_split
                 else:
                     combined_original_split = concatenate_datasets([combined_original_split, filtered_original_split])
-                    combined_perturbed_split = concatenate_datasets([combined_perturbed_split, filtered_perturbed_split])
+                    combined_perturbed_split = concatenate_datasets(
+                        [combined_perturbed_split, filtered_perturbed_split])
 
             if combined_original_split is None:
                 print(f"No valid splits found for task {task} and split {split}, skipping.")
@@ -176,7 +190,6 @@ def create_datasets():
         elif len(total_texts) < total_samples:
             raise ValueError("Not enough samples collected.")
 
-
         # Combine and shuffle
         combined = list(zip(total_texts, total_labels))
         random.seed(45)
@@ -187,12 +200,11 @@ def create_datasets():
         df = pd.DataFrame({'text': total_texts, 'label': total_labels})
 
         # Save to CSV
-        output_dir = f"./combined_{split}"
-        os.makedirs(output_dir, exist_ok=True)
-        df.to_csv(os.path.join(output_dir, f"combined_{split}.csv"), index=False)
+        os.makedirs(out_dir, exist_ok=True)
+        df.to_csv(os.path.join(out_dir, f"{split}.csv"), index=False)
 
         print(f"Saved {len(df)} samples for {split}")
-        print(f"Saved to {os.path.join(output_dir, f'combined_{split}.csv')}")
+        print(f"Saved to {os.path.join(out_dir, f'combined_{split}.csv')}")
 
 
 if __name__ == '__main__':
