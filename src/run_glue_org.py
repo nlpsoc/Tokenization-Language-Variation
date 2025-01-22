@@ -265,7 +265,7 @@ def main():
         last_checkpoint = get_last_checkpoint(training_args.output_dir)
         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
             # check if there exists a file including f"eval_dataset_{task}.tsv" in the name
-            exists_eval_preds = any([f"eval_dataset" in file for file in os.listdir(training_args.output_dir)])
+            exists_eval_preds = any([f"eval_dataset" in file for file in os.listdir(training_args.output_dir)])  # ADDED check
             if exists_eval_preds:
                 raise ValueError(
                     f"Output directory ({training_args.output_dir}) already exists and is not empty. "
