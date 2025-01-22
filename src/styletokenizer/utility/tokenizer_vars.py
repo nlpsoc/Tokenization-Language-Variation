@@ -5,7 +5,7 @@ from tokenizers import Tokenizer
 
 from styletokenizer.utility.env_variables import at_uu, at_umich
 
-PRE_TOKENIZER = ["no", "ws", "gpt2", "llama3"]
+PRE_TOKENIZER = ["no", "ws", "gpt2", "llama3", "wsorg"]
 VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
 FITTING_CORPORA = ["twitter", "wikipedia", "mixed", "webbooks", "pubmed"]
 

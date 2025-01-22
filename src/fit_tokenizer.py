@@ -2,7 +2,7 @@ import argparse
 from tokenizers import Tokenizer, Regex
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split
+from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split, Whitespace
 
 import os
 
@@ -82,6 +82,8 @@ def init_tokenizer_with_regex(pre_tokenizer):
         pre_tokenizer = Sequence([split, byte])
     elif pre_tokenizer == "no":
         pre_tokenizer = byte
+    elif pre_tokenizer == "wsorg":
+        pre_tokenizer = Sequence([Whitespace(), byte])
     else:
         raise ValueError(f"Invalid pre-tokenizer: {pre_tokenizer}")
     tokenizer.pre_tokenizer = pre_tokenizer
