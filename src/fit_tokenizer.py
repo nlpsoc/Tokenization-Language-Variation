@@ -2,7 +2,7 @@ import argparse
 from tokenizers import Tokenizer, Regex
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
-from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split, Whitespace
+from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split, Whitespace, WhitespaceSplit
 
 import os
 
@@ -15,6 +15,8 @@ if at_uu():
     FOLDER_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER"
 elif at_umich():
     FOLDER_BASE = "/shared/3/projects/hiatus/TOKENIZER_wegmann"
+else:
+    FOLDER_BASE = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/"
 OUT_PATH = os.path.join(FOLDER_BASE, "tokenizer")
 
 cache_dir = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
@@ -68,22 +70,29 @@ def init_tokenizer_with_regex(pre_tokenizer):
             regex_pattern = (
                 r"\s+(?!\S)|\s+"
             )
+            behavior = "merged_with_next"
         elif pre_tokenizer == "gpt2":
             # regex pattern copied from
             #   https://github.com/facebookresearch/fairseq/blob/bedb259bf34a9fc22073c13a1cee23192fa70ef3/fairseq/data/encoders/gpt2_bpe_utils.py#L70
             regex_pattern = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+            behavior = "isolated"
         else:
             # regex pattern copied from
             #   https://github.com/meta-llama/llama3/blob/main/llama/tokenizer.py#L47
             regex_pattern = (r"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+["
                              r"\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+")
+            behavior = "isolated"
 
-        split = Split(pattern=Regex(regex_pattern), behavior="merged_with_next", invert=False)
+        split = Split(pattern=Regex(regex_pattern), behavior=behavior, invert=False)
         pre_tokenizer = Sequence([split, byte])
     elif pre_tokenizer == "no":
         pre_tokenizer = byte
     elif pre_tokenizer == "wsorg":
-        pre_tokenizer = Sequence([Whitespace(), byte])
+        regex_pattern = (
+            r"\s+"
+        )
+        split = Split(pattern=Regex(regex_pattern), behavior="isolated", invert=False)
+        pre_tokenizer = Sequence([split, byte])
     else:
         raise ValueError(f"Invalid pre-tokenizer: {pre_tokenizer}")
     tokenizer.pre_tokenizer = pre_tokenizer

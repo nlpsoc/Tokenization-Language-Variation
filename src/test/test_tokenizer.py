@@ -1,23 +1,24 @@
 from unittest import TestCase
 
 from huggingface_tokenizers import T5, HUGGINGFACE_TOKENIZERS, TRAINED_TOKENIZERS
-from styletokenizer.tokenizer import TorchTokenizer
+
 import homoglyphs as hg
 from fit_tokenizer import init_tokenizer_with_regex
 
 
 class TestTokenizer(TestCase):
 
-    def setUp(self) -> None:
-        self.tokenizers = []
-        for tokenizer_name in HUGGINGFACE_TOKENIZERS:
-            tokenizer = TorchTokenizer(tokenizer_name)
-            self.tokenizers.append(tokenizer)
-
-        self.trained_tokenizers = []
-        for trained_tokenizer_name in TRAINED_TOKENIZERS:
-            tokenizer = TorchTokenizer(trained_tokenizer_name)
-            self.trained_tokenizers.append(tokenizer)
+    # def setUp(self) -> None:
+    #     from styletokenizer.tokenizer import TorchTokenizer
+    #     self.tokenizers = []
+    #     for tokenizer_name in HUGGINGFACE_TOKENIZERS:
+    #         tokenizer = TorchTokenizer(tokenizer_name)
+    #         self.tokenizers.append(tokenizer)
+    #
+    #     self.trained_tokenizers = []
+    #     for trained_tokenizer_name in TRAINED_TOKENIZERS:
+    #         tokenizer = TorchTokenizer(trained_tokenizer_name)
+    #         self.trained_tokenizers.append(tokenizer)
 
     def test_tokenizer(self):
         tokenizer = TorchTokenizer("bert-base-uncased")
@@ -101,7 +102,7 @@ class TestTokenizer(TestCase):
     def test_pre_tokenization(self):
         test_str = ("well... \n\n I DON'T don't like café for $3000!! #lol 😊 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
         # pre-tokenize for ws, gpt2 and llama3
-        for regex_pretok in ["ws", "gpt2", "llama3"]:
+        for regex_pretok in ["wsorg", "ws", "gpt2", "llama3"]:
             pretokenizer = init_tokenizer_with_regex(regex_pretok).pre_tokenizer
             print(pretokenizer.pre_tokenize_str(test_str))
         # from tokenizers.pre_tokenizers import Split
