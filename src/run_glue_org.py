@@ -277,6 +277,7 @@ def main():
                     "No predictions on evaluation data found. Will calculate predictions on evaluation data."
                 )
                 training_args.do_train = False
+                logger.info(f"training_args.do_train set to {training_args.do_train}")
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
