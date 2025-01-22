@@ -21,6 +21,8 @@ def get_text(example, task):
 
 
 def create_datasets():
+    # set seed
+    random.seed(42)
     tasks = ['sst2', 'qqp', 'mnli', 'qnli']
     sample_sizes = {'train': 50000, 'validation': 5000, 'test': 5000}
 
@@ -110,101 +112,74 @@ def create_datasets():
             print(f"No data available for split {split}, skipping.")
             continue
 
-        # Determine sample size (number of sentence pairs)
-        max_samples = sample_sizes.get(split, total_available_samples)
-        sample_size = min(max_samples, total_available_samples)
-
-        print(f"Total available sentence pairs for {split}: {total_available_samples}")
-        print(f"Sample size (number of sentence pairs) for {split}: {sample_size}")
-
-        # Calculate number of samples per task proportionally
-        samples_per_task = {}
+        # flatten all tasks & labels, could use this to make a balanced sample over tasks as well
+        total_texts = []
+        total_labels = []
+        total_tasks = []
         for task, (original_split, perturbed_split) in task_splits.items():
-            task_length = len(original_split)
-            proportion = task_length / total_available_samples
-            samples_per_task[task] = int(proportion * sample_size)
-
-        # Adjust for rounding errors
-        total_assigned_samples = sum(samples_per_task.values())
-        difference = sample_size - total_assigned_samples
-        if difference > 0:
-            # Assign remaining samples randomly to tasks
-            tasks_list = list(samples_per_task.keys())
-            for _ in range(difference):
-                task = random.choice(tasks_list)
-                samples_per_task[task] += 1
-
-        print(f"Samples per task for {split}: {samples_per_task}")
+            for example in perturbed_split:
+                total_texts.append(get_text(example, task))
+                total_labels.append(example['dialect_used'])
+                total_tasks.append(task)
+            for example in original_split:
+                total_texts.append(get_text(example, task))
+                total_labels.append('SAE')
+                total_tasks.append(task)
 
         # Collect samples
         #   Calculate the minimum number of samples for each label
         label_counts = {}
-        for task, (original_split, perturbed_split) in task_splits.items():
-            for example in perturbed_split:
-                label = example['dialect_used']
+        for label in total_labels:
+            if label != "SAE":
                 if label not in label_counts:
                     label_counts[label] = 0
                 label_counts[label] += 1
         min_samples_per_label = min(label_counts.values())
+        print(f"Maximum balanced samples per label: {min_samples_per_label}")
+        # for the given split, get the number of samples per label
+        samples_per_label = sample_sizes[split] // (len(label_counts) + 1)
+        print(f"Actual samples per label: {samples_per_label}")
+        assert samples_per_label <= min_samples_per_label
 
-        # Sample the same, maximally possible, number of examples for each label
-        total_texts = []
-        total_labels = []
-        for task, (original_split, perturbed_split) in task_splits.items():
-            label_samples = {label: [] for label in label_counts.keys()}
+        # Prepare stratified sampling: Sample the same, maximally possible, number of examples for each label
+        sampled_texts = []
+        sampled_labels = []
+        samples_tasks = []
+        # shuffle indices
+        indices = list(range(len(total_texts)))
+        random.seed(42)
+        random.shuffle(indices)
 
-            for example in perturbed_split:
-                label = example['dialect_used']
-                if len(label_samples[label]) < min_samples_per_label:
-                    label_samples[label].append(example)
+        for label in list(label_counts.keys()) + ["SAE"]:
+            label_indices = [i for i in indices if total_labels[i] == label]
+            label_indices = label_indices[:samples_per_label]
+            sampled_texts.extend([total_texts[i] for i in label_indices])
+            sampled_labels.extend([total_labels[i] for i in label_indices])
+            samples_tasks.extend([total_tasks[i] for i in label_indices])
 
-            for label, samples in label_samples.items():
-                indices = list(range(len(samples)))
-                random.seed(42)
-                random.shuffle(indices)
-                indices = indices[:min_samples_per_label]
 
-                sampled_texts = [get_text(samples[i], task) for i in indices]
-                total_texts.extend(sampled_texts)
-                total_labels.extend([label] * min_samples_per_label)
-
-            # Add 'SAE' samples from the original dataset
-            original_indices = list(range(len(original_split)))
-            random.seed(43)
-            random.shuffle(original_indices)
-            original_indices = original_indices[:min_samples_per_label]
-
-            original_texts = [get_text(original_split[i], task) for i in original_indices]
-            total_texts.extend(original_texts)
-            total_labels.extend(['SAE'] * min_samples_per_label)
-
-        # Ensure the total number of samples equals the previously calculated samples_per_task
-        total_samples = sum(samples_per_task.values())
-        if len(total_texts) > total_samples:
-            indices = list(range(len(total_texts)))
-            random.seed(44)
-            random.shuffle(indices)
-            indices = indices[:total_samples]
-            total_texts = [total_texts[i] for i in indices]
-            total_labels = [total_labels[i] for i in indices]
-        elif len(total_texts) < total_samples:
-            raise ValueError("Not enough samples collected.")
-
-        # Combine and shuffle
-        combined = list(zip(total_texts, total_labels))
-        random.seed(45)
-        random.shuffle(combined)
-        total_texts[:], total_labels[:] = zip(*combined)
+        # print number of samples per task
+        samples_per_task = {}
+        for task in tasks:
+            samples_per_task[task] = samples_tasks.count(task)
+        print(f"Samples per task: {samples_per_task}")
+        # print label dist
+        label_dist = {}
+        for label in list(label_counts.keys()) + ["SAE"]:
+            label_dist[label] = sampled_labels.count(label)
+        print(f"Label distribution: {label_dist}")
 
         # Create dataframe
-        df = pd.DataFrame({'text': total_texts, 'label': total_labels})
+        df = pd.DataFrame({'text': sampled_texts, 'label': sampled_labels})
+        # shuffle with resetting index
+        df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
         # Save to CSV
         os.makedirs(out_dir, exist_ok=True)
         df.to_csv(os.path.join(out_dir, f"{split}.csv"), index=False)
 
         print(f"Saved {len(df)} samples for {split}")
-        print(f"Saved to {os.path.join(out_dir, f'combined_{split}.csv')}")
+        print(f"Saved to {os.path.join(out_dir, f'{split}.csv')}")
 
 
 if __name__ == '__main__':

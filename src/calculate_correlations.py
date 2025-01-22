@@ -8,8 +8,9 @@ import statistics
 
 import pandas as pd
 
-from styletokenizer.glue import GLUE_TEXTFLINT_TASKS
+from styletokenizer.glue import GLUE_TEXTFLINT_TASKS, GLUE_MVALUE_TASKS, GLUE_TASKS
 from styletokenizer.tokenizer import TOKENIZER_PATHS
+from utility.datasets_helper import VARIETIES_TASKS
 
 performance_keys = {
     "sst2": "eval_accuracy",
@@ -21,7 +22,7 @@ performance_keys = {
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -34,33 +35,38 @@ def main():
     local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
-    BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition)
-    print(BERT_PERFORMANCE)
+    BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, bert_version="train-mixed/base-BERT")
+    df = pd.DataFrame(BERT_PERFORMANCE).T
+    df.index.name = "BERT-Model"
+    print(df.to_markdown())
 
     STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
-    print(LOG_REGRESSION)
+    df = pd.DataFrame(LOG_REGRESSION).T
+    df.index.name = "LR-Model"
+    print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {c}")
 
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
-    INTRINSIC_MEASURE = method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     print(INTRINSIC_MEASURE)
     # calculate the correlation between the BERT performance and the intrinsic measures
+    # TODO: do not caluclate correlation for the vocab size
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
     print(f"Correlation between BERT and seq len: {c}")
 
     intrinsic_key = "renyi_eff_2.5"
-    INTRINSIC_MEASURE = method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     print(INTRINSIC_MEASURE)
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
 
 
 
-def method_name(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH):
+def get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH):
     INTRINSIC_MEASURE = {}
     intrinsic_addition = "intrinsic"
     for task in tasks:
@@ -123,13 +129,27 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
     return LOG_REGRESSION
 
 
-def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition):
+def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, bert_version="base-BERT"):
     BERT_PERFORMANCE = {}
-    GLUE_OUT_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/output/GLUE/textflint/base-BERT/")
+    base_out_base_path = os.path.join(local_finder_addition, "TOKENIZER/output/")
     BERT_PATH = "749M/steps-45000/seed-42/42/"
     for task in tasks:
-        task_key = task
         if task in GLUE_TEXTFLINT_TASKS:
+            task_finder_addition = f"GLUE/textflint/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in GLUE_MVALUE_TASKS:
+            task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in GLUE_TASKS:
+            task_finder_addition = f"GLUE/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in VARIETIES_TASKS:
+            task_finder_addition = f"VAR/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        else:
+            raise NotImplementedError("Only textflint tasks are implemented")
+        task_key = task
+        if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
             task_key = task.split('-')[0]
 
         for tokenizer_path in unique_tokenizer_paths:
@@ -138,7 +158,7 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition):
             if tokenizer_name not in BERT_PERFORMANCE:
                 BERT_PERFORMANCE[tokenizer_name] = {}
             # get the BERT output for the task
-            result_path = os.path.join(GLUE_OUT_BASE_PATH, tokenizer_name, BERT_PATH, task_key, "all_results.json")
+            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key, "all_results.json")
             # check that path exists
             if not os.path.exists(result_path):
                 print(f"Path {result_path} does not exist")
