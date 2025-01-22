@@ -192,23 +192,23 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             raise ValueError(f"Task {task_name_or_hfpath} not recognized.")
 
         # get label key
-        label = "label"
+        label_column = "label"
         if task in VARIETIES_to_labels.keys():
-            label = VARIETIES_to_labels[task]
-        print(f"Task: {task}, label: {label}")
+            label_column = VARIETIES_to_labels[task]
+        print(f"Task: {task}, label: {label_column}")
 
-        raw_datasets = raw_datasets.map(lambda x: parse_label_if_str(x, label))
+        raw_datasets = raw_datasets.map(lambda x: parse_label_if_str(x, label_column))
 
         val_key = "validation_matched" if task == "mnli" else "validation"
 
         def filter_none_labels(example, sentence1_key, sentence2_key=None):
             if sentence2_key is None:
-                return example[sentence1_key] is not None and example[label] is not None
+                return example[sentence1_key] is not None and example[label_column] is not None
             else:
                 return (
                         example[sentence1_key] is not None
                         and example[sentence2_key] is not None
-                        and example[label] is not None
+                        and example[label_column] is not None
                 )
 
         # Filter out None labels
@@ -236,8 +236,8 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
             )
 
             # Extract labels
-            y_train = encoded_dataset["train"][label]
-            y_eval = encoded_dataset[val_key][label]
+            y_train = encoded_dataset["train"][label_column]
+            y_eval = encoded_dataset[val_key][label_column]
 
             # -------------------------------
             #   1) Build text features
