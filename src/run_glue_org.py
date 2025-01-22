@@ -281,7 +281,7 @@ def main():
                 training_args.do_train = False
                 logger.info(f"training_args.do_train set to {training_args.do_train}")
                 model_args.model_name_or_path = training_args.output_dir
-                logger.info(f"training_args.model_name_or_path set to {model_args.model_name_or_path}")
+                logger.info(f"model_args.model_name_or_path set to {model_args.model_name_or_path}")
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "

@@ -40,6 +40,11 @@ def main():
     df.index.name = "BERT-Model"
     print(df.to_markdown())
 
+    # for all types of tasks
+
+    # calculate Wilcoxon signed-rank test
+
+
     STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     df = pd.DataFrame(LOG_REGRESSION).T
