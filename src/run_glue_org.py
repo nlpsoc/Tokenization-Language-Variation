@@ -26,7 +26,7 @@ import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
-
+from datetime import datetime
 import datasets
 import evaluate
 import numpy as np
@@ -264,10 +264,19 @@ def main():
     if os.path.isdir(training_args.output_dir) and training_args.do_train and not training_args.overwrite_output_dir:
         last_checkpoint = get_last_checkpoint(training_args.output_dir)
         if last_checkpoint is None and len(os.listdir(training_args.output_dir)) > 0:
-            raise ValueError(
-                f"Output directory ({training_args.output_dir}) already exists and is not empty. "
-                "Use --overwrite_output_dir to overcome."
-            )
+            # check if there exists a file including f"eval_dataset_{task}.tsv" in the name
+            exists_eval_preds = any([f"eval_dataset" in file for file in os.listdir(training_args.output_dir)])
+            if exists_eval_preds:
+                raise ValueError(
+                    f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                    "Use --overwrite_output_dir to overcome."
+                )
+            else:
+                logger.warning(
+                    f"Output directory ({training_args.output_dir}) already exists and is not empty. "
+                    "No predictions on evaluation data found. Will calculate predictions on evaluation data."
+                )
+                training_args.do_train = False
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
@@ -605,6 +614,20 @@ def main():
 
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
+
+            # ADDED from original file: save predictions
+            predictions = trainer.predict(eval_dataset)
+            eval_dataset = eval_dataset.add_column("predictions",
+                                                   predictions.predictions.argmax(-1))  # assuming classification
+            # save the tokenized string in column "tokenized string"
+            eval_dataset = eval_dataset.add_column("tokenized string",
+                                                   tokenizer.batch_decode(eval_dataset["input_ids"],
+                                                                          skip_special_tokens=True))
+            # Dataset as a TSV file
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            output_predict_file = os.path.join(training_args.output_dir, f"{current_date}_eval_dataset_{task}.tsv")
+            eval_dataset.to_csv(output_predict_file, sep='\t', index=False)
+
 
     if training_args.do_predict:
         logger.info("*** Predict ***")
