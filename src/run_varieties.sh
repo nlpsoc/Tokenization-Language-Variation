@@ -30,24 +30,24 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 
 MODEL_PATHS=(
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/webbook-gpt2-32000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
-  #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/webbook-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
   # "roberta-base"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
-  # "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
   "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
@@ -71,10 +71,10 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME
 
-  TASK_NAME=NUCLE
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #  TASK_NAME=NUCLE
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
   #  TASK_NAME=simplification
   #  SEED=42
@@ -82,15 +82,15 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
 
-  TASK_NAME=sadiri
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-  TASK_NAME=PAN
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #  TASK_NAME=sadiri
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #
+  #  TASK_NAME=PAN
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
   #  TASK_NAME=convo-style
   #  SEED=42
@@ -102,10 +102,10 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
-  TASK_NAME=CORE
-  SEED=42
-  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+  #  TASK_NAME=CORE
+  #  SEED=42
+  #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
 
   #  TASK_NAME=GYAFC
@@ -117,6 +117,11 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   #  SEED=42
   #  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
   #  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+
+  TASK_NAME=multi-DIALECT
+  SEED=42
+  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
 
 done
 
