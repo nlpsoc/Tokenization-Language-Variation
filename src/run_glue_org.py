@@ -280,8 +280,8 @@ def main():
                 )
                 training_args.do_train = False
                 logger.info(f"training_args.do_train set to {training_args.do_train}")
-                training_args.model_name_or_path = training_args.output_dir
-                logger.info(f"training_args.model_name_or_path set to {training_args.model_name_or_path}")
+                model_args.model_name_or_path = training_args.output_dir
+                logger.info(f"training_args.model_name_or_path set to {model_args.model_name_or_path}")
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
@@ -391,6 +391,7 @@ def main():
     #
     # In distributed training, the .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
+    logging.info(f"Loading from model_args.model_name_or_path: {model_args.model_name_or_path}")
     config = AutoConfig.from_pretrained(
         model_args.config_name if model_args.config_name else model_args.model_name_or_path,
         num_labels=num_labels,
