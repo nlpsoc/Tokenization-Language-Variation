@@ -26,7 +26,7 @@ TOKENIZER_PATHS = [
     [os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "twitter-gpt2-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "pubmed-gpt2-32000/tokenizer.json"),
-     os.path.join(BASE_TOKENIZER_PATH, "webbook-gpt2-32000/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "webbook-gpt2-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "wikipedia-gpt2-32000/tokenizer.json")],
     [os.path.join(BASE_TOKENIZER_PATH, "mixed-no-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "mixed-ws-32000/tokenizer.json"),
