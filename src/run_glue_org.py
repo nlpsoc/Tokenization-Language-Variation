@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
+import shutil
+
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
@@ -278,6 +280,7 @@ def main():
                 )
                 training_args.do_train = False
                 logger.info(f"training_args.do_train set to {training_args.do_train}")
+                training_args.model_name_or_path = training_args.output_dir
         elif last_checkpoint is not None and training_args.resume_from_checkpoint is None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
@@ -616,7 +619,7 @@ def main():
             trainer.log_metrics("eval", metrics)
             trainer.save_metrics("eval", combined if task is not None and "mnli" in task else metrics)
 
-            # ADDED from original file: save predictions
+            # ADDED from original file: save predictions, do eval again
             predictions = trainer.predict(eval_dataset)
             eval_dataset = eval_dataset.add_column("predictions",
                                                    predictions.predictions.argmax(-1))  # assuming classification
@@ -670,6 +673,27 @@ def main():
     else:
         trainer.create_model_card(**kwargs)
 
+    # ADDED
+    # remove all folders in the model path that have "checkpoint" in their name
+    # this is to avoid saving all the checkpoints
+    deleted_folders = []
+    # List all entries in the folder
+    for entry in os.listdir(model_args.model_name_or_path):
+        entry_path = os.path.join(model_args.model_name_or_path, entry)
+
+        # Check if it's a directory and if 'checkpoint' is in its name
+        if os.path.isdir(entry_path) and "checkpoint" in entry:
+            # Delete the directory
+            shutil.rmtree(entry_path)
+            deleted_folders.append(entry_path)
+
+    # Logging
+    if deleted_folders:
+        logger.info("Deleted checkpoint folders:")
+        for folder in deleted_folders:
+            logger.info(f"  - {folder}")
+    else:
+        logger.info("No checkpoint folders found.")
 
 def _mp_fn(index):
     # For xla_spawn (TPUs)
