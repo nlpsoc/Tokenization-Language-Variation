@@ -5,9 +5,9 @@ from tokenizers import Tokenizer
 
 from styletokenizer.utility.env_variables import at_uu, at_umich
 
-PRE_TOKENIZER = ["no", "ws", "gpt2", "llama3", "wsorg"]
-VOCAB_SIZE = [500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000]
-FITTING_CORPORA = ["twitter", "wikipedia", "mixed", "webbooks", "pubmed"]
+PRE_TOKENIZER = ["no", "wsorg", "ws", "gpt2", "llama3"]
+VOCAB_SIZE = [500, 4000, 32000, 64000, 128000]  # 1000, 2000, 8000, 16000, , 256000, 512000
+FITTING_CORPORA = ["twitter", "wikipedia", "mixed", "webbook", "pubmed"]
 
 DEFAULT_FITTING_CORPORA = "mixed"
 DEFAULT_VOCAB_SIZE = 32000
@@ -17,7 +17,7 @@ if at_uu():
 elif at_umich():
     OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
 else:
-    OUT_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
+    OUT_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/TOKENIZER/tokenizer"  # "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
 
 
 def get_tokenizer_from_path(path):

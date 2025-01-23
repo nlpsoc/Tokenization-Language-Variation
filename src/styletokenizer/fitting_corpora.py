@@ -5,7 +5,8 @@ if at_uu():
 elif at_umich():
     FOLDER_BASE = "/shared/3/projects/hiatus/TOKENIZER_wegmann"
 else:
-    FOLDER_BASE = "/Users/anna/Documents/git projects.nosync/StyleTokenizer"
+    FOLDER_BASE = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/TOKENIZER"  # "/Users/anna/Documents/git projects.nosync/StyleTokenizer"
+
 CORPORA_MIXED = f"{FOLDER_BASE}/data/fitting-corpora/mixed"
 CORPORA_TWITTER = f"{FOLDER_BASE}/data/fitting-corpora/twitter"
 CORPORA_WIKIPEDIA = f"{FOLDER_BASE}/data/fitting-corpora/wikipedia"

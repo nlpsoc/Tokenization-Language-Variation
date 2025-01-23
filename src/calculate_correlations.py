@@ -27,7 +27,7 @@ performance_keys = {
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS  # + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS # + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -37,11 +37,11 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="base-BERT")  # train-mixed/base-BER
+                                             bert_version="train-mixed/base-BERT")  # train-mixed/base-BER
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())

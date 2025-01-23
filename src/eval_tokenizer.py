@@ -22,10 +22,11 @@ import tqdm
 
 def get_most_middle_least_common_tokens(tokens):
     n = len(tokens)
+    number_unique_tokens = 40
     return {
-        "most_common": tokens[:10],
-        "middle": tokens[n // 2 - 5: n // 2 + 4],
-        "least_common": tokens[-10:]
+        "most_common": tokens[:number_unique_tokens],
+        "middle": tokens[n // 2 - (number_unique_tokens // 2): n // 2 + (number_unique_tokens // 2)],
+        "least_common": tokens[-number_unique_tokens:]
     }
 
 
@@ -48,6 +49,8 @@ def get_unique_tokens_per_tokenizer(vocabularies: Dict[str, List[str]]) -> Dict[
 
 
 def main():
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
+
     pretokenizer_paths = get_pretokenizer_paths()
     get_comparative_tok_stats(pretokenizer_paths)
     corpus_paths = get_corpus_paths()
@@ -134,6 +137,7 @@ def get_consecutive_tok_stats(tokenizer_paths):
     added_tokens_examples = {}
     folder_names = list(vocabularies.keys())
 
+    n_tokens = 40
     for i in range(len(folder_names) - 1):
         name_1 = folder_names[i]
         name_2 = folder_names[i + 1]
@@ -159,10 +163,11 @@ def get_consecutive_tok_stats(tokenizer_paths):
         print(added_tokens[:100])
 
         # Get examples of the most frequent, middle, and least frequent added tokens
+
         examples = {
-            "most_frequent": added_tokens[:10],
-            "middle": added_tokens[max(0, n // 2 - 5):max(0, n // 2 + 5)],
-            "least_frequent": added_tokens[-10:]
+            "most_frequent": added_tokens[:n_tokens],
+            "middle": added_tokens[max(0, n // 2 - (n_tokens // 2)):max(0, n // 2 + (n_tokens // 2))],
+            "least_frequent": added_tokens[-n_tokens:]
         }
         added_tokens_examples[f"{name_1} -> {name_2}"] = examples
 
@@ -174,9 +179,9 @@ def get_consecutive_tok_stats(tokenizer_paths):
     print("\nExamples of Added Tokens:")
     vocab_1 = vocabularies[folder_names[0]]
     print(f"Tokens in {folder_names[0]}")
-    print(f"Most Frequent: {vocab_1[:15]}")
-    print(f"Middle: {vocab_1[len(vocab_1) // 2 - 5: len(vocab_1) // 2 + 5]}")
-    print(f"Least Frequent: {vocab_1[-10:]}")
+    print(f"Most Frequent: {vocab_1[:n_tokens]}")
+    print(f"Middle: {vocab_1[len(vocab_1) // 2 - (n_tokens // 2): len(vocab_1) // 2 + (n_tokens // 2)]}")
+    print(f"Least Frequent: {vocab_1[-n_tokens:]}")
     for transition, examples in added_tokens_examples.items():
         print(f"\nTransition: {transition}")
         print("Most Frequent Added Tokens:", examples['most_frequent'])

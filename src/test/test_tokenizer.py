@@ -100,7 +100,8 @@ class TestTokenizer(TestCase):
             print(atoms)
 
     def test_pre_tokenization(self):
-        test_str = ("well... \n\n I DON'T don't like café for $3000!! #lol 😊 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
+        test_str = ("\t😀 👍 ❤️ 😭 😁 😊 😂 well... \n\n I DON'T don't like café for $3000!! #lol 😊 😂 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
+        print(test_str)
         # pre-tokenize for ws, gpt2 and llama3
         for regex_pretok in ["wsorg", "ws", "gpt2", "llama3"]:
             pretokenizer = init_tokenizer_with_regex(regex_pretok).pre_tokenizer
