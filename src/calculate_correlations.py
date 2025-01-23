@@ -22,12 +22,14 @@ performance_keys = {
     "qqp": "eval_f1",
     "mnli": "eval_accuracy",
     "qnli": "eval_accuracy",
+    "NUCLE": "eval_f1",
+    "PAN": "eval_accuracy",
 }
 
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
