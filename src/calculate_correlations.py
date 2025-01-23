@@ -27,7 +27,7 @@ performance_keys = {
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS # + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -41,15 +41,10 @@ def main():
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="train-mixed/base-BERT")  # train-mixed/base-BER
+                                             bert_version="base-BERT")  # train-mixed/base-BER
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())
-
-
-
-
-
 
     STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
@@ -75,7 +70,6 @@ def main():
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
 
-
     # for all types of tasks: GLUE tasks, VARIETIES
     ROBUST_TASKS = GLUE_TEXTFLINT_TASKS  # + GLUE_TASKS
     # for grouped models (consider tokenizer paths groups)
@@ -100,7 +94,7 @@ def main():
             columns=[m_name.split("-")[g_nbr] for m_name in sorted_models],
         )
         for i in range(len(sorted_models)):
-            for j in range(i+1, len(sorted_models)):
+            for j in range(i + 1, len(sorted_models)):
                 data1 = []
                 data2 = []
                 tok1 = sorted_models[i]
@@ -193,7 +187,7 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
     LR_ADDITION = "LR"
     for task in tasks:
         task_key = task
-        if task in GLUE_TEXTFLINT_TASKS:
+        if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
             task_key = task.split('-')[0]
         for tokenizer_path in unique_tokenizer_paths:
             # get tokenizer name
