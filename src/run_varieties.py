@@ -38,7 +38,7 @@ from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT, VARIETIES_to_labels
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
-         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN", "simplification"]
+         "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN", "simplification", "multi-DIALECT"]
 
 
 def main(task, model_path, seed, output_dir, overwrite=False):

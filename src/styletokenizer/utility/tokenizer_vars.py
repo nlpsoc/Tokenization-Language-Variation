@@ -17,7 +17,7 @@ if at_uu():
 elif at_umich():
     OUT_PATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer"
 else:
-    OUT_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/TOKENIZER/tokenizer"  # "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
+    OUT_PATH = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/TOKENIZER/tokenizer"  # "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer"
 
 
 def get_tokenizer_from_path(path):
