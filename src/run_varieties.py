@@ -35,7 +35,8 @@ import os
 import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
-from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT, VARIETIES_to_labels
+from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT, VARIETIES_to_labels, \
+    VARIETIES_to_keys
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
          "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN", "simplification", "multi-DIALECT"]
@@ -397,7 +398,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--train_file", VARIETIES_TRAIN_DICT["NUCLE"],
             "--validation_file", VARIETIES_DEV_DICT["NUCLE"],
             "--shuffle_train_dataset",
-            "--text_column_name", "sentence1,sentence2",
+            "--text_column_name", VARIETIES_to_keys["NUCLE"][0],  # "sentence1,sentence2",
             "--label_column_name", VARIETIES_to_labels["NUCLE"],
             "--text_column_delimiter", "[SEP]",
             "--do_train",

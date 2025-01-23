@@ -24,6 +24,9 @@ performance_keys = {
     "qnli": "eval_accuracy",
     "NUCLE": "eval_f1",
     "PAN": "eval_accuracy",
+    "CORE": "eval_accuracy",
+    "multi-DIALECT": "eval_f1",
+    "sadiri": "Test accuracy",
 }
 
 
@@ -43,7 +46,7 @@ def main():
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="base-BERT")  # train-mixed/base-BER
+                                             bert_version="train-mixed/base-BERT")  # train-mixed/base-BER
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())
@@ -217,7 +220,9 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
     BERT_PERFORMANCE = {}
     base_out_base_path = os.path.join(local_finder_addition, "TOKENIZER/output/")
     BERT_PATH = "749M/steps-45000/seed-42/42/"
+
     for task in tasks:
+        result_file = "all_results.json"
         if task in GLUE_TEXTFLINT_TASKS:
             task_finder_addition = f"GLUE/textflint/{bert_version}/"
             results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
@@ -230,6 +235,8 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
         elif task in VARIETIES_TASKS:
             task_finder_addition = f"VAR/{bert_version}/"
             results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            if task == "sadiri":
+                result_file = "test_accuracy.txt"
         else:
             raise NotImplementedError("Only textflint tasks are implemented")
         task_key = task
@@ -242,15 +249,18 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
             if tokenizer_name not in BERT_PERFORMANCE:
                 BERT_PERFORMANCE[tokenizer_name] = {}
             # get the BERT output for the task
-            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key, "all_results.json")
+            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key, result_file)
             # check that path exists
             if not os.path.exists(result_path):
                 print(f"Path {result_path} does not exist")
                 continue
 
-            # read in json file
-            with open(result_path, "r") as f:
-                data_dict = json.load(f)
+            if not task == "sadiri":
+                # read in json file
+                with open(result_path, "r") as f:
+                    data_dict = json.load(f)
+            else:
+                data_dict = parse_sadiri_metrics(result_path)
             # get the performance from the performance keys
             BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
     return BERT_PERFORMANCE
@@ -324,6 +334,37 @@ def parse_classification_report(file_path):
 
     return parsed_report
 
+
+def parse_sadiri_metrics(filepath):
+    """
+    Reads a text file with lines in the form:
+        <key>: <value>
+    and returns a dictionary with parsed values (floats where possible).
+    """
+    results = {}
+    with open(filepath, 'r') as f:
+        for line in f:
+            line = line.strip()
+            # Skip empty lines
+            if not line:
+                continue
+            # Split only on the first ':' to allow keys with extra ':' characters
+            parts = line.split(':', 1)
+            if len(parts) != 2:
+                continue  # If the format doesn't match 'key: value', skip
+            key, val_str = parts
+            key = key.strip()
+            val_str = val_str.strip()
+
+            # Try to convert the value to float
+            try:
+                value = float(val_str)
+            except ValueError:
+                # If it can't be converted to float, leave it as string
+                value = val_str
+
+            results[key] = value
+    return results
 
 if __name__ == "__main__":
     main()
