@@ -32,7 +32,7 @@ performance_keys = {
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -46,7 +46,7 @@ def main():
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="train-mixed/base-BERT")  # train-mixed/base-BER
+                                             bert_version="base-BERT")  # train-mixed/base-BER
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())
@@ -59,6 +59,24 @@ def main():
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {c}")
+
+    # calculate Mean and STD for LR, for ROBUSTNESS
+    mean_std_dict = {}
+    for tokenizer_name in LOG_REGRESSION.keys():
+        mean_std_dict[tokenizer_name] = {}
+        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
+        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
+        mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean}  # , "std": std
+        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
+        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
+        mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean}  # , "std": std
+        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
+        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
+        mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean}  # , "std": std
+
+    df = pd.DataFrame(mean_std_dict).T
+    df.index.name = "LR-Model"
+    print(df.to_markdown())
 
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5

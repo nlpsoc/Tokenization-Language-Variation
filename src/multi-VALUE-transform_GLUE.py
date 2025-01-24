@@ -61,7 +61,7 @@ def main():
 
         This version uses batched map and explicit cleanup to help avoid OOM.
     """
-    for task in GLUE_TASKS:
+    for task in ["mrpc", "rte", "wnli", "cola"]:  # GLUE_TASKS:
         log_and_flush(f"=== Processing task: {task} ===")
         org_task_data = load_data(task)
         text_fields = task_to_keys[task]

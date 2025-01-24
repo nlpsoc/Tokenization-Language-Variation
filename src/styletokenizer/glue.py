@@ -1,4 +1,9 @@
 GLUE_TASKS = [
+    "mrpc",
+    "rte",
+    "wnli",
+    "cola",
+    "stsb",
     "mnli",
     "qnli",
     "sst2",
