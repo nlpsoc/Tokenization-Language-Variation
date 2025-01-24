@@ -64,15 +64,15 @@ def main():
     mean_std_dict = {}
     for tokenizer_name in LOG_REGRESSION.keys():
         mean_std_dict[tokenizer_name] = {}
-        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
+        mean_glue = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
         # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean}  # , "std": std
+        mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean_glue}  # , "std": std
         mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
         # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean}  # , "std": std
+        mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
         mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
         # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean}  # , "std": std
+        mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
 
     df = pd.DataFrame(mean_std_dict).T
     df.index.name = "LR-Model"
