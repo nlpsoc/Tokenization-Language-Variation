@@ -25,14 +25,14 @@ performance_keys = {
     "NUCLE": "eval_f1",
     "PAN": "eval_accuracy",
     "CORE": "eval_accuracy",
-    "multi-DIALECT": "eval_f1",
+    "multi-DIALECT": "eval_accuracy",
     "sadiri": "Test accuracy",
 }
 
 
 def main():
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS  # + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -42,7 +42,7 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk23/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
@@ -50,6 +50,7 @@ def main():
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())
+    calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
 
     STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
@@ -60,23 +61,7 @@ def main():
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {c}")
 
-    # calculate Mean and STD for LR, for ROBUSTNESS
-    mean_std_dict = {}
-    for tokenizer_name in LOG_REGRESSION.keys():
-        mean_std_dict[tokenizer_name] = {}
-        mean_glue = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
-        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean_glue}  # , "std": std
-        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
-        mean = np.mean([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-        # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-        mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
-
-    df = pd.DataFrame(mean_std_dict).T
-    df.index.name = "LR-Model"
-    print(df.to_markdown())
+    calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
 
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
@@ -151,6 +136,29 @@ def main():
 
         plt.title("Pairwise Wilcoxon p-values (Heatmap)")
         plt.show()
+
+
+def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
+    # calculate Mean and STD for LR, for ROBUSTNESS
+    mean_std_dict = {}
+    for tokenizer_name in model_result_dict.keys():
+        mean_std_dict[tokenizer_name] = {}
+        if all([key in model_result_dict[tokenizer_name] for key in GLUE_TASKS]):
+            mean_glue = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TASKS])
+            # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
+            mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean_glue}  # , "std": std
+            if all([key in model_result_dict[tokenizer_name] for key in GLUE_TEXTFLINT_TASKS]):
+                mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
+                # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
+                mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
+            # check if the tokenizer has all mVALUE tasks
+            if all([key in model_result_dict[tokenizer_name] for key in GLUE_MVALUE_TASKS]):
+                mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
+                # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
+                mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
+    df = pd.DataFrame(mean_std_dict).T
+    df.index.name = model_name
+    print(df.to_markdown())
 
 
 def bonferroni_correction(pval_matrix, sorted_models):
