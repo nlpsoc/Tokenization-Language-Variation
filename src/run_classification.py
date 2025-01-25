@@ -868,8 +868,8 @@ def main():
     # this is to avoid saving all the checkpoints
     deleted_folders = []
     # List all entries in the folder
-    for entry in os.listdir(model_args.model_name_or_path):
-        entry_path = os.path.join(model_args.model_name_or_path, entry)
+    for entry in os.listdir(training_args.output_dir):
+        entry_path = os.path.join(training_args.output_dir, entry)
 
         # Check if it's a directory and if 'checkpoint' is in its name
         if os.path.isdir(entry_path) and "checkpoint" in entry:
