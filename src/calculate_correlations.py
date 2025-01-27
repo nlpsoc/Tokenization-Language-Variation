@@ -46,7 +46,7 @@ def main():
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="train-mixed/base-BERT")  # train-mixed/base-BER
+                                             bert_version="base-BERT")  # train-mixed/base-BER
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     print(df.to_markdown())
