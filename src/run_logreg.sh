@@ -6,7 +6,7 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_save-wsorg_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/LOGREG_VAR_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -26,4 +26,5 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 # python run_logreg.py --task "sst2-mVALUE,qqp-mVALUE,mnli-mVALUE,qnli-mVALUE,sst2,qqp,mnli,qnli"  --tokenizer_paths "all"
 # python run_logreg.py --task "multi-DIALECT"  --tokenizer_paths "all"
-python run_logreg.py --task "all"  --tokenizer_paths  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000/tokenizer.json"
+# python run_logreg.py --task "all"  --tokenizer_paths  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000/tokenizer.json"
+python run_logreg.py --task "NUCLE,sadiri,multi-DIALECT,PAN,CORE"  --tokenizer_paths  "all"

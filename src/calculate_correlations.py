@@ -5,7 +5,7 @@ import json
 import os
 import re
 import statistics
-
+from statsmodels.stats.contingency_tables import mcnemar
 from matplotlib import pyplot as plt
 from scipy.stats import wilcoxon
 import seaborn as sns
@@ -30,6 +30,72 @@ performance_keys = {
 }
 
 
+def save_dict_as_json(data, file_path):
+    """
+    Converts a dictionary containing non-serializable objects (e.g., numpy arrays)
+    to a JSON-serializable format and saves it to a JSON file.
+
+    Args:
+        data (dict): The dictionary to save.
+        file_path (str): The path to the JSON file.
+    """
+
+    def make_serializable(obj):
+        # Recursively convert numpy arrays to lists
+        if isinstance(obj, dict):
+            return {key: make_serializable(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            return [make_serializable(item) for item in obj]
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return obj
+
+    # Convert the dictionary to a serializable format
+    serializable_data = make_serializable(data)
+
+    # check if folder exists
+    folder = os.path.dirname(file_path)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    # Save to a JSON file
+    with open(file_path, "w") as file:
+        json.dump(serializable_data, file, indent=4)
+
+
+def load_json_as_dict(file_path):
+    """
+    Loads a JSON file and converts lists back to numpy arrays where applicable.
+
+    Args:
+        file_path (str): The path to the JSON file.
+
+    Returns:
+        dict: The loaded dictionary with lists converted to numpy arrays.
+    """
+
+    def convert_to_numpy(obj):
+        # Recursively convert lists back to numpy arrays
+        if isinstance(obj, dict):
+            return {key: convert_to_numpy(value) for key, value in obj.items()}
+        elif isinstance(obj, list):
+            # Check if it should be converted to a numpy array
+            try:
+                return np.array(obj)
+            except:
+                return [convert_to_numpy(item) for item in obj]
+        else:
+            return obj
+
+    # Load the JSON file
+    with open(file_path, "r") as file:
+        data = json.load(file)
+
+    # Convert lists back to numpy arrays
+    return convert_to_numpy(data)
+
+
 def main():
     # do this only for the textflint tasks for now
     tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS
@@ -42,13 +108,21 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk4/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
+    bert_version = "base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
-                                             bert_version="base-BERT")  # train-mixed/base-BER
+                                             bert_version=bert_version)
+    if os.path.exists(f"{bert_version}_predictions.json"):
+        BERT_PREDICTIONS = load_json_as_dict(f"{bert_version}_predictions.json")
+    else:
+        BERT_PREDICTIONS = get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition,
+                                                bert_version=bert_version)  # train-mixed/base-BERT
+        save_dict_as_json(BERT_PREDICTIONS, f"{bert_version}_predictions.json")
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
+    # reorder df in the order "twitter-gpt2-32000", "mixed-
     print(df.to_markdown())
     calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
 
@@ -80,7 +154,17 @@ def main():
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
 
     # for all types of tasks: GLUE tasks, VARIETIES
-    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS  # + GLUE_TASKS
+    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
+    significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="robust")
+    significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
+
+    # Wilcoxon test for the BERT predictions
+    significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="robust")
+    significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="sensitive")
+
+
+def significance_test(considered_tasks, performance_values, predictions_for_mcnemar=None, do_wilcoxon=False,
+                      bonferroni=True, tasks_name="robust"):
     # for grouped models (consider tokenizer paths groups)
     for g_nbr, tok_group in enumerate(TOKENIZER_PATHS):
         performance_per_tok = {}
@@ -88,41 +172,63 @@ def main():
         for tokenizer_path in tok_group:
             tokenizer = os.path.basename(os.path.dirname(tokenizer_path))
             performance_per_tok[tokenizer] = {}
-            for task in ROBUST_TASKS:
-                if task in BERT_PERFORMANCE[tokenizer]:
-                    performance_per_tok[tokenizer][task] = BERT_PERFORMANCE[tokenizer][task]
+            for task in considered_tasks:
+                if task in performance_values[tokenizer]:
+                    performance_per_tok[tokenizer][task] = performance_values[tokenizer][task]
+
             # calculate mean performance robust task
             mean_performance_per_tok[tokenizer] = np.mean(list(performance_per_tok[tokenizer].values()))
 
-        # calculate Wilcoxon signed-rank test
         # get models sorted by mean performance
-        sorted_models = sorted(mean_performance_per_tok, key=mean_performance_per_tok.get, reverse=True)
+        sorted_models_names = sorted(mean_performance_per_tok, key=mean_performance_per_tok.get, reverse=True)
         pval_matrix = pd.DataFrame(
-            data=np.ones((len(sorted_models), len(sorted_models))),  # fill with 1.0 initially
-            index=[m_name.split("-")[g_nbr] for m_name in sorted_models],
-            columns=[m_name.split("-")[g_nbr] for m_name in sorted_models],
+            data=np.ones((len(sorted_models_names), len(sorted_models_names))),  # fill with 1.0 initially
+            index=[m_name.split("-")[g_nbr] for m_name in sorted_models_names],
+            columns=[m_name.split("-")[g_nbr] for m_name in sorted_models_names],
         )
-        for i in range(len(sorted_models)):
-            for j in range(i + 1, len(sorted_models)):
+
+        for i in range(len(sorted_models_names)):
+            for j in range(i + 1, len(sorted_models_names)):
                 data1 = []
                 data2 = []
-                tok1 = sorted_models[i]
-                tok2 = sorted_models[j]
-                for task in ROBUST_TASKS:
+                tok1 = sorted_models_names[i]
+                tok2 = sorted_models_names[j]
+                correct = []
+                for task in considered_tasks:
                     if task in performance_per_tok[tok1] and task in performance_per_tok[tok2]:
-                        data1.append(performance_per_tok[tok1][task])
-                        data2.append(performance_per_tok[tok2][task])
+                        if do_wilcoxon:
+                            data1.append(performance_per_tok[tok1][task])
+                            data2.append(performance_per_tok[tok2][task])
+                        else:
+                            if task not in predictions_for_mcnemar[tok1] or task not in predictions_for_mcnemar[tok2]:
+                                print(f"ERROR: Predictions {task} not found for {tok1} or {tok2}")
+                                continue
+                            data1 += list(predictions_for_mcnemar[tok1][task])
+                            data2 += list(predictions_for_mcnemar[tok2][task])
+                            correct += list(predictions_for_mcnemar["gt"][task])
                 if len(data1) > 0:
-                    stat, pval = wilcoxon(data1, data2, alternative="greater")
-                    pval_matrix.iloc[i, j] = pval
-                    pval_matrix.iloc[j, i] = pval
+                    if do_wilcoxon:
+                        stat, pval = wilcoxon(data1, data2, alternative="greater")
+                        pval_matrix.iloc[i, j] = pval
+                        pval_matrix.iloc[j, i] = pval
+                    else:
+                        # flatten arrays
+                        stat, pval, table = compute_mcnemar_statsmodels(correct, data1, data2)
+                        pval_matrix.iloc[i, j] = pval
+                        pval_matrix.iloc[j, i] = pval
                 else:
                     pval_matrix.iloc[i, j] = None
                     pval_matrix.iloc[j, i] = None
 
-        # pval_matrix = bonferroni_correction(pval_matrix, sorted_models)
+        addition = ""
+        if bonferroni:
+            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names)
+            addition = "Bonferroni-corrected"
 
-        print("Pairwise Wilcoxon p-value matrix (Bonferroni-corrected):")
+        if do_wilcoxon:
+            print(f"Pairwise Wilcoxon p-value matrix {addition}:")
+        else:
+            print(f"Pairwise McNemar p-value matrix {addition}:")
         print(pval_matrix)
 
         mask = np.triu(np.ones_like(pval_matrix, dtype=bool))  # hides upper triangle + diagonal
@@ -135,7 +241,8 @@ def main():
                     fmt=".3f",  # formatting for p-values
                     vmin=0, vmax=1)
 
-        plt.title("Pairwise Wilcoxon p-values (Heatmap)")
+        test = "Wilcoxon" if do_wilcoxon else "McNemar"
+        plt.title(f"Pairwise {test} p-values (Heatmap) on {tasks_name} Tasks")
         plt.show()
 
 
@@ -151,12 +258,14 @@ def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
             if all([key in model_result_dict[tokenizer_name] for key in GLUE_TEXTFLINT_TASKS]):
                 mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
                 # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-                mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
+                mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean,
+                                                                   "reduction": mean - mean_glue}  # , "std": std
             # check if the tokenizer has all mVALUE tasks
             if all([key in model_result_dict[tokenizer_name] for key in GLUE_MVALUE_TASKS]):
                 mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
                 # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-                mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean, "reduction": mean - mean_glue}  # , "std": std
+                mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean,
+                                                                "reduction": mean - mean_glue}  # , "std": std
     df = pd.DataFrame(mean_std_dict).T
     df.index.name = model_name
     print(df.to_markdown())
@@ -296,6 +405,65 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
     return BERT_PERFORMANCE
 
 
+def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, bert_version="base-BERT"):
+    BERT_PREDICTIONS = {}
+    base_out_base_path = os.path.join(local_finder_addition, "TOKENIZER/output/")
+    BERT_PATH = "749M/steps-45000/seed-42/42/"
+    for task in tasks:
+
+        if task in GLUE_TEXTFLINT_TASKS:
+            task_finder_addition = f"GLUE/textflint/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in GLUE_MVALUE_TASKS:
+            task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in GLUE_TASKS:
+            task_finder_addition = f"GLUE/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        elif task in VARIETIES_TASKS:
+            task_finder_addition = f"VAR/{bert_version}/"
+            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+        else:
+            raise NotImplementedError(f"task {task} not found")
+
+        task_key = task
+        if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
+            task_key = task.split('-')[0]
+
+        for tokenizer_path in unique_tokenizer_paths:
+            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key)
+            # check if there exists a tsv file including "eval_dataset" in the name
+            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+
+            # get the BERT output for the task
+            if not os.path.exists(result_path):
+                print(f"Path {result_path} does not exist")
+                continue
+            files = os.listdir(result_path)
+            for file in files:
+                if ((task_key in GLUE_TASKS and f"eval_dataset_{task_key}.tsv" in file) or
+                        (task_key not in GLUE_TASKS and "eval_dataset.tsv" in file)):
+                    result_path = os.path.join(result_path, file)
+                    # read in .tsv file
+                    df = pd.read_csv(result_path, sep='\t')
+                    # save the predictions from the "predictions" column
+                    if tokenizer_name not in BERT_PREDICTIONS:
+                        BERT_PREDICTIONS[tokenizer_name] = {}
+                    if "gt" not in BERT_PREDICTIONS:
+                        BERT_PREDICTIONS["gt"] = {}
+                    if task not in BERT_PREDICTIONS["gt"]:
+                        BERT_PREDICTIONS["gt"][task] = df["label"].values
+                    BERT_PREDICTIONS[tokenizer_name][task] = df["predictions"].values
+                    break
+
+            if (tokenizer_name not in BERT_PREDICTIONS) or (task not in BERT_PREDICTIONS[tokenizer_name]):
+                print(f"No predictions found for {tokenizer_name} ...")
+                continue
+
+    return BERT_PREDICTIONS
+
+
 def parse_classification_report(file_path):
     """
     Parse a text-based classification report (such as the output of
@@ -395,6 +563,70 @@ def parse_sadiri_metrics(filepath):
 
             results[key] = value
     return results
+
+
+def compute_mcnemar_statsmodels(y_true, y_pred1, y_pred2, exact=False, correction=True):
+    """
+    Compute McNemar's test using statsmodels for two classification models
+    given the ground truth and their predictions.
+
+    Parameters
+    ----------
+    y_true : array-like of shape (n_samples,)
+        Ground truth labels.
+    y_pred1 : array-like of shape (n_samples,)
+        Predictions from model A.
+    y_pred2 : array-like of shape (n_samples,)
+        Predictions from model B.
+    exact : bool, optional
+        Whether to use the exact binomial test. Default is False
+        (uses the chi-square approximation).
+    correction : bool, optional
+        Whether to apply continuity correction when using the chi-square
+        approximation. Default is True.
+
+    Returns
+    -------
+    statistic : float
+        Test statistic (chi-square statistic if exact=False, or the number
+        of discordant pairs if exact=True).
+    pvalue : float
+        Two-sided p-value for the test.
+    table : 2D numpy array
+        The 2×2 contingency table:
+            [[a, b],
+             [c, d]]
+    """
+    # if type(y_true[0]) == list:
+    #     y_true = [item for sublist in y_true for item in sublist]
+    #     y_pred1 = [item for sublist in y_pred1 for item in sublist]
+    #     y_pred2 = [item for sublist in y_pred2 for item in sublist]
+    y_true = np.array(y_true)
+    y_pred1 = np.array(y_pred1)
+    y_pred2 = np.array(y_pred2)
+
+    # Ensure all arrays have the same length
+    if not (len(y_true) == len(y_pred1) == len(y_pred2)):
+        raise ValueError("All input arrays must have the same length.")
+
+    correct1 = (y_pred1 == y_true)
+    correct2 = (y_pred2 == y_true)
+
+    a = np.sum(correct1 & correct2)  # both correct
+    b = np.sum(correct1 & ~correct2)  # model A correct, model B wrong
+    c = np.sum(~correct1 & correct2)  # model A wrong, model B correct
+    d = np.sum(~correct1 & ~correct2)  # both wrong
+
+    # Build the 2×2 table
+    table = np.array([[a, b],
+                      [c, d]])
+
+    # Perform McNemar's test using statsmodels
+    result = mcnemar(table, exact=exact, correction=correction)
+
+    # The result object has two main attributes: statistic and pvalue
+    return result.statistic, result.pvalue, table
+
 
 if __name__ == "__main__":
     main()
