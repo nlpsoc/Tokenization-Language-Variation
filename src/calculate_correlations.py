@@ -42,7 +42,7 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
@@ -60,7 +60,8 @@ def main():
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {c}")
-
+    c_no_size = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=True)
+    print(f"Correlation between BERT and LR (no size difference): {c_no_size}")
     calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
 
     # get intrinisic measures
@@ -69,13 +70,13 @@ def main():
     print(INTRINSIC_MEASURE)
     # calculate the correlation between the BERT performance and the intrinsic measures
     # TODO: do not caluclate correlation for the vocab size
-    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
+    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
 
     intrinsic_key = "renyi_eff_2.5"
     INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     print(INTRINSIC_MEASURE)
-    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE)
+    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
 
     # for all types of tasks: GLUE tasks, VARIETIES
@@ -201,10 +202,13 @@ def get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STA
     return INTRINSIC_MEASURE
 
 
-def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION):
+def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=False):
     x = []
     y = []
     for tokenizer_name in BERT_PERFORMANCE:
+        size = int(tokenizer_name.split("-")[-1])
+        if no_size_difference and size != 32000:
+            continue
         for task in BERT_PERFORMANCE[tokenizer_name]:
             if task in LOG_REGRESSION[tokenizer_name]:
                 x.append(BERT_PERFORMANCE[tokenizer_name][task])
