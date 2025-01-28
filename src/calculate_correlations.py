@@ -232,12 +232,13 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
         print(pval_matrix)
 
         mask = np.triu(np.ones_like(pval_matrix, dtype=bool))  # hides upper triangle + diagonal
+        sns.set_context("paper")
 
         plt.figure(figsize=(6, 5))
         sns.heatmap(pval_matrix,
                     mask=mask,
                     annot=True,  # show p-values in each cell
-                    cmap="coolwarm_r",  # color scheme
+                    cmap="coolwarm",  # color scheme
                     fmt=".3f",  # formatting for p-values
                     vmin=0, vmax=1)
 
