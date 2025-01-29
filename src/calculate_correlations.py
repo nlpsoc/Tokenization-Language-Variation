@@ -369,7 +369,7 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
         report_file = "classification_report.txt"
         if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
             task_key = task.split('-')[0]
-        if task == "NUCLE":
+        if (task == "NUCLE") or (task == "CORE"):
             report_file = "f1_per_label.txt"
         for tokenizer_path in unique_tokenizer_paths:
             # get tokenizer name
@@ -387,11 +387,13 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
 
             # get the performance from the performance keys
             if "accuracy" in performance_keys[task_key]:
+                if "accuracy" not in classification_report:
+                    print(f"Accuracy not found in {result_path}")
+                    continue
                 LOG_REGRESSION[tokenizer_name][task] = classification_report["accuracy"]
             else:
                 if task == "NUCLE":
-                    print(f"NUCLE: {classification_report['f1_weighted']}")
-                    LOG_REGRESSION[tokenizer_name][task] = classification_report["f1-score"]
+                    LOG_REGRESSION[tokenizer_name][task] = classification_report["f1_macro"]
                 else:
                     LOG_REGRESSION[tokenizer_name][task] = classification_report['1']["f1-score"]
     return LOG_REGRESSION
@@ -594,6 +596,14 @@ def parse_classification_report(file_path):
         # 3) Detect "F1 macro: x.xxxxxx"
         elif line.startswith("F1 macro:"):
             parsed_report["f1_macro"] = parse_f1_line(line, "F1 macro:")
+
+        # 4) Detect "F1 micro: x.xxxxxx"
+        elif line.startswith("F1 micro:"):
+            parsed_report["f1_micro"] = parse_f1_line(line, "F1 micro:")
+
+        # 5) Detect "Accuracy: x.xxxxxx"
+        elif line.startswith("Accuracy:"):
+            parsed_report["accuracy"] = parse_f1_line(line, "Accuracy:")
 
         else:
             # 4) Try to parse as a standard classification report line
