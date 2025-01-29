@@ -366,15 +366,18 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
     LR_ADDITION = "LR"
     for task in tasks:
         task_key = task
+        report_file = "classification_report.txt"
         if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
             task_key = task.split('-')[0]
+        if task == "NUCLE":
+            report_file = "f1_per_label.txt"
         for tokenizer_path in unique_tokenizer_paths:
             # get tokenizer name
             tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
             if tokenizer_name not in LOG_REGRESSION:
                 LOG_REGRESSION[tokenizer_name] = {}
             # get the BERT output for the task
-            result_path = os.path.join(stats_base_path, tokenizer_name, LR_ADDITION, task, "classification_report.txt")
+            result_path = os.path.join(stats_base_path, tokenizer_name, LR_ADDITION, task, report_file)
 
             # check that path exists
             if not os.path.exists(result_path):
@@ -386,7 +389,11 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
             if "accuracy" in performance_keys[task_key]:
                 LOG_REGRESSION[tokenizer_name][task] = classification_report["accuracy"]
             else:
-                LOG_REGRESSION[tokenizer_name][task] = classification_report['1']["f1-score"]
+                if task == "NUCLE":
+                    print(f"NUCLE: {classification_report['f1_weighted']}")
+                    LOG_REGRESSION[tokenizer_name][task] = classification_report["f1-score"]
+                else:
+                    LOG_REGRESSION[tokenizer_name][task] = classification_report['1']["f1-score"]
     return LOG_REGRESSION
 
 
@@ -505,69 +512,124 @@ def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, b
 
 def parse_classification_report(file_path):
     """
-    Parse a text-based classification report (such as the output of
-    sklearn.metrics.classification_report) into a structured dictionary.
+    Parse either:
+      1) A standard sklearn.metrics.classification_report text output
+         into a structured dictionary with per-class metrics, plus accuracy.
+      2) A file containing lines like:
+         F1 per label: [0.14567527 0.02362205 ... 0.50424929]
+         F1 weighted: 0.1291048390401571
+         F1 macro: 0.0832130497702279
 
-    This version explicitly captures accuracy as well.
+    Returns a dictionary, for example:
+    {
+       "0": {"precision": 0.71, "recall": 0.67, "f1-score": 0.69, "support": 422},
+       "1": {...},
+       "accuracy": 0.71,
+       "macro avg": {...},
+       "weighted avg": {...},
+       "f1_per_label": [0.14567527, 0.02362205, 0.15300546, ...],
+       "f1_weighted": 0.1291048390401571,
+       "f1_macro": 0.0832130497702279
+    }
     """
-
-    # We'll store metrics in a dictionary structure like:
-    # {
-    #   "0": {"precision": 0.71, "recall": 0.67, "f1-score": 0.69, "support": 422},
-    #   "1": {...},
-    #   "accuracy": 0.71,                # separate float
-    #   "macro avg": {...},
-    #   "weighted avg": {...}
-    # }
 
     parsed_report = {}
 
+    if "NUCLE" in file_path:
+        print("DEBUG")
+
     with open(file_path, 'r') as f:
-        # Read all lines, stripping whitespace, skipping empty lines
         lines = [line.strip() for line in f if line.strip()]
 
-    # This regex will split on 2 or more spaces
+    # Regex to split the standard classification report lines on 2+ spaces:
     splitter = re.compile(r"\s{2,}")
 
-    for line in lines:
-        # Split the line by 2+ spaces.
-        parts = splitter.split(line)
+    # A small helper to parse lines that look like "F1 weighted: 0.12345"
+    def parse_f1_line(line, prefix):
+        # e.g., line == "F1 weighted: 0.1291048390401571"
+        # prefix might be "F1 weighted:"
+        # We return the float part after the prefix
+        # We'll assume well-formed input
+        return float(line.replace(prefix, "").strip())
 
-        # Typical lines might be:
-        # ["0", "0.71", "0.67", "0.69", "422"]
-        # ["1", "0.70", "0.74", "0.72", "443"]
-        # ["accuracy", "0.71", "865"]                  # 3 columns
-        # ["macro avg", "0.71", "0.71", "0.71", "865"]  # 5 columns
-        # ["weighted avg", "0.71", "0.71", "0.71", "865"]
+    i = 0
+    n = len(lines)
 
-        if len(parts) == 5:
-            # Likely a class label (e.g. "0", "1") or an avg (e.g. "macro avg", "weighted avg")
-            label = parts[0]
-            precision = float(parts[1])
-            recall = float(parts[2])
-            f1 = float(parts[3])
-            support = int(parts[4])
+    while i < n:
+        line = lines[i]
 
-            parsed_report[label] = {
-                "precision": precision,
-                "recall": recall,
-                "f1-score": f1,
-                "support": support
-            }
+        # 1) Detect F1 per label bracketed array
+        if line.startswith("F1 per label:"):
+            # We may need to accumulate multiple lines until we reach a ']'
+            f1_block = line
+            i += 1
+            # If the line doesn't contain the closing bracket, keep accumulating
+            while i < n and ']' not in f1_block:
+                f1_block += ' ' + lines[i]
+                i += 1
+            i -= 1  # rewind by one to be on closing bracket line
+            # Now parse all floats inside the brackets
+            # e.g. f1_block might be: "F1 per label: [0.14 0.02 0.15 ... 0.50]"
+            # Let's extract the portion inside [  ...  ]
+            match = re.search(r'\[([^\]]+)\]', f1_block)
+            if match:
+                float_str = match.group(1)  # everything inside the brackets
+                # split on whitespace to get each potential float
+                str_vals = float_str.split()
+                # Convert each to float
+                values = []
+                for val in str_vals:
+                    # handle possible "0." or numeric strings
+                    # Python can handle "0." but let's be robust if there's a trailing '.'
+                    # or if they are "0.000" etc
+                    # We'll just do float(val).
+                    values.append(float(val))
 
-        elif len(parts) == 3 and parts[0].lower() == "accuracy":
-            # Typically: ["accuracy", "0.71", "865"]
-            # The middle one is the accuracy value
-            # The last one is total support
-            accuracy_value = float(parts[1])
-            # If desired, you could store the support of accuracy as well
-            # But typically we only keep the float for accuracy
-            parsed_report["accuracy"] = accuracy_value
+                parsed_report["f1_per_label"] = values
+
+        # 2) Detect "F1 weighted: x.xxxxxx"
+        elif line.startswith("F1 weighted:"):
+            parsed_report["f1_weighted"] = parse_f1_line(line, "F1 weighted:")
+
+        # 3) Detect "F1 macro: x.xxxxxx"
+        elif line.startswith("F1 macro:"):
+            parsed_report["f1_macro"] = parse_f1_line(line, "F1 macro:")
 
         else:
-            # If there's any mismatch or unexpected line, handle or skip
-            # print("Skipping line:", line)
-            pass
+            # 4) Try to parse as a standard classification report line
+            parts = splitter.split(line)
+
+            if len(parts) == 5:
+                # Likely a class label or an average line
+                label = parts[0]
+                try:
+                    precision = float(parts[1])
+                    recall = float(parts[2])
+                    f1 = float(parts[3])
+                    support = int(parts[4])
+                    parsed_report[label] = {
+                        "precision": precision,
+                        "recall": recall,
+                        "f1-score": f1,
+                        "support": support
+                    }
+                except ValueError:
+                    # If it doesn't parse correctly, skip or handle differently
+                    pass
+
+            elif len(parts) == 3 and parts[0].lower() == "accuracy":
+                # Typically: ["accuracy", "0.71", "865"]
+                try:
+                    accuracy_value = float(parts[1])
+                    parsed_report["accuracy"] = accuracy_value
+                except ValueError:
+                    pass
+            # else: it's a line we don't parse or don't recognize
+
+            i += 1
+            continue
+
+        i += 1
 
     return parsed_report
 

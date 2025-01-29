@@ -305,7 +305,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 # Evaluate: multi-label
                 f1_weighted = f1_score(y_eval_binary, y_pred_binary, average='weighted', zero_division=0)
                 f1_macro = f1_score(y_eval_binary, y_pred_binary, average='macro', zero_division=0)
+                f1_micro = f1_score(y_eval_binary, y_pred_binary, average='micro', zero_division=0)
                 f1_per_label = f1_score(y_eval_binary, y_pred_binary, average=None, zero_division=0)
+                accuracy = accuracy_score(y_eval_binary, y_pred_binary)
 
                 # Print F1 score per label
                 for label, f1 in zip(all_labels, f1_per_label):
@@ -316,6 +318,8 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                     f.write(f"F1 per label: {f1_per_label}\n")
                     f.write(f"F1 weighted: {f1_weighted}\n")
                     f.write(f"F1 macro: {f1_macro}\n")
+                    f.write(f"F1 micro: {f1_micro}\n")
+                    f.write(f"Accuracy: {accuracy}\n")
 
                 # Subset accuracy (exact match ratio)
                 # fraction of samples that have ALL labels correct
