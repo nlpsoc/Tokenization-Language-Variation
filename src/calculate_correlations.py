@@ -112,7 +112,7 @@ def main():
     local_finder_addition = "/Users/anna/sftp_mount/hpc_disk6/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
-    bert_version = "base-BERT"  # train-mixed/base-BER
+    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
                                              bert_version=bert_version)
     if os.path.exists(f"{bert_version}_predictions.json"):
