@@ -9,6 +9,7 @@ from statsmodels.stats.contingency_tables import mcnemar
 from matplotlib import pyplot as plt
 from scipy.stats import wilcoxon
 import seaborn as sns
+import statsmodels.formula.api as smf
 
 import numpy as np
 import pandas as pd
@@ -108,7 +109,7 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk4/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk6/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     bert_version = "base-BERT"  # train-mixed/base-BER
@@ -143,7 +144,6 @@ def main():
     INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     print(INTRINSIC_MEASURE)
     # calculate the correlation between the BERT performance and the intrinsic measures
-    # TODO: do not caluclate correlation for the vocab size
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
 
@@ -157,6 +157,8 @@ def main():
     ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="robust")
     significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
+    mixed_effect_model(BERT_PERFORMANCE, ROBUST_TASKS)
+    mixed_effect_model(BERT_PERFORMANCE, VARIETIES_TASKS)
 
     # Wilcoxon test for the BERT predictions
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="robust")
@@ -245,6 +247,38 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
         test = "Wilcoxon" if do_wilcoxon else "McNemar"
         plt.title(f"Pairwise {test} p-values (Heatmap) on {tasks_name} Tasks")
         plt.show()
+
+
+def mixed_effect_model(performance_per_tok, tasks=GLUE_TASKS):
+    data_list = []
+    for top_key, task_dict in performance_per_tok.items():  # performance_values
+
+        # Each top-level key looks like "mixed-gpt2-32000"
+        # Split it by '-' to extract Domain, Model, and VocabSize.
+        domain, base_model, vocab_str = top_key.split('-')
+
+        for task_name, performance in task_dict.items():
+            if task_name not in tasks:
+                continue
+            data_list.append({
+                "Corpus": domain,
+                "Model": base_model,
+                "VocabSize": vocab_str,  # could convert to int if you like: int(vocab_str)
+                "Task": task_name,  # e.g. "sst2-textflint"
+                "Performance": performance
+            })
+    # 2. Create a DataFrame
+    df = pd.DataFrame(data_list)
+    # 3. Fit a mixed-effects model.
+    #    Example: treat Domain, Model, VocabSize as fixed effects
+    #    and allow random intercepts by Task (since many tasks repeat).
+    model = smf.mixedlm(
+        formula="Performance ~ C(Corpus) + C(Model) + C(VocabSize) + C(Task)",
+        data=df,
+        groups=df["Task"]  # random grouping by Task
+    )
+    result = model.fit()
+    print(result.summary())
 
 
 def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
@@ -401,8 +435,12 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
                     data_dict = json.load(f)
             else:
                 data_dict = parse_sadiri_metrics(result_path)
-            # get the performance from the performance keys
-            BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
+            if performance_keys[task_key] in data_dict:
+                # get the performance from the performance keys
+                BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
+            else:
+                print(f"Performance key {performance_keys[task_key]} not found in {result_path}")
+                continue
     return BERT_PERFORMANCE
 
 
