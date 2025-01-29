@@ -2,15 +2,14 @@ import argparse
 import itertools
 import os
 
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT
+from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
     _get_vocabsize_and_dist, calc_sim_renyi_efficiency_from_generator
 from run_glue import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS,
-                                                    VALUE_PATHS)
+from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS)
 
 set_cache()
 
@@ -33,7 +32,7 @@ def main(output_path=None):
         "avg_seq_len": [],
         "vocab_size": []
     }
-    for task_name_or_hfpath in (GLUE_TEXTFLINT_TASKS + GLUE_TASKS + VARIETIES_TASKS + FITTING_CORPORA):
+    for task_name_or_hfpath in (GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS + FITTING_CORPORA):
         split = None
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
@@ -49,6 +48,12 @@ def main(output_path=None):
             task_to_keys = glue_task_to_keys
             csv_file = True
             task_key = task.split('-')[0]
+        elif task_name_or_hfpath in GLUE_MVALUE_TASKS:
+            task = task_name_or_hfpath
+            task_name_or_hfpath = GLUE_MVALUE_TASKS[task]["dev"]
+            task_to_keys = glue_task_to_keys
+            csv_file = True
+            task_key = task
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"],
                             "pubmed": ["text"]}

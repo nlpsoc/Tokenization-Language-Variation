@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from scipy.stats import wilcoxon
 import seaborn as sns
 import statsmodels.formula.api as smf
+import matplotlib.colors as mcolors
 
 import numpy as np
 import pandas as pd
@@ -57,7 +58,7 @@ def save_dict_as_json(data, file_path):
 
     # check if folder exists
     folder = os.path.dirname(file_path)
-    if not os.path.exists(folder):
+    if folder != "" and not os.path.exists(folder):
         os.makedirs(folder)
 
     # Save to a JSON file
@@ -112,7 +113,7 @@ def main():
     local_finder_addition = "/Users/anna/sftp_mount/hpc_disk6/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
-    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
+    bert_version = "base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
                                              bert_version=bert_version)
     if os.path.exists(f"{bert_version}_predictions.json"):
@@ -123,6 +124,9 @@ def main():
         save_dict_as_json(BERT_PREDICTIONS, f"{bert_version}_predictions.json")
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
+    # add a mean-robust and a mean-sensitive column
+    df["mean-robust"] = df[GLUE_TASKS].mean(axis=1)
+    df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
     # reorder df in the order "twitter-gpt2-32000", "mixed-
     print(df.to_markdown())
     calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
@@ -131,6 +135,8 @@ def main():
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
+    df["mean-robust"] = df[GLUE_TASKS].mean(axis=1)
+    # df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
     print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
@@ -142,14 +148,18 @@ def main():
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
     INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
-    print(INTRINSIC_MEASURE)
+    df = pd.DataFrame(INTRINSIC_MEASURE).T
+    df.index.name = "Seq Len"
+    print(df.to_markdown())
     # calculate the correlation between the BERT performance and the intrinsic measures
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
 
     intrinsic_key = "renyi_eff_2.5"
     INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
-    print(INTRINSIC_MEASURE)
+    df = pd.DataFrame(INTRINSIC_MEASURE).T
+    df.index.name = "Renyi Eff 2.5"
+    print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
 
@@ -169,6 +179,7 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
                       bonferroni=True, tasks_name="robust"):
     # for grouped models (consider tokenizer paths groups)
     for g_nbr, tok_group in enumerate(TOKENIZER_PATHS):
+        show_legend = g_nbr == len(TOKENIZER_PATHS) - 1
         performance_per_tok = {}
         mean_performance_per_tok = {}
         for tokenizer_path in tok_group:
@@ -181,12 +192,30 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
             # calculate mean performance robust task
             mean_performance_per_tok[tokenizer] = np.mean(list(performance_per_tok[tokenizer].values()))
 
+
+        display_translations = {
+            "twitter": "X",
+            "mixed": "Mixed",
+            "wikipedia": "Wiki",
+            "pubmed": "PMed",
+            "gpt2": "gpt",
+            "32000": "32",
+            "64000": "64",
+            "128000": "128",
+            "4000": "4",
+            "500": "0.5",
+            "llama3": "llama",
+            "ws": "_ws",
+            "wsorg": "ws",
+            "no": "no",
+        }
+
         # get models sorted by mean performance
         sorted_models_names = sorted(mean_performance_per_tok, key=mean_performance_per_tok.get, reverse=True)
         pval_matrix = pd.DataFrame(
             data=np.ones((len(sorted_models_names), len(sorted_models_names))),  # fill with 1.0 initially
-            index=[m_name.split("-")[g_nbr] for m_name in sorted_models_names],
-            columns=[m_name.split("-")[g_nbr] for m_name in sorted_models_names],
+            index=[display_translations[m_name.split("-")[g_nbr]] for m_name in sorted_models_names],
+            columns=[display_translations[m_name.split("-")[g_nbr]] for m_name in sorted_models_names],
         )
 
         for i in range(len(sorted_models_names)):
@@ -233,20 +262,50 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
             print(f"Pairwise McNemar p-value matrix {addition}:")
         print(pval_matrix)
 
+        norm = FuncNorm((forward, inverse), vmin=0, vmax=1)
+
         mask = np.triu(np.ones_like(pval_matrix, dtype=bool))  # hides upper triangle + diagonal
-        sns.set_context("paper")
 
-        plt.figure(figsize=(6, 5))
-        sns.heatmap(pval_matrix,
-                    mask=mask,
-                    annot=True,  # show p-values in each cell
-                    cmap="coolwarm",  # color scheme
-                    fmt=".3f",  # formatting for p-values
-                    vmin=0, vmax=1)
+        # Define colormap with two segments split at midpoint (0.5)
+        colors = [(0, 'darkblue'), (0.05, 'lightblue'), (0.05, 'lightcoral'), (1, 'darkred')]
+        custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', colors)
 
-        test = "Wilcoxon" if do_wilcoxon else "McNemar"
-        plt.title(f"Pairwise {test} p-values (Heatmap) on {tasks_name} Tasks")
+        sns.set_context("paper", font_scale=2.9)
+
+        # plot size
+        plt.figure(figsize=(6, 6))
+
+        ax = sns.heatmap(pval_matrix,
+                         mask=mask,
+                         annot=False,
+                         cmap=custom_cmap,
+                         fmt=".3f",
+                         vmin=0,
+                         vmax=1,
+                         # norm=norm,  # Apply custom normalization
+                         cbar=show_legend)
+
+        plt.setp(ax.get_xticklabels(), fontweight="bold")  # Bold x-axis tick labels
+        plt.setp(ax.get_yticklabels(), fontweight="bold")  # Bold y-axis tick labels
+
+        if show_legend:
+            colorbar = ax.collections[0].colorbar
+            # Set ticks at data values that correspond to colorbar's start, middle, and end
+            colorbar.set_ticks([0.05, 1])
+            colorbar.set_ticklabels(['0.05', '1'])
+
+        plt.tight_layout()
         plt.show()
+
+from matplotlib.colors import LinearSegmentedColormap, FuncNorm
+
+def forward(x):
+    return np.where(x <= 0.05, (x / 0.05) * 0.5, 0.5 + ((x - 0.05) / (1 - 0.05)) * 0.5)
+
+def inverse(x):
+    return np.where(x <= 0.5, (x * 0.05) / 0.5, 0.05 + (x - 0.5) * (1 - 0.05) / 0.5)
+
+
 
 
 def mixed_effect_model(performance_per_tok, tasks=GLUE_TASKS):
@@ -537,9 +596,6 @@ def parse_classification_report(file_path):
 
     parsed_report = {}
 
-    if "NUCLE" in file_path:
-        print("DEBUG")
-
     with open(file_path, 'r') as f:
         lines = [line.strip() for line in f if line.strip()]
 
@@ -738,6 +794,33 @@ def compute_mcnemar_statsmodels(y_true, y_pred1, y_pred2, exact=False, correctio
     # The result object has two main attributes: statistic and pvalue
     return result.statistic, result.pvalue, table
 
+
+
+class HalfBelowPointNorm(mcolors.Normalize):
+    """
+    Map [vmin, cutoff] -> [0, 0.5]
+        [cutoff, vmax] -> [0.5, 1.0]
+    """
+    def __init__(self, vmin=None, vmax=None, cutoff=0.05, clip=False):
+        super().__init__(vmin, vmax, clip)
+        self.cutoff = cutoff
+
+    def __call__(self, value, clip=None):
+        # First normalize data to 0..1 range based on vmin..vmax
+        res = (value - self.vmin) / (self.vmax - self.vmin)
+
+        # Create a masked array so we don’t blow up on invalid values
+        res = np.ma.array(res, mask=np.isnan(res))
+
+        # Below or equal to cutoff => map linearly to [0, 0.5]
+        below = (res <= self.cutoff)
+        res[below] = 0.5 * (res[below] / self.cutoff)
+
+        # Above cutoff => map linearly to [0.5, 1]
+        above = (res > self.cutoff)
+        res[above] = 0.5 + 0.5 * ( (res[above] - self.cutoff) / (1 - self.cutoff) )
+
+        return res
 
 if __name__ == "__main__":
     main()
