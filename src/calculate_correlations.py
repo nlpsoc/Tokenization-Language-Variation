@@ -500,7 +500,7 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
                 LOG_REGRESSION[tokenizer_name][task] = classification_report["accuracy"]
             else:
                 if task == "NUCLE":
-                    LOG_REGRESSION[tokenizer_name][task] = classification_report["f1_macro"]
+                    LOG_REGRESSION[tokenizer_name][task] = classification_report["f1_micro"]
                 else:
                     LOG_REGRESSION[tokenizer_name][task] = classification_report['1']["f1-score"]
     return LOG_REGRESSION
