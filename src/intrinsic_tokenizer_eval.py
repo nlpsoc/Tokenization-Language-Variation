@@ -2,7 +2,7 @@ import argparse
 import itertools
 import os
 
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS
+from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
     _get_vocabsize_and_dist, calc_sim_renyi_efficiency_from_generator
@@ -32,7 +32,7 @@ def main(output_path=None):
         "avg_seq_len": [],
         "vocab_size": []
     }
-    for task_name_or_hfpath in (GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS + FITTING_CORPORA):
+    for task_name_or_hfpath in (GLUE_MVALUE_TASKS + VARIETIES_TASKS + FITTING_CORPORA + GLUE_TEXTFLINT_TASKS + GLUE_TASKS):
         split = None
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
@@ -50,7 +50,7 @@ def main(output_path=None):
             task_key = task.split('-')[0]
         elif task_name_or_hfpath in GLUE_MVALUE_TASKS:
             task = task_name_or_hfpath
-            task_name_or_hfpath = GLUE_MVALUE_TASKS[task]["dev"]
+            task_name_or_hfpath = GLUE_MVALUE[task]["dev"]
             task_to_keys = glue_task_to_keys
             csv_file = True
             task_key = task
