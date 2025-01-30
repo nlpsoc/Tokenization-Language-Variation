@@ -156,12 +156,23 @@ def main():
     print(f"Correlation between BERT and seq len: {c}")
 
     intrinsic_key = "renyi_eff_2.5"
-    INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
-    df = pd.DataFrame(INTRINSIC_MEASURE).T
+    renyi = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    df = pd.DataFrame(renyi).T
     df.index.name = "Renyi Eff 2.5"
     print(df.to_markdown())
-    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, renyi, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
+
+    intrinsic_key = "vocab_size"
+    vocab_size = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    df = pd.DataFrame(vocab_size).T
+    df.index.name = "Vocab Size"
+    print(df.to_markdown())
+    c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True)
+    print(f"Correlation between BERT and vocab size: {c}")
+    c = calculate_correlation(renyi, vocab_size, no_size_difference=True)
+    print(f"Correlation between renyi and vocab size: {c}")
+
 
     # for all types of tasks: GLUE tasks, VARIETIES
     ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS

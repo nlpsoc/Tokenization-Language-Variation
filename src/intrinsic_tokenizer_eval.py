@@ -53,7 +53,7 @@ def main(output_path=None):
             task_name_or_hfpath = GLUE_MVALUE[task]["dev"]
             task_to_keys = glue_task_to_keys
             csv_file = True
-            task_key = task
+            task_key = task.split('-')[0]
         elif task_name_or_hfpath in FITTING_CORPORA:
             task_to_keys = {"mixed": ["text"], "twitter": ["text"], "wikipedia": ["text"], "webbook": ["text"],
                             "pubmed": ["text"]}
