@@ -110,7 +110,7 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk6/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
 
     bert_version = "base-BERT"  # train-mixed/base-BER
