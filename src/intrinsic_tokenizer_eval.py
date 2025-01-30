@@ -32,7 +32,7 @@ def main(output_path=None):
         "avg_seq_len": [],
         "vocab_size": []
     }
-    for task_name_or_hfpath in (GLUE_MVALUE_TASKS + VARIETIES_TASKS + FITTING_CORPORA + GLUE_TEXTFLINT_TASKS + GLUE_TASKS):
+    for task_name_or_hfpath in (VARIETIES_TASKS +  GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TEXTFLINT_TASKS + GLUE_TASKS):
         split = None
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
@@ -40,8 +40,8 @@ def main(output_path=None):
             task_key = task
             task_name_or_hfpath = VARIETIES_DEV_DICT[task_name_or_hfpath]
             task_to_keys = VARIETIES_to_keys
-            if task != "sadiri":
-                csv_file = True
+            # if task != "sadiri":
+            csv_file = True
         elif task_name_or_hfpath in GLUE_TEXTFLINT_TASKS:
             task = task_name_or_hfpath
             task_name_or_hfpath = GLUE_TEXTFLINT[task]["dev"]

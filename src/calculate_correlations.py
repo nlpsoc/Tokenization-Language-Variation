@@ -2,6 +2,7 @@
     calculate the correlations between BERT predictions and log regression / intrinsic measures
 """
 import json
+import math
 import os
 import re
 import statistics
@@ -144,16 +145,33 @@ def main():
     c_no_size = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=True)
     print(f"Correlation between BERT and LR (no size difference): {c_no_size}")
     calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
+    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
+    log_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in LOG_REGRESSION.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, log_robust)
+    print(f"Correlation between BERT and LR (robust tasks): {c}")
+    c = calculate_correlation(BERT_PERFORMANCE, log_robust, no_size_difference=True)
+    print(f"Correlation between BERT and LR (robust tasks, no size difference): {c}")
+    log_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in LOG_REGRESSION.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, log_varieties)
+    print(f"Correlation between BERT and LR (sensitive tasks): {c}")
+    c = calculate_correlation(BERT_PERFORMANCE, log_varieties, no_size_difference=True)
+    print(f"Correlation between BERT and LR (sensitive tasks, no size difference): {c}")
 
     # get intrinisic measures
     intrinsic_key = "avg_seq_len"  # renyi_eff_2.5
-    INTRINSIC_MEASURE = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
-    df = pd.DataFrame(INTRINSIC_MEASURE).T
+    seq_len = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
+    df = pd.DataFrame(seq_len).T
     df.index.name = "Seq Len"
     print(df.to_markdown())
     # calculate the correlation between the BERT performance and the intrinsic measures
-    c = calculate_correlation(BERT_PERFORMANCE, INTRINSIC_MEASURE, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, seq_len, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
+    seqlen_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in seq_len.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, seqlen_robust, no_size_difference=True)
+    print(f"Correlation between BERT and seq len (robust tasks): {c}")
+    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in seq_len.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, seqlen_varieties, no_size_difference=True)
+    print(f"Correlation between BERT and seq len (sensitive tasks): {c}")
 
     intrinsic_key = "renyi_eff_2.5"
     renyi = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
@@ -162,6 +180,14 @@ def main():
     print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, renyi, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
+    # correlation Renyi and BERT on robust tasks
+
+    renyi_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in renyi.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, renyi_robust, no_size_difference=True)
+    print(f"Correlation between BERT and renyi eff 2.5 (robust tasks): {c}")
+    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in renyi.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, renyi_varieties, no_size_difference=True)
+    print(f"Correlation between BERT and renyi eff 2.5 (sensitive tasks): {c}")
 
     intrinsic_key = "vocab_size"
     vocab_size = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
@@ -170,12 +196,17 @@ def main():
     print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True)
     print(f"Correlation between BERT and vocab size: {c}")
-    c = calculate_correlation(renyi, vocab_size, no_size_difference=True)
-    print(f"Correlation between renyi and vocab size: {c}")
+    c = calculate_correlation(renyi, vocab_size, no_size_difference=True,  no_corpus_difference=True)
+    print(f"Correlation between renyi and vocab size (only on pre-tokenizer): {c}")
+    size_robsut = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in vocab_size.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, size_robsut, no_size_difference=True)
+    print(f"Correlation between BERT and vocab size (robust tasks): {c}")
+    size_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in vocab_size.items()}
+    c = calculate_correlation(BERT_PERFORMANCE, size_varieties, no_size_difference=True)
 
 
     # for all types of tasks: GLUE tasks, VARIETIES
-    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
+
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="robust")
     significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
     mixed_effect_model(BERT_PERFORMANCE, ROBUST_TASKS)
@@ -416,17 +447,23 @@ def get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STA
     return INTRINSIC_MEASURE
 
 
-def calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=False):
+def calculate_correlation(performance_1, performance_2, no_size_difference=False, no_corpus_difference=False):
     x = []
     y = []
-    for tokenizer_name in BERT_PERFORMANCE:
+    for tokenizer_name in performance_1:
         size = int(tokenizer_name.split("-")[-1])
         if no_size_difference and size != 32000:
             continue
-        for task in BERT_PERFORMANCE[tokenizer_name]:
-            if task in LOG_REGRESSION[tokenizer_name]:
-                x.append(BERT_PERFORMANCE[tokenizer_name][task])
-                y.append(LOG_REGRESSION[tokenizer_name][task])
+        corpus = tokenizer_name.split("-")[0]
+        if no_corpus_difference and "mixed" != corpus:
+            continue
+        for task in performance_1[tokenizer_name]:
+            if task in performance_2[tokenizer_name]:
+                if math.isnan(performance_1[tokenizer_name][task]) or math.isnan(performance_2[tokenizer_name][task]):
+                    print(f"Performance for {task} is NaN")
+                    continue
+                x.append(performance_1[tokenizer_name][task])
+                y.append(performance_2[tokenizer_name][task])
     return statistics.correlation(x, y)
 
 
