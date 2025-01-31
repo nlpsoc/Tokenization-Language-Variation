@@ -111,8 +111,12 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
+    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk2/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
+
+    # check if local finder addition exists
+    if not os.path.exists(local_finder_addition):
+        raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
 
     bert_version = "base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
@@ -203,6 +207,7 @@ def main():
     print(f"Correlation between BERT and vocab size (robust tasks): {c}")
     size_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in vocab_size.items()}
     c = calculate_correlation(BERT_PERFORMANCE, size_varieties, no_size_difference=True)
+    print(f"Correlation between BERT and vocab size (sensitive tasks): {c}")
 
 
     # for all types of tasks: GLUE tasks, VARIETIES
@@ -476,7 +481,7 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
         report_file = "classification_report.txt"
         if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
             task_key = task.split('-')[0]
-        if (task == "NUCLE") or (task == "CORE"):
+        if (task == "NUCLE") or (task == "CORE") or (task == "multi-DIALECT"):
             report_file = "f1_per_label.txt"
         for tokenizer_path in unique_tokenizer_paths:
             # get tokenizer name
@@ -613,7 +618,7 @@ def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, b
                     break
 
             if (tokenizer_name not in BERT_PREDICTIONS) or (task not in BERT_PREDICTIONS[tokenizer_name]):
-                print(f"No predictions found for {tokenizer_name} ...")
+                print(f"No predictions found for {tokenizer_name} on {task} ...")
                 continue
 
     return BERT_PREDICTIONS

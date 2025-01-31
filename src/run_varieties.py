@@ -131,6 +131,10 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             f.write(f"Best threshold: {best_threshold}\n")
             f.write(f"Best accuracy on validation set: {best_accuracy}\n")
             f.write(f"Test accuracy: {accuracy}\n")
+
+        # save predictions
+        test_df["predictions"] = y_pred
+        test_df.to_csv(os.path.join(output_dir, "eval_dataset.tsv"), index=False, sep="\t")
         # print accuracy on test set
         # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
         # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
