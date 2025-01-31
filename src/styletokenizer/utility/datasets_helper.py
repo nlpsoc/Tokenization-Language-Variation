@@ -235,7 +235,7 @@ VARIETIES_DEV_DICT = {
                                 "validation.csv",
     "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_validation.csv",
     # "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/dev.csv",
-    "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/validation.csv",
+    # "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/validation.csv",
 }
 VARIETIES_TRAIN_DICT = {
     # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #

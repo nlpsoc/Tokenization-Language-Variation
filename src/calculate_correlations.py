@@ -118,7 +118,7 @@ def main():
     if not os.path.exists(local_finder_addition):
         raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
 
-    bert_version = "base-BERT"  # train-mixed/base-BER
+    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
                                              bert_version=bert_version)
     if os.path.exists(f"{bert_version}_predictions.json"):
@@ -141,7 +141,7 @@ def main():
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
     df["mean-robust"] = df[GLUE_TASKS].mean(axis=1)
-    # df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
+    df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
     print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
@@ -300,7 +300,7 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
 
         addition = ""
         if bonferroni:
-            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names)
+            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names, fixed_nbr_correction=26*2)
             addition = "Bonferroni-corrected"
 
         if do_wilcoxon:
@@ -412,14 +412,18 @@ def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
     print(df.to_markdown())
 
 
-def bonferroni_correction(pval_matrix, sorted_models):
+def bonferroni_correction(pval_matrix, sorted_models, fixed_nbr_correction=None):
     all_pvals = []
     for x in range(len(sorted_models)):
         for y in range(x + 1, len(sorted_models)):
             all_pvals.append(pval_matrix.iloc[x, y])
+
     # Apply Bonferroni
     from math import ceil
-    adjusted = [min(p * len(all_pvals), 1.0) for p in all_pvals]
+    if not fixed_nbr_correction:
+        adjusted = [min(p * len(all_pvals), 1.0) for p in all_pvals]
+    else:
+        adjusted = [min(p * fixed_nbr_correction, 1.0) for p in all_pvals]
     # Put them back into the matrix
     idx = 0
     for x in range(len(sorted_models)):
