@@ -10,7 +10,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from datasets import DatasetDict
+from datasets import DatasetDict, concatenate_datasets
 from styletokenizer.utility.umich_av import create_sadiri_class_dataset
 
 from styletokenizer.tokenizer import TOKENIZER_PATHS
@@ -207,7 +207,10 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
         # if task is mnli, merge validation_matched and validation_mismatched to validation
         if task == "mnli":
-            raw_datasets["validation"] = raw_datasets["validation_matched"] + raw_datasets["validation_mismatched"]
+            raw_datasets["validation"] = concatenate_datasets([
+                raw_datasets["validation_matched"],
+                raw_datasets["validation_mismatched"]
+            ])
             del raw_datasets["validation_matched"]
             del raw_datasets["validation_mismatched"]
         val_key = "validation"
