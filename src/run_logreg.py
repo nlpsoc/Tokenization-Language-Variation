@@ -482,12 +482,8 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
                 result_dict["predictive_features"].append(top_features)
 
-                # Print classification report for single-label
-                print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
-                print(classification_report(y_eval, y_pred))
-                print("------------------------------------------------------")
-                print(f"Predictive Features for {task} with tokenizer {tokenizer_path}:")
-                print(top_features)
+
+
 
                 # save Classification report
                 with open(f"{out_path}/classification_report.txt", "w") as f:
@@ -495,15 +491,22 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                         for i in range(len(y_eval)):
                             f.write(f"Classification Report for {task} with tokenizer {tokenizer_path} - {val_key[i]}\n")
                             f.write(classification_report(y_eval[i], y_pred[i]))
+                            # Print classification report for single-label
+                            print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
+                            print(classification_report(y_eval[i], y_pred[i]))
                     else:
                         f.write(classification_report(y_eval, y_pred))
+                        print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
+                        print(classification_report(y_eval, y_pred))
 
                 with open(f"{out_path}/f1_per_label.txt", "w") as f:
                     f.write(f"F1 weighted: {f1_weighted}\n")
                     f.write(f"F1 macro: {f1_macro}\n")
                     f.write(f"Accuracy: {accuracy}\n")
 
-
+                print("------------------------------------------------------")
+                print(f"Predictive Features for {task} with tokenizer {tokenizer_path}:")
+                print(top_features)
 
             # save results
             result_df = pd.DataFrame(result_dict)
