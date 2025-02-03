@@ -206,14 +206,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         raw_datasets = raw_datasets.map(lambda x: parse_label_if_str(x, label_column))
 
         # if task is mnli, merge validation_matched and validation_mismatched to validation
-        if task == "mnli":
-            raw_datasets["validation"] = concatenate_datasets([
-                raw_datasets["validation_matched"],
-                raw_datasets["validation_mismatched"]
-            ])
-            del raw_datasets["validation_matched"]
-            del raw_datasets["validation_mismatched"]
-        val_key = "validation"
+        val_key = ["validation_matched", "validation_mismatched"] if "mnli" in task else "validation"
         # val_key = "validation_matched" if task == "mnli" else "validation"
 
         def filter_none_labels(example, sentence1_key, sentence2_key=None):
@@ -252,12 +245,15 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
             # Extract labels
             y_train = encoded_dataset["train"][label_column]
-            y_eval = encoded_dataset[val_key][label_column]
+            if "mnli" in task:
+                y_eval = [encoded_dataset[v_k][label_column] for v_k in val_key]
+            else:
+                y_eval = encoded_dataset[val_key][label_column]
 
             # -------------------------------
             #   1) Build text features
             # -------------------------------
-            if (len(sentence_keys) == 1) or (sentence_keys[1] is None):
+            if (len(sentence_keys) == 1) or (sentence_keys[1] is None):  # mnli is 2 sentences
                 # Single-sentence tasks
                 X_train_ids1 = encoded_dataset["train"]["input_ids1"]
                 X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
@@ -269,27 +265,47 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 # Sentence-pair tasks
                 X_train_ids1 = encoded_dataset["train"]["input_ids1"]
                 X_train_ids2 = encoded_dataset["train"]["input_ids2"]
-                X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
-                X_eval_ids2 = encoded_dataset[val_key]["input_ids2"]
+                if "mnli" in task:
+                    X_eval_ids1 = [encoded_dataset[v_k]["input_ids1"] for v_k in val_key]
+                    X_eval_ids2 = [encoded_dataset[v_k]["input_ids2"] for v_k in val_key]
+                else:
+                    X_eval_ids1 = encoded_dataset[val_key]["input_ids1"]
+                    X_eval_ids2 = encoded_dataset[val_key]["input_ids2"]
 
                 X_train_tokens1 = ids_to_tokens(X_train_ids1, tokenizer)
                 X_train_tokens2 = ids_to_tokens(X_train_ids2, tokenizer)
-                X_eval_tokens1 = ids_to_tokens(X_eval_ids1, tokenizer)
-                X_eval_tokens2 = ids_to_tokens(X_eval_ids2, tokenizer)
+
+                if "mnli" in task:
+                    X_eval_tokens1 = [ids_to_tokens(x_ids, tokenizer) for x_ids in X_eval_ids1]
+                    X_eval_tokens2 = [ids_to_tokens(x_ids, tokenizer) for x_ids in X_eval_ids2]
+                else:
+                    X_eval_tokens1 = ids_to_tokens(X_eval_ids1, tokenizer)
+                    X_eval_tokens2 = ids_to_tokens(X_eval_ids2, tokenizer)
 
                 if features_type == 'common_words':
                     X_train_texts = get_common_words_features(X_train_tokens1, X_train_tokens2)
-                    X_eval_texts = get_common_words_features(X_eval_tokens1, X_eval_tokens2)
+
+                    if "mnli" in task:
+                        X_eval_texts = [get_common_words_features(x1, x2) for x1, x2 in zip(X_eval_tokens1, X_eval_tokens2)]
+                    else:
+                        X_eval_texts = get_common_words_features(X_eval_tokens1, X_eval_tokens2)
                 elif features_type == 'cross_words':
                     X_train_texts = get_cross_words_features(X_train_tokens1, X_train_tokens2)
-                    X_eval_texts = get_cross_words_features(X_eval_tokens1, X_eval_tokens2)
+
+                    if "mnli" in task:
+                        X_eval_texts = [get_cross_words_features(x1, x2) for x1, x2 in zip(X_eval_tokens1, X_eval_tokens2)]
+                    else:
+                        X_eval_texts = get_cross_words_features(X_eval_tokens1, X_eval_tokens2)
                 else:
                     raise ValueError("Invalid features_type. Choose 'common_words' or 'cross_words'.")
 
             # Bag-of-Words vectorizer
             vectorizer = CountVectorizer()
             X_train_features = vectorizer.fit_transform(X_train_texts)
-            X_eval_features = vectorizer.transform(X_eval_texts)
+            if "mnli" in task:
+                X_eval_features = [vectorizer.transform(x) for x in X_eval_texts]
+            else:
+                X_eval_features = vectorizer.transform(X_eval_texts)
 
             # -------------------------------------------------
             #   2) Check if multi-label (labels are lists?)
@@ -392,7 +408,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 print(f"Top features (per label): {top_features_for_all}")
                 print("------------------------------------------------------")
 
-            else:
+            else: # mnli is multi-class
                 # ------------------------------
                 # Single-label classification
                 # ------------------------------
@@ -400,11 +416,19 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 clf = LogisticRegression(max_iter=1000, penalty="l1", C=0.4, solver='liblinear')
                 clf.fit(X_train_features, y_train)
 
-                y_pred = clf.predict(X_eval_features)
+                if "mnli" in task:
+                    y_pred = [clf.predict(x) for x in X_eval_features]
+                else:
+                    y_pred = clf.predict(X_eval_features)
 
-                f1_weighted = f1_score(y_eval, y_pred, average='weighted')
-                f1_macro = f1_score(y_eval, y_pred, average='macro')
-                accuracy = accuracy_score(y_eval, y_pred)
+                if "mnli" in task:
+                    f1_weighted = [f1_score(y_eval[i], y_pred[i], average='weighted') for i in range(len(y_eval))]
+                    f1_macro = [f1_score(y_eval[i], y_pred[i], average='macro') for i in range(len(y_eval))]
+                    accuracy = [accuracy_score(y_eval[i], y_pred[i]) for i in range(len(y_eval))]
+                else:
+                    f1_weighted = f1_score(y_eval, y_pred, average='weighted')
+                    f1_macro = f1_score(y_eval, y_pred, average='macro')
+                    accuracy = accuracy_score(y_eval, y_pred)
 
                 # Record
                 result_dict["task_name"].append(task)
@@ -464,9 +488,9 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                     f.write(classification_report(y_eval, y_pred))
 
                 with open(f"{out_path}/f1_per_label.txt", "w") as f:
-                    f.write(f"F1 weighted: {f1_weighted:.4f}\n")
-                    f.write(f"F1 macro: {f1_macro:.4f}\n")
-                    f.write(f"Accuracy: {accuracy:.4f}\n")
+                    f.write(f"F1 weighted: {f1_weighted}\n")
+                    f.write(f"F1 macro: {f1_macro}\n")
+                    f.write(f"Accuracy: {accuracy}\n")
 
 
 

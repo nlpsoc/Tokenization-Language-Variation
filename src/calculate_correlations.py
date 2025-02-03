@@ -23,7 +23,7 @@ from utility.datasets_helper import VARIETIES_TASKS
 performance_keys = {
     "sst2": "eval_accuracy",
     "qqp": "eval_f1",
-    "mnli": "eval_accuracy",
+    "mnli": ["eval_accuracy", "eval_accuracy_mm"],
     "qnli": "eval_accuracy",
     "NUCLE": "eval_f1",
     "PAN": "eval_accuracy",
@@ -118,7 +118,7 @@ def main():
     if not os.path.exists(local_finder_addition):
         raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
 
-    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
+    bert_version = "base-BERT"  # train-mixed/base-BER
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
                                              bert_version=bert_version)
     if os.path.exists(f"{bert_version}_predictions.json"):
@@ -560,9 +560,13 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
                     data_dict = json.load(f)
             else:
                 data_dict = parse_sadiri_metrics(result_path)
-            if performance_keys[task_key] in data_dict:
+            if (type(performance_keys[task_key]) == str and performance_keys[task_key] in data_dict) or \
+                    (performance_keys[task_key][0] in data_dict and performance_keys[task_key][1] in data_dict):
                 # get the performance from the performance keys
-                BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
+                if task_key == "mnli":
+                    BERT_PERFORMANCE[tokenizer_name][task] = (data_dict[performance_keys[task_key][0]] + data_dict[performance_keys[task_key][1]]) / 2
+                else:
+                    BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
             else:
                 print(f"Performance key {performance_keys[task_key]} not found in {result_path}")
                 continue
