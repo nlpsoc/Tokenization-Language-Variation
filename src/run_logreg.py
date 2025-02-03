@@ -223,9 +223,15 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
         raw_datasets['train'] = raw_datasets['train'].filter(
             lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None)
         )
-        raw_datasets[val_key] = raw_datasets[val_key].filter(
-            lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None)
-        )
+        if "mnli" in task:
+            for v_k in val_key:
+                raw_datasets[v_k] = raw_datasets[v_k].filter(
+                    lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None)
+                )
+        else:
+            raw_datasets[val_key] = raw_datasets[val_key].filter(
+                lambda x: filter_none_labels(x, sentence_keys[0], sentence_keys[1] if len(sentence_keys) > 1 else None)
+            )
 
         for tokenizer_path in tokenizer_paths:
             tokenizer = get_tokenizer_from_path(tokenizer_path)
