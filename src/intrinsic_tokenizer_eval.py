@@ -19,7 +19,7 @@ from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
 FITTING_CORPORA = [CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOK]
 
 
-def main(output_path=None):
+def main(output_path=None, tasks="all", tokenizer_paths="all"):
     # task_name_or_hfpath = "mnli"
     # create a result dataframe with
     # task_name, tokenizer_path, renyi_eff_2.5, renyi_eff_3.0, avg_seq_len
@@ -32,7 +32,15 @@ def main(output_path=None):
         "avg_seq_len": [],
         "vocab_size": []
     }
-    for task_name_or_hfpath in (GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TASKS):
+    if tasks == "all":
+        task_list = (GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TASKS)
+    else:
+        task_list = tasks
+    if tokenizer_paths == "all":
+        tokenizer_path_list = TOKENIZER_PATHS
+    else:
+        tokenizer_path_list = tokenizer_paths
+    for task_name_or_hfpath in task_list:
         split = None
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():
@@ -75,7 +83,8 @@ def main(output_path=None):
         sentence_keys = task_to_keys[task_key]
         text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
                          for example in eval_dataset)
-        for tokenizer_group in TOKENIZER_PATHS:
+
+        for tokenizer_group in tokenizer_path_list:
             # get the smallest vocab size
             smallest_vocab_size = float("inf")
             for tokenizer_path in tokenizer_group:
@@ -127,5 +136,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--output_path', default=None, type=str)
+    parser.add_argument("--task", type=str, default="all", help="task to evaluate")
+    parser.add_argument("--tokenizer_paths", type=str, default="all", help="tokenizer paths to evaluate")
     args = parser.parse_args()
-    main(output_path=args.output_path)
+    tasks = args.task
+    if tasks != "all":
+        tasks = tasks.split(",")
+    tokenizer_paths = args.tokenizer_paths
+    if tokenizer_paths != "all":
+        tokenizer_paths = tokenizer_paths.split(",")
+    main(output_path=args.output_path, tasks=tasks, tokenizer_paths=tokenizer_paths)
