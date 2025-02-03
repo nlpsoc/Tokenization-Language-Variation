@@ -41,7 +41,8 @@ def main(output_path=None, tasks="all", tokenizer_paths="all"):
     if tokenizer_paths == "all":
         tokenizer_path_list = TOKENIZER_PATHS
     else:
-        tokenizer_path_list = tokenizer_paths
+        # expects groups for simulated vocab, TODO: decide what to do with the simulated vocab, remove?
+        tokenizer_path_list = [tokenizer_paths]
     for task_name_or_hfpath in task_list:
         split = None
         csv_file = False
