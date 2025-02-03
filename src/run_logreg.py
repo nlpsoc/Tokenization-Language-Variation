@@ -459,8 +459,10 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 # save Classification report
                 with open(f"{out_path}/classification_report.txt", "w") as f:
                     f.write(classification_report(y_eval, y_pred))
-                    f.write(f"F1 (weighted): {f1_weighted:.4f}\n")
-                    f.write(f"F1 (macro): {f1_macro:.4f}\n")
+
+                with open(f"{out_path}/f1_per_label.txt", "w") as f:
+                    f.write(f"F1 weighted: {f1_weighted:.4f}\n")
+                    f.write(f"F1 macro: {f1_macro:.4f}\n")
                     f.write(f"Accuracy: {accuracy:.4f}\n")
 
 
