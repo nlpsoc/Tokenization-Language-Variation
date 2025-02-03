@@ -18,4 +18,4 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-python intrinsic_tokenizer_eval.py --task "mnli,mnli-textflint,mnli-mVALUE"  --tokenizer_paths  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000/tokenizer.json
+python intrinsic_tokenizer_eval.py --task "mnli,mnli-textflint,mnli-mVALUE"  --tokenizer_paths  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000/tokenizer.json"
