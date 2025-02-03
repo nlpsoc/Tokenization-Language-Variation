@@ -485,7 +485,12 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
                 # save Classification report
                 with open(f"{out_path}/classification_report.txt", "w") as f:
-                    f.write(classification_report(y_eval, y_pred))
+                    if "mnli" in task:
+                        for i in range(len(y_eval)):
+                            f.write(f"Classification Report for {task} with tokenizer {tokenizer_path} - {val_key[i]}\n")
+                            f.write(classification_report(y_eval[i], y_pred[i]))
+                    else:
+                        f.write(classification_report(y_eval, y_pred))
 
                 with open(f"{out_path}/f1_per_label.txt", "w") as f:
                     f.write(f"F1 weighted: {f1_weighted}\n")
