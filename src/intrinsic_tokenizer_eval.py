@@ -2,6 +2,8 @@ import argparse
 import itertools
 import os
 
+from datasets import concatenate_datasets
+
 from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
@@ -77,12 +79,18 @@ def main(output_path=None, tasks="all", tokenizer_paths="all"):
         else:
             raw_datasets = load_data(task_name_or_hfpath, split=split)
         try:
-            eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
+            if task == "mnli":
+                raw_datasets["validation"] = concatenate_datasets([
+                    raw_datasets["validation_matched"],
+                    raw_datasets["validation_mismatched"]
+                ])
+            eval_dataset = raw_datasets["validation"]
+            # eval_dataset = raw_datasets["validation_matched" if task == "mnli" else "validation"]
         except KeyError:  # some of the datasets are not provided in split form
             eval_dataset = raw_datasets
         sentence_keys = task_to_keys[task_key]
         text_generator = (" ".join(example[text_key] for text_key in sentence_keys if text_key is not None)
-                         for example in eval_dataset)
+                          for example in eval_dataset)
 
         for tokenizer_group in tokenizer_path_list:
             # get the smallest vocab size
@@ -106,7 +114,7 @@ def main(output_path=None, tasks="all", tokenizer_paths="all"):
                 sim_renyi_25 = calc_sim_renyi_efficiency_from_generator(t_gen4, tokenizer_path, smallest_vocab_size,
                                                                         power=2.5)
                 log_and_flush(f"Sim Renyi Efficency (2.5): "
-                                f"{sim_renyi_25}")
+                              f"{sim_renyi_25}")
                 renyi_30 = calc_renyi_efficency_from_generator(t_gen2, tokenizer_path, power=3.0)
                 log_and_flush(f"Renyi Efficency (3.0): "
                               f"{renyi_30}")
@@ -122,7 +130,7 @@ def main(output_path=None, tasks="all", tokenizer_paths="all"):
                 with open(os.path.join(out_path, "eval_results.csv"), "w") as f:
                     f.write(f"renyi_eff_2.5,renyi_sim_eff_2.5,renyi_eff_3.0,avg_seq_len,vocab_size\n")
                     f.write(f"{renyi_25},{sim_renyi_25},{renyi_30},{seq_len},"
-                            f"{result_dict['vocab_size'][-(len(tokenizer_group)-i)]}\n")
+                            f"{result_dict['vocab_size'][-(len(tokenizer_group) - i)]}\n")
 
     import pandas as pd
     result_df = pd.DataFrame(result_dict)
