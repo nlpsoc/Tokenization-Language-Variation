@@ -482,9 +482,6 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
                 result_dict["predictive_features"].append(top_features)
 
-
-
-
                 # save Classification report
                 with open(f"{out_path}/classification_report.txt", "w") as f:
                     if "mnli" in task:
