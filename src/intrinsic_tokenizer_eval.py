@@ -32,7 +32,7 @@ def main(output_path=None):
         "avg_seq_len": [],
         "vocab_size": []
     }
-    for task_name_or_hfpath in (VARIETIES_TASKS +  GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TEXTFLINT_TASKS + GLUE_TASKS):
+    for task_name_or_hfpath in (GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TASKS):
         split = None
         csv_file = False
         if task_name_or_hfpath in VARIETIES_DEV_DICT.keys():

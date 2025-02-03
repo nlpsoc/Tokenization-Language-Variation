@@ -32,6 +32,12 @@ from sklearn.multiclass import OneVsRestClassifier
 
 
 def parse_label_if_str(example, label="label"):
+    """
+        parse label column as list if it's a list string, otherwise list of one element
+    :param example:
+    :param label:
+    :return:
+    """
     label_val = example[label]
     if isinstance(label_val, str):
         try:
@@ -199,7 +205,13 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
 
         raw_datasets = raw_datasets.map(lambda x: parse_label_if_str(x, label_column))
 
-        val_key = "validation_matched" if task == "mnli" else "validation"
+        # if task is mnli, merge validation_matched and validation_mismatched to validation
+        if task == "mnli":
+            raw_datasets["validation"] = raw_datasets["validation_matched"] + raw_datasets["validation_mismatched"]
+            del raw_datasets["validation_matched"]
+            del raw_datasets["validation_mismatched"]
+        val_key = "validation"
+        # val_key = "validation_matched" if task == "mnli" else "validation"
 
         def filter_none_labels(example, sentence1_key, sentence2_key=None):
             if sentence2_key is None:
@@ -447,6 +459,10 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                 # save Classification report
                 with open(f"{out_path}/classification_report.txt", "w") as f:
                     f.write(classification_report(y_eval, y_pred))
+                    f.write(f"F1 (weighted): {f1_weighted:.4f}\n")
+                    f.write(f"F1 (macro): {f1_macro:.4f}\n")
+                    f.write(f"Accuracy: {accuracy:.4f}\n")
+
 
 
             # save results
