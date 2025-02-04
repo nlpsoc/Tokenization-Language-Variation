@@ -100,10 +100,12 @@ class TestTokenizer(TestCase):
             print(atoms)
 
     def test_pre_tokenization(self):
-        test_str = ("\t😀 👍 ❤️ 😭 😁 😊 😂 well... \n\n I DON'T don't like café for $3000!! #lol 😊 😂 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
+        # test_str = ("\t😀 👍 ❤️ 😭 😁 😊 😂 well... \n\n I DON'T don't like café for $3000!! #lol 😊 😂 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
+        test_str = (
+            "well... $3000 for a tokenizer is cheapz #lol :)\n\nhttps://en.wikipedia.org/wiki/Sarcasm 😂")
         print(test_str)
         # pre-tokenize for ws, gpt2 and llama3
-        for regex_pretok in ["wsorg", "ws", "gpt2", "llama3"]:
+        for regex_pretok in ["no", "wsorg", "ws", "gpt2", "llama3"]:
             pretokenizer = init_tokenizer_with_regex(regex_pretok).pre_tokenizer
             print(pretokenizer.pre_tokenize_str(test_str))
         # from tokenizers.pre_tokenizers import Split
