@@ -119,7 +119,10 @@ def main():
     if not os.path.exists(local_finder_addition):
         raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
 
-    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
+    bert_version = "base-BERT"  # train-mixed/base-BER
+    if "train" in bert_version:
+        # remove "mixed" from first tokenizer group
+        TOKENIZER_PATHS[0] = [path for path in TOKENIZER_PATHS[0] if "mixed" not in path]
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
                                              bert_version=bert_version)
     if os.path.exists(f"{bert_version}_predictions.json"):

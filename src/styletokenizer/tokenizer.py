@@ -23,7 +23,7 @@ elif at_umich():
 else:
     BASE_TOKENIZER_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer/"
 TOKENIZER_PATHS = [
-    [# os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
+    [os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "twitter-gpt2-32000/tokenizer.json"),
      os.path.join(BASE_TOKENIZER_PATH, "pubmed-gpt2-32000/tokenizer.json"),
      # os.path.join(BASE_TOKENIZER_PATH, "webbook-gpt2-32000/tokenizer.json"),
