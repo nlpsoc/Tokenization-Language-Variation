@@ -113,6 +113,7 @@ def main():
 
     local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
     server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
+    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
 
     # check if local finder addition exists
     if not os.path.exists(local_finder_addition):
@@ -130,7 +131,7 @@ def main():
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     # add a mean-robust and a mean-sensitive column
-    df["mean-robust"] = df[GLUE_TASKS].mean(axis=1)
+    df["mean-robust"] = df[ROBUST_TASKS].mean(axis=1)
     df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
     # reorder df in the order "twitter-gpt2-32000", "mixed-
     print(df.to_markdown())
@@ -140,7 +141,7 @@ def main():
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
-    df["mean-robust"] = df[GLUE_TASKS].mean(axis=1)
+    df["mean-robust"] = df[ROBUST_TASKS].mean(axis=1)
     df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
     print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
@@ -149,7 +150,7 @@ def main():
     c_no_size = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=True)
     print(f"Correlation between BERT and LR (no size difference): {c_no_size}")
     calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
-    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
+
     log_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in LOG_REGRESSION.items()}
     c = calculate_correlation(BERT_PERFORMANCE, log_robust)
     print(f"Correlation between BERT and LR (robust tasks): {c}")
