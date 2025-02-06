@@ -119,7 +119,7 @@ def main():
     if not os.path.exists(local_finder_addition):
         raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
 
-    bert_version = "base-BERT"  # train-mixed/base-BER
+    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
     if "train" in bert_version:
         # remove "mixed" from first tokenizer group
         TOKENIZER_PATHS[0] = [path for path in TOKENIZER_PATHS[0] if "mixed" not in path]

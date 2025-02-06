@@ -103,6 +103,7 @@ class TestTokenizer(TestCase):
         # test_str = ("\t😀 👍 ❤️ 😭 😁 😊 😂 well... \n\n I DON'T don't like café for $3000!! #lol 😊 😂 :) https://en.wikipedia.org/wiki/Sarcasm \r\r")
         test_str = (
             "well... $3000 for a tokenizer is cheapz #lol :)\n\nhttps://en.wikipedia.org/wiki/Sarcasm 😂")
+        test_str = "couldn’t"
         print(test_str)
         # pre-tokenize for ws, gpt2 and llama3
         for regex_pretok in ["no", "wsorg", "ws", "gpt2", "llama3"]:
