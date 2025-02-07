@@ -487,14 +487,14 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
                     if "mnli" in task:
                         for i in range(len(y_eval)):
                             f.write(f"Classification Report for {task} with tokenizer {tokenizer_path} - {val_key[i]}\n")
-                            f.write(classification_report(y_eval[i], y_pred[i]))
+                            f.write(classification_report(y_eval[i], y_pred[i], digits=4))
                             # Print classification report for single-label
                             print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
-                            print(classification_report(y_eval[i], y_pred[i]))
+                            print(classification_report(y_eval[i], y_pred[i], digits=4))
                     else:
-                        f.write(classification_report(y_eval, y_pred))
+                        f.write(classification_report(y_eval, y_pred, digits=4))
                         print(f"Classification Report for {task} with tokenizer {tokenizer_path}:")
-                        print(classification_report(y_eval, y_pred))
+                        print(classification_report(y_eval, y_pred, digits=4))
 
                 with open(f"{out_path}/f1_per_label.txt", "w") as f:
                     f.write(f"F1 weighted: {f1_weighted}\n")
