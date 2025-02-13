@@ -1,3 +1,6 @@
+"""
+    script to fit tokenizer
+"""
 import argparse
 from tokenizers import Tokenizer, Regex
 from tokenizers.models import BPE

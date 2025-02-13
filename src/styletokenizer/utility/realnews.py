@@ -1,3 +1,7 @@
+"""
+    used to sample from realnews
+        https://github.com/rowanz/grover/tree/master/realnews
+"""
 from styletokenizer.utility.gmane import sample_from_json
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 

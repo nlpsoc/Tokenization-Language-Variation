@@ -1,12 +1,14 @@
+"""
+    scripts to sample from s2orc dataset
+    see also: https://github.com/allenai/s2orc/
+"""
 import os
 import json
 import random
 
 from styletokenizer.utility.custom_logger import log_and_flush
-from styletokenizer.utility.env_variables import make_text_fit_word_max
+from utility.datasets_helper import make_text_fit_word_max
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
-
-s2orc_path = "/shared/3/projects/citation-context/s2orc/s2orc"
 
 WORD_COUNT = DOMAIN_WORDCOUNT_DICT["s2orc"]  # 100_000_000
 
@@ -69,3 +71,6 @@ def read_files_and_sample(path, target_word_count, test=False):
 def sample_s2orc_texts(required_word_count=WORD_COUNT, test=False):
     sampled_items = read_files_and_sample(s2orc_path, required_word_count, test=test)
     return sampled_items
+
+
+s2orc_path = "/shared/3/projects/citation-context/s2orc/s2orc"

@@ -1,26 +1,14 @@
-import os
+"""
+    This file contains utility functions to set global variables and paths
+"""
 import logging
-import re
+import os
+import random
+import sys
+
+import numpy
 
 from styletokenizer.utility.custom_logger import log_and_flush
-
-MAX_WORD_COUNT = 512 * 4
-
-
-def make_text_fit_word_max(text, max_word_count=MAX_WORD_COUNT):
-    """
-    Cut off text to fit the maximum word count
-    :param max_word_count:
-    :param text: text to be cut off
-    :return: cut off text
-    """
-    tokens = re.findall(r'\S+|\s+', text)
-    text_word_count = int(len(tokens) / 2)
-
-    if text_word_count > max_word_count:
-        text = ''.join(tokens[:max_word_count * 2])
-        text_word_count = max_word_count
-    return text, text_word_count
 
 
 def set_torch_device():
@@ -41,19 +29,6 @@ def set_torch_device():
         print('No GPU available, using the CPU instead.')
         device = torch.device("cpu")
     return device
-
-
-def set_logging():
-    """
-    set logging format for calling logging.info
-    :return:
-    """
-    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-    root = logging.getLogger()
-    root.setLevel(logging.INFO)
-    hdlr = root.handlers[0]
-    fmt = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
-    hdlr.setFormatter(fmt)
 
 
 UMICH_CACHE_DIR = "/shared/3/projects/hiatus/EVAL_wegmann/cache/huggingface"
@@ -88,3 +63,47 @@ def at_umich() -> bool:
 
 def at_local() -> bool:
     return "anna/Documents/git projects.nosync" in os.getcwd()
+
+
+def get_dir_to_src():
+    """
+        get the path to the src root directory
+    :return:
+    """
+    dir_path = os.path.dirname(os.path.normpath(__file__))
+    base_dir = os.path.basename(dir_path)
+    if base_dir == "utility":
+        return os.path.dirname(os.path.dirname(dir_path))
+    elif base_dir == "styletokenizer":
+        return os.path.dirname(dir_path)
+    else:
+        return dir_path
+
+
+def on_cluster():
+    return "git projects.nosync" not in get_dir_to_src()
+
+
+def set_global_seed(seed=42, w_torch=True):
+    """
+    Make calculations reproducible by setting RANDOM seeds
+    :param seed:
+    :param w_torch:
+    :return:
+    """
+    # set the global variable to the new var throughout
+    global SEED
+    SEED = seed
+    if 'torch' not in sys.modules:
+        w_torch = False
+    if w_torch:
+        import torch
+        logging.info(f"Running in deterministic mode with seed {seed}")
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        # torch.backends.cudnn.deterministic = True
+        # torch.backends.cudnn.benchmark = False
+    numpy.random.seed(seed)
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)

@@ -1,3 +1,6 @@
+"""
+    constants for fitting corpora
+"""
 from styletokenizer.utility.env_variables import at_uu, at_umich
 
 if at_uu():

@@ -1,42 +1,13 @@
 """
-
-ERROR TAG    ERROR CATEGORY
----------------------------
-Vt	     Verb tense
-Vm	     Verb modal
-V0	     Missing verb
-Vform	     Verb form
-SVA	     Subject-verb-agreement
-ArtOrDet     Article or Determiner
-Nn	     Noun number
-Npos	     Noun possesive
-Pform	     Pronoun form
-Pref	     Pronoun reference
-Wcip	     Wrong collocation/idiom/preposition
-Wa	     Acronyms
-Wform	     Word form
-Wtone	     Tone
-Srun	     Runons, comma splice
-Smod	     Dangling modifier
-Spar	     Parallelism
-Sfrag	     Fragment
-Ssub	     Subordinate clause
-WOinc	     Incorrect sentence form
-WOadv	     Adverb/adjective position
-Trans	     Link word/phrases
-Mec	     Punctuation, capitalization, spelling, typos
-Rloc	     Local redundancy
-Cit	     Citation
-Others	     Other errors
-Um	     Unclear meaning (cannot be corrected)
+    run tasks sensitive to language variation
 
 """
 import os
 import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
-from styletokenizer.utility.datasets_helper import VARIETIES_TRAIN_DICT, VARIETIES_DEV_DICT, VARIETIES_to_labels, \
-    VARIETIES_to_keys
+from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT, VARIETIES_to_keys, \
+    VARIETIES_to_labels
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
          "SNLI-NLI", "SNLI-Style", "SNLI", "convo-style", "NUCLE", "PAN", "simplification", "multi-DIALECT"]
@@ -195,132 +166,6 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         if overwrite:
             command.append("--overwrite_output_dir")
         result = subprocess.run(command)
-    elif task == "convo-style":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--dataset_name", "AnnaWegmann/StyleEmbeddingData",
-            # "--shuffle_train_dataset",
-            "--text_column_name", "Anchor (A),Utterance 1 (U1)",
-            "--label_column_name", "Same Author Label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "512",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            # "--max_train_samples", "200000",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            # "--metric_name", "f1",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-
-    elif task == "stel":
-        from styletokenizer.utility.env_variables import set_cache
-        set_cache()
-        import sys
-        # add STEL folder to path
-        sys.path.append('../../STEL/src/')
-        import torch
-        from STEL import STEL
-        from STEL.similarity import Similarity, cosine_sim
-        from sentence_transformers import SentenceTransformer
-
-        class SBERTSimilarity(Similarity):
-            def __init__(self):
-                super().__init__()
-                self.model = SentenceTransformer(
-                    model_path)  # should create mean pooling by default, see https://www.sbert.net/docs/sentence_transformer/usage/custom_models.html?highlight=mean%20pool
-                self.model.to("cuda" if torch.cuda.is_available() else "cpu")
-
-            def similarities(self, sentences_1, sentences_2):
-                with torch.no_grad():
-                    sentence_emb_1 = self.model.encode(sentences_1, show_progress_bar=False)
-                    sentence_emb_2 = self.model.encode(sentences_2, show_progress_bar=False)
-                return [cosine_sim(sentence_emb_1[i], sentence_emb_2[i]) for i in range(len(sentences_1))]
-
-        STEL.eval_on_STEL(style_objects=[SBERTSimilarity()])
-    elif task == "age":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train_sampled.csv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation_sampled.csv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "text",
-            "--label_column_name", "label",
-            "--remove_columns", "age,date,gender,horoscope,job",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            "--max_train_samples", "100000",  # use only 200k samples, which is roughly 5% of the dataset
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        # REGRESSION VERSION
-        # command = [
-        #     "python", "run_classification.py",
-        #     "--model_name_or_path", model_path,
-        #     "--dataset_name", 'barilan/blog_authorship_corpus',
-        #     "--trust_remote_code", "True",
-        #     "--shuffle_train_dataset",
-        #     "--do_regression", "True",
-        #     "--metric_name", "mse",  # "mse" is default for regression
-        #     "--text_column_name", "text",
-        #     "--label_column_name", "age"
-        #     "--remove_columns", "date,gender,horoscope,job",
-        #     "--do_train",
-        #     "--do_eval",
-        #     "--max_seq_length", "512",
-        #     "--per_device_train_batch_size", "32",
-        #     "--learning_rate", "2e-5",
-        #     "--num_train_epochs", "3",
-        #     "--max_train_samples", "200000",  # use only 200k samples, which is roughly 10% of the dataset
-        #     "--output_dir", output_dir,
-        #     "--seed", str(seed),
-        # ]
-        result = subprocess.run(command)
-    elif task in ["mrpc", "sst2", "qqp", "mnli", "qnli",
-                  "rte"]:  # currently not in use, as value seems to need different code / env
-        if task == "mrpc":
-            train_epochs = "5"
-        else:
-            train_epochs = "3"
-        command = [
-            "python", "run_glue.py",  # TODO: use the cleaner run_glue_old script
-            "--model_name_or_path", model_path,
-            "--task_name", f"/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/{task}/",
-            "--trust_remote_code", "True",
-            # "--shuffle_train_dataset",
-            # "--text_column_name", "text",
-            # "--label_column_name", "label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", train_epochs,
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-
     elif task == "CORE":
         command = [
             "python", "run_classification.py",  # TODO: use the cleaner run_classification_old script
@@ -338,55 +183,6 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "5",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "CGLU":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
-            # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/test.csv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "Text",
-            "--label_column_name", "origin",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "512",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--max_train_samples", "200000",
-            "--max_eval_samples", "20000",
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "GYAFC":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "text",
-            "--label_column_name", "label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",
@@ -419,53 +215,6 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         if overwrite:
             command.append("--overwrite_output_dir")
         result = subprocess.run(command)
-    elif task == "simplification":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", VARIETIES_TRAIN_DICT["simplification"],
-            "--validation_file", VARIETIES_DEV_DICT["simplification"],
-            "--shuffle_train_dataset",
-            "--text_column_name", "text",
-            "--label_column_name", "label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "DIALECT":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
-            "--validation_file",
-            "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "text",
-            "--label_column_name", "label",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "3",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "eopch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
     elif task == "multi-DIALECT":
         command = [
             "python", "run_classification.py",
@@ -481,75 +230,6 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--per_device_train_batch_size", "32",
             "--learning_rate", "2e-5",
             "--num_train_epochs", "3",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "SNLI-NLI":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.tsv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "premise,hypothesis",
-            "--label_column_name", "nli",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "1",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "SNLI-Style":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.tsv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "premise,hypothesis",
-            "--label_column_name", "style",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "1",
-            "--output_dir", output_dir,
-            "--seed", str(seed),
-            "--overwrite_cache",
-            "--save_strategy", "epoch",
-        ]
-        if overwrite:
-            command.append("--overwrite_output_dir")
-        result = subprocess.run(command)
-    elif task == "SNLI":
-        command = [
-            "python", "run_classification.py",
-            "--model_name_or_path", model_path,
-            "--train_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train.tsv",
-            "--validation_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/dev.tsv",
-            "--shuffle_train_dataset",
-            "--text_column_name", "premise_original,hypothesis_original",
-            "--label_column_name", "nli",
-            "--do_train",
-            "--do_eval",
-            "--max_seq_length", "128",
-            "--per_device_train_batch_size", "32",
-            "--learning_rate", "2e-5",
-            "--num_train_epochs", "1",
             "--output_dir", output_dir,
             "--seed", str(seed),
             "--overwrite_cache",

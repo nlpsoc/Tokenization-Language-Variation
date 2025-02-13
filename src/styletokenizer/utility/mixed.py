@@ -1,3 +1,6 @@
+"""
+   stats for misc. dataset (called mixed in the code)
+"""
 DOMAIN_WORDCOUNT_DICT = {
     "sfu-socc": 3_000_000,
     "reddit": 250_000_000,

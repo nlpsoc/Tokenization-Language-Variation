@@ -1,3 +1,7 @@
+"""
+    used to sample from goodreads
+        see https://mengtingwan.github.io/data/goodreads
+"""
 from styletokenizer.utility.amazon import sample_from_gz_file_w_langdetect
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 

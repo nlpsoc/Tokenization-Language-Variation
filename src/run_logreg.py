@@ -1,3 +1,6 @@
+"""
+    run logistic regression on all datasets and tokenizers
+"""
 import argparse
 import ast
 import json
@@ -10,22 +13,21 @@ import os
 import numpy as np
 import pandas as pd
 
-from datasets import DatasetDict, concatenate_datasets
-from styletokenizer.utility.umich_av import create_sadiri_class_dataset
+from datasets import DatasetDict
 
-from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
-from run_glue import task_to_keys as glue_task_to_keys
+from utility.tokenizer_vars import TOKENIZER_PATHS
+from styletokenizer.robust_tasks import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
+from run_glue_org import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.datasets_helper import (
-    load_data, VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT,
-    VARIETIES_to_keys, VARIETIES_TASKS, VALUE_PATHS,
-    VARIETIES_to_labels, VARIETIES_TEST_DICT
+    load_data
 )
+from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT, VARIETIES_TEST_DICT, \
+    VARIETIES_to_keys, VARIETIES_to_labels, VARIETIES_TASKS
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
-    f1_score, classification_report, accuracy_score, hamming_loss
+    f1_score, classification_report, accuracy_score
 )
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.multiclass import OneVsRestClassifier

@@ -1,9 +1,12 @@
+"""
+    loading the different eval datasets in all different forms (from huggingface datasets, to .csv files)
+"""
 import os
+import re
 
 from datasets import Dataset, DatasetDict, load_from_disk, load_dataset
 import pyarrow as pa
 
-from styletokenizer.glue import GLUE_TASKS
 from styletokenizer.utility.custom_logger import log_and_flush
 
 
@@ -122,29 +125,6 @@ def efficient_split_generator(dataset_path, split="dev"):
         yield data_split[i]["text"]
 
 
-# def batch_text_generator(dataset_path, split="train", batch_size=1000):
-#     """
-#     Generator that yields data entries from a Huggingface-formatted dataset in batches.
-#
-#     Args:
-#     - dataset_path (str): Path to the Huggingface-formatted dataset.
-#     - split (str): The split of the dataset to use (default is "train").
-#     - batch_size (int): Number of data entries in each batch (default is 1000).
-#
-#     Yields:
-#     - batch (list of dict): A batch of data entries from the dataset.
-#     """
-#     dataset = Dataset.load_from_disk(dataset_path)
-#     batch = []
-#     for i in range(len(dataset[split])):
-#         batch.append(dataset[split][i]["text"])
-#         if len(batch) == batch_size:
-#             yield batch
-#             batch = []
-#
-#     # Yield the last batch if it's not empty and has less than batch_size elements
-#     if batch:
-#         yield batch
 def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
     """
         loading the different eval datasets in all different forms (from huggingface datasets,
@@ -214,92 +194,20 @@ def load_data(task_name_or_hfpath=None, csv_file=None, split=None):
     return raw_datasets
 
 
+MAX_WORD_COUNT = 512 * 4
 
-VARIETIES_DEV_DICT = {
-    # "sadiri": "//Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/dev",  #
-    # "age": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/age/validation.csv",
-    # "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/dev.tsv",
-    # "SNLI-NLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
-    # "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
-    # "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/validation_modified.tsv",
-    # "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/validation_sampled.tsv",
-    # "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/dev.csv",
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/multilabel/dev.csv",
-    # "stel": ["/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/dimensions/_quad_stel-dimensions_formal-815_complex-815.tsv",
-    #          "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_contraction.tsv",
-    #          "/home/uu_cs_nlpsoc/awegmann/STEL/Data/STEL/characteristics/quad_questions_char_substitution.tsv"],
-    "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multiclass_dev_stratified.tsv",
-    # "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/dev.csv",
-    # "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_validation.csv",
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation/"
-                                "validation.csv",
-    "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_validation.csv",
-    # "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/dev.csv",
-    "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/validation.csv",
-}
-VARIETIES_TRAIN_DICT = {
-    # "sadiri": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/UMich-AV/down_1/train", #
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/multilabel/train.csv",
-    "age": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/blogcorpus/train_sampled.tsv",
-    # "age": "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/age/train.csv",
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/"
-                                  "train.csv",
-    "CORE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/multiclass_train_stratified.tsv",
-    "CGLU": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Varieties/CGLUv5.2/train.csv",
-    "GYAFC": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/GYAFC/train.csv",
-    "DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/Dialect/combined_train.csv",
-    "DSL": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/DSL-TL/train.tsv",
-    "CoDS": "billray110/corpus-of-diverse-styles",
-    "SNLI-NLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
-    "SNLI-Style": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
-    "SNLI": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/SNLI_modified/train_modified.tsv",
-    "PAN": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/PAN/PAN-hard_train.csv",
-    "simplification": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/simplification/train.csv",
-    "multi-DIALECT": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/multi-DIALECT/train.csv",
-}
-VARIETIES_TEST_DICT = {
-    "sadiri": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/test/test.csv",
-    "NUCLE": "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/NUCLE/multilabel/test.csv",
-}
-VARIETIES_to_keys = {
-    "age": ["text"],
-    "stel": ["Anchor 1", "Anchor 2", "Alternative 1.1", "Alternative 1.2"],
-    "CORE": ["text"],
-    "CGLU": ["Text"],
-    "GYAFC": ["text"],
-    "DIALECT": ["text"],
-    "multi-DIALECT": ["text"],
-    "sadiri": ("query_text", "candidate_text"),
-    "DSL": ["text"],
-    "CoDS": ["text"],
-    "SNLI-NLI": ["premise", "hypothesis"],
-    "SNLI-Style": ["premise", "hypothesis"],
-    "SNLI": ["premise_original", "hypothesis_original"],
-    "NUCLE": ["sentence"],  # ["sentence1", "sentence2"],
-    "PAN": ("text 1", "text 2"),
-    "simplification": ["text"],
-}
-VARIETIES_to_labels = {
-    "age": "age",
-    "stel": "complex",
-    "CORE": "genre",
-    "CGLU": "origin",
-    "GYAFC": "label",
-    "DIALECT": "label",
-    "multi-DIALECT": "label",
-    "sadiri": "label",
-    "DSL": "language",
-    "CoDS": "label",
-    "SNLI-NLI": "nli",
-    "SNLI-Style": "style",
-    "SNLI": "nli",
-    "NUCLE": "label",  # "Error Overlap",
-    "PAN": "Author Change",
-    "simplification": "label",
-}
 
-VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
-VALUE_BASE = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/value/"
-VALUE_PATHS = [
-    os.path.join(VALUE_BASE, glue_task) for glue_task in GLUE_TASKS
-]
+def make_text_fit_word_max(text, max_word_count=MAX_WORD_COUNT):
+    """
+    Cut off text to fit the maximum word count
+    :param max_word_count:
+    :param text: text to be cut off
+    :return: cut off text
+    """
+    tokens = re.findall(r'\S+|\s+', text)
+    text_word_count = int(len(tokens) / 2)
+
+    if text_word_count > max_word_count:
+        text = ''.join(tokens[:max_word_count * 2])
+        text_word_count = max_word_count
+    return text, text_word_count

@@ -1,3 +1,6 @@
+"""
+    set global seed
+"""
 import random
 import numpy as np
 import torch

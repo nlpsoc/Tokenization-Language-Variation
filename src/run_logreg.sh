@@ -18,15 +18,4 @@
 source /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/etc/profile.d/conda.sh
 conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
-# python run_logreg.py --task "mnli-textflint,qnli-textflint"  --tokenizer_paths "all"  # qqp-textflint,sst2-textflint,mnli-textflint,qnli-textflint
-# python run_logreg.py --task "qqp-mVALUE,sst2-mVALUE,qnli-mVALUE,mnli-mVALUE"  --tokenizer_paths "all"
-# python run_logreg.py --task "sadiri"  --tokenizer_paths "all" --on_test_set
-# python run_logreg.py --task "NUCLE"  --tokenizer_paths "all"
-# --tokenizer_paths "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/pubmed-gpt2-32000/tokenizer.json,/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/webbook-gpt2-32000/tokenizer.json"
-
-# python run_logreg.py --task "sst2-mVALUE,qqp-mVALUE,mnli-mVALUE,qnli-mVALUE,sst2,qqp,mnli,qnli"  --tokenizer_paths "all"
-# python run_logreg.py --task "multi-DIALECT"  --tokenizer_paths "all"
-# python run_logreg.py --task "all"  --tokenizer_paths  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000/tokenizer.json"
-# python run_logreg.py --task "multi-DIALECT"  --tokenizer_paths  "all"
-# python run_logreg.py --task "mnli,mnli-textflint,mnli-mVALUE"  --tokenizer_paths  "all"
 python run_logreg.py --task "all" --tokenizer_paths  "all"

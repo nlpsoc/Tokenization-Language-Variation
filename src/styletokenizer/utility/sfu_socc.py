@@ -1,6 +1,10 @@
+"""
+    used to sample from sfu-socc
+        see https://github.com/sfu-discourse-lab/SOCC
+"""
 import pandas as pd
 
-from styletokenizer.utility.sadiri import sample_texts_from_dataframe
+from styletokenizer.utility.AO3 import sample_texts_from_dataframe
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 

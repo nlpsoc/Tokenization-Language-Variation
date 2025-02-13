@@ -1,3 +1,6 @@
+"""
+    script to train BERT models
+"""
 import argparse
 import os
 

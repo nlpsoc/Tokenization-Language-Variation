@@ -1,7 +1,11 @@
+"""
+    used to sample from Gmane
+        see https://webis.de/data/webis-gmane-19.html
+"""
 import json
 import random
 
-from styletokenizer.utility.env_variables import make_text_fit_word_max
+from utility.datasets_helper import make_text_fit_word_max
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 

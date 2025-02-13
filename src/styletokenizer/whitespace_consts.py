@@ -1,4 +1,6 @@
-# TODO: list not yet complete
+"""
+    legacy file: investigating different encodigns of whitespaces
+"""
 tab = "\u0009"
 vertical_tab = "\u000B"
 form_feed = "\u000C"

@@ -1,8 +1,12 @@
+"""
+    used to sample from amazon reviews
+        see also: https://cseweb.ucsd.edu/~jmcauley/datasets/amazon_v2/
+"""
 import gzip
 import json
 import random
 
-from styletokenizer.utility.env_variables import make_text_fit_word_max
+from utility.datasets_helper import make_text_fit_word_max
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 

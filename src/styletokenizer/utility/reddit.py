@@ -1,4 +1,7 @@
-from styletokenizer.utility.sadiri import sample_sadiri_texts
+"""
+    sampling from reddit dataset (original pushshift data)
+"""
+from styletokenizer.utility.AO3 import sample_sadiri_texts
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 REDDIT_DIR_PATH = "/shared/3/projects/hiatus/data/raw_data/english/reddit"

@@ -10,7 +10,7 @@ from styletokenizer.utility.env_variables import set_cache
 set_cache()
 
 from styletokenizer.utility.datasets_helper import load_data
-from styletokenizer.glue import GLUE_TASKS, task_to_keys
+from styletokenizer.robust_tasks import GLUE_TASKS, task_to_keys
 from tqdm import tqdm
 from styletokenizer.utility.custom_logger import log_and_flush
 from multivalue import Dialects

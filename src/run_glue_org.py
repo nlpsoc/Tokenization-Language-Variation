@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Finetuning the library models for sequence classification on GLUE."""
+""" 
+    copied from https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_glue.py
+    --> some changes made to save classifications and loading datasets
+"""
 import shutil
 
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.

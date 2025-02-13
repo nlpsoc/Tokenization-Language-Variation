@@ -20,6 +20,7 @@ from datetime import datetime
 # You can also adapt this script on your own text classification task. Pointers for this are left as comments.
 """
     copied from https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_classification.py
+    --> some changes for saving predictions, adapting to datasets etc.
 """
 from styletokenizer.utility.env_variables import set_cache
 

@@ -1,4 +1,6 @@
-# custom_logger.py
+"""
+    setting for custom logger
+"""
 import logging
 import sys
 

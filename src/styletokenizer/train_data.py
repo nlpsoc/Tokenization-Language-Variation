@@ -1,3 +1,6 @@
+"""
+    loading of train dataset for BERT training
+"""
 import os
 
 from datasets import load_from_disk, Dataset

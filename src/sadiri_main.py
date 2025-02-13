@@ -1,3 +1,6 @@
+"""
+    contrastive learning approach to authorship verification
+"""
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
 

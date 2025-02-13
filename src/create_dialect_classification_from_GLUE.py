@@ -1,5 +1,5 @@
 """
-    Generated with ChatGPT o1-preview on 2024-11-07
+    create GLUE-dialect version
 """
 import os
 import random

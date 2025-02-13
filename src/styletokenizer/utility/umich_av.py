@@ -1,10 +1,13 @@
+"""
+    used to create the sadiri classification dataset which is used to test the trained contrastive model
+"""
 import json
 import re
 
 from datasets import load_from_disk, DatasetDict, Dataset
 import pandas as pd
 
-from styletokenizer.utility.filesystem import set_global_seed
+from utility.env_variables import set_global_seed
 from styletokenizer.whitespace_consts import APOSTROPHE_PATTERN
 from styletokenizer.utility.datasets_helper import load_data
 
@@ -28,79 +31,6 @@ def load_jsonl(file_path):
         for line in file:
             data.append(json.loads(line.strip()))
     return data
-
-
-def get_source(query_path):
-    query_objects = load_jsonl(query_path)
-    sources = [obj['source'] for obj in query_objects]
-    sources = []
-    ordered_sources = ["Book3Corpus", "gmane", "realnews", "wiki", "pubmed", "amazon", "reddit", "archiveofourown",
-                       "stackexchange", "nytimes"]
-    cur_source = 0
-    for obj in query_objects:
-        # assumption ordered sources
-        source = obj['source']
-        if cur_source == 0 and "Book3Corpus" in obj['source']:
-            sources.append("Book3Corpus")
-        elif 0 <= cur_source <= 1 and "gmane." in source:
-            cur_source = 1
-            sources.append("gmane")
-        elif 1 <= cur_source <= 2 and "wiki" not in source:
-            cur_source = 2
-            sources.append("realnews")
-        elif 2 <= cur_source <= 3 and "wiki" in source:
-            cur_source = 3
-            sources.append("wiki")
-        elif 3 <= cur_source <= 4 and "pubmed" in source:
-            cur_source = 4
-            sources.append("pubmed")
-        elif 4 <= cur_source <= 5 and "amazon" in source:
-            cur_source = 5
-            sources.append("amazon")
-        elif 5 <= cur_source <= 6 and "reddit" in source:
-            cur_source = 6
-            sources.append("reddit")
-        elif 6 <= cur_source <= 7 and "archiveofourown" in source:
-            cur_source = 7
-            sources.append("archiveofourown")
-        elif 7 <= cur_source <= 8 and "new-york" not in source:
-            cur_source = 8
-            sources.append("stackexchange")
-        elif 8 <= cur_source <= 9 and "new-york" in source:
-            cur_source = 9
-            sources.append("nytimes")
-    # return list of "source" strings for each object
-    return sources
-
-
-def get_train_source():
-    return get_source(TRAIN_1_QUERY)
-
-
-def load_1_dev_data():
-    # loading follows same code as Kenan's
-    # https://github.com/davidjurgens/sadiri/blob/main/src/style_content/poc/v1_no_adversarial/models.py#L23
-    from styletokenizer.utility.filesystem import on_cluster
-    if not on_cluster():
-        train_datatset = load_from_disk(DEV_PATH)['train']
-        # load a queries.jsonl file
-    else:
-        train_datatset = load_from_disk(DEV_1_CLUSTER)['train']
-    return train_datatset
-
-
-def load_1_train_data():
-    from styletokenizer.utility.filesystem import on_cluster
-    if not on_cluster():
-        train_dataset = load_from_disk(TRAIN_1_PATH)['train']
-    else:
-        train_dataset = load_from_disk(TRAIN_1_CLUSTER)['train']
-    return train_dataset
-
-
-def load_10_train_data():
-    train_dataset = load_from_disk(TRAIN_10_PATH)['train']
-    return train_dataset
 
 
 # Create pairs of texts
@@ -134,93 +64,6 @@ def _create_pairs(dataset, sources=None):
                 neg_pair = True
                 pair_sources.append(sources[i] if sources else None)
     return (queries, candidates), labels, None if None in pair_sources else pair_sources
-
-
-def get_1_dev_pairs():
-    dataset = load_1_dev_data()
-    return _create_pairs(dataset)
-
-
-def get_1_dev_dataframe():
-    pairs, labels = get_1_dev_pairs()
-    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels})
-
-
-def get_1_train_pairs():
-    dataset = load_1_train_data()
-    sources = get_train_source()
-    return _create_pairs(dataset, sources=sources)
-
-
-def get_10_train_pairs():
-    dataset = load_10_train_data()
-    return _create_pairs(dataset)
-
-
-def get_1_train_dataframe():
-    pairs, labels, sources = get_1_train_pairs()
-    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels, "source": sources})
-
-
-def get_10_train_dataframe():
-    pairs, labels = get_10_train_pairs()
-    return pd.DataFrame({"query": pairs[0], "candidate": pairs[1], "label": labels})
-
-
-def find_av_matches(df, apostrophe_pattern=APOSTROPHE_PATTERN):
-    # Function to find and extract context around apostrophes in a column
-    def extract_apostrophe_context_with_unicode(text, pattern, context=5):
-        matches = []
-        for match in re.finditer(pattern, text):
-            start = max(0, match.start() - context)
-            end = min(len(text), match.end() + context)
-            context_str = text[start:match.start()] + match.group() + " (U+" + format(ord(match.group()),
-                                                                                      '04X') + ")" + text[
-                                                                                                     match.end():end]
-            matches.append((match.group(), context_str))
-        return matches
-
-    def find_apostrophes(df, column_name, pattern):
-        df['apostrophe_context'] = df[column_name].apply(lambda x: extract_apostrophe_context_with_unicode(x, pattern))
-        return df
-
-    result_df = find_apostrophes(df, 'query', apostrophe_pattern)
-    result_df = result_df[result_df['apostrophe_context'].apply(bool)]
-    # Explode the context column to separate rows for each match
-    exploded_df = result_df.explode('apostrophe_context')
-    # Extract the apostrophe and context separately
-    exploded_df['apostrophe'] = exploded_df['apostrophe_context'].apply(lambda x: x[0])
-    exploded_df['context'] = exploded_df['apostrophe_context'].apply(lambda x: x[1])
-
-    # shuffle the dataframe
-    exploded_df = exploded_df.sample(frac=1).reset_index(drop=True)
-
-    # Group by apostrophe type and collect examples
-    grouped = exploded_df.groupby('apostrophe')['context'].apply(list).reset_index()
-
-    # Function to print number of examples and up to 10 examples per apostrophe type
-    def print_examples_per_apostrophe_type(grouped_df, max_examples=10):
-        for index, row in grouped_df.iterrows():
-            apostrophe = row['apostrophe']
-            examples = row['context']
-            num_examples = len(examples)
-            print(f"Unicode: {apostrophe} (U+{ord(apostrophe):04X}) - {num_examples} examples")
-            for example in examples[:max_examples]:
-                print(f"  Example: {example}")
-            print()
-
-    # Display the examples
-    print_examples_per_apostrophe_type(grouped)
-
-
-def create_sadiri_class_dataset(train_path, validation_path):
-    train_dataset = create_singplesplit_sadiri_classification_dataset(train_path)
-    val_dataset = create_singplesplit_sadiri_classification_dataset(validation_path)
-    train_val_dataset = DatasetDict({
-        "train": train_dataset,
-        "validation": val_dataset,
-    })
-    return train_val_dataset
 
 
 def create_singplesplit_sadiri_classification_dataset(train_path):

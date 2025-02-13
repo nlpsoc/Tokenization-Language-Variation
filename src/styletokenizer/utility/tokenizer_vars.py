@@ -1,9 +1,21 @@
+"""
+    tokenizer helper variables, paths and functions
+"""
 import os
 from typing import Dict, List
 
 from tokenizers import Tokenizer
 
 from styletokenizer.utility.env_variables import at_uu, at_umich
+
+
+if at_uu():
+    BASE_TOKENIZER_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/"
+elif at_umich():
+    raise NotImplementedError("UMich not implemented")
+else:
+    BASE_TOKENIZER_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/tokenizer/"
+
 
 PRE_TOKENIZER = ["no", "wsorg", "ws", "gpt2", "llama3"]
 VOCAB_SIZE = [500, 4000, 32000, 64000, 128000]  # 1000, 2000, 8000, 16000, , 256000, 512000
@@ -72,3 +84,27 @@ def get_sorted_vocabularies_per_tokenizer(tokenizer_paths) -> Dict[str, List[str
         # Store sorted tokens (by frequency) as a list of token strings
         vocabularies[folder_name] = [token for token, _ in sorted_tokens]
     return vocabularies
+
+
+TOKENIZER_PATHS = [
+    [os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "twitter-gpt2-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "pubmed-gpt2-32000/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "webbook-gpt2-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "wikipedia-gpt2-32000/tokenizer.json")],
+    [os.path.join(BASE_TOKENIZER_PATH, "mixed-no-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-wsorg-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-ws-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-llama3-32000/tokenizer.json")],
+    [os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-500/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-1000/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-2000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-4000/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-8000/tokenizer.json"),
+     # os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-16000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-32000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-64000/tokenizer.json"),
+     os.path.join(BASE_TOKENIZER_PATH, "mixed-gpt2-128000/tokenizer.json"),
+     ]
+]

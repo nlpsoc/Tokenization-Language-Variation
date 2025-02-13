@@ -1,5 +1,8 @@
 """
-    calculate the correlations between BERT predictions and log regression / intrinsic measures
+    dirty script to collect the experiment results
+     i.e., the performance scores of BERT, log regression and the intrinsic measures,
+        also calculates the correlations
+    Note: this expects a certain path structure and file structure with results
 """
 import json
 import math
@@ -11,15 +14,15 @@ from matplotlib import pyplot as plt
 from scipy.stats import wilcoxon
 import seaborn as sns
 import statsmodels.formula.api as smf
-import matplotlib.colors as mcolors
 
 import numpy as np
 import pandas as pd
 
-from styletokenizer.glue import GLUE_TEXTFLINT_TASKS, GLUE_MVALUE_TASKS, GLUE_TASKS
-from styletokenizer.tokenizer import TOKENIZER_PATHS
-from utility.datasets_helper import VARIETIES_TASKS
+from styletokenizer.robust_tasks import GLUE_TEXTFLINT_TASKS, GLUE_MVALUE_TASKS, GLUE_TASKS
+from utility.tokenizer_vars import TOKENIZER_PATHS
+from sensitive_tasks import VARIETIES_TASKS
 
+AV_TASK = "sadiri"
 performance_keys = {
     "sst2": "eval_accuracy",
     "qqp": "eval_f1",
@@ -29,7 +32,7 @@ performance_keys = {
     "PAN": "eval_accuracy",
     "CORE": "eval_accuracy",
     "multi-DIALECT": "eval_accuracy",
-    "sadiri": "Test accuracy",
+    AV_TASK: "Test accuracy",
 }
 
 
@@ -111,26 +114,26 @@ def main():
 
     # collect the BERT performance scores of the tasks
 
-    local_finder_addition = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
-    server_finder_addition = "/hpc/uu_cs_nlpsoc/02-awegmann/"
+    local_base_path = INDENTIFIABLE_PATH
+
     ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
 
     # check if local finder addition exists
-    if not os.path.exists(local_finder_addition):
-        raise FileNotFoundError(f"Local finder addition {local_finder_addition} does not exist")
+    if not os.path.exists(local_base_path):
+        raise FileNotFoundError(f"Local finder addition {local_base_path} does not exist")
 
-    bert_version = "train-mixed/base-BERT"  # train-mixed/base-BER
+    bert_version = "train-mixed/base-BERT"
     if "train" in bert_version:
         # remove "mixed" from first tokenizer group
         TOKENIZER_PATHS[0] = [path for path in TOKENIZER_PATHS[0] if "mixed" not in path]
-    BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition,
+    BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_base_path,
                                              bert_version=bert_version)
-    if os.path.exists(f"{bert_version}_predictions.json"):
+    if os.path.exists(f"_tmp/{bert_version}_predictions.json"):
         BERT_PREDICTIONS = load_json_as_dict(f"{bert_version}_predictions.json")
     else:
-        BERT_PREDICTIONS = get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition,
+        BERT_PREDICTIONS = get_BERT_predictions(tasks, unique_tokenizer_paths, local_base_path,
                                                 bert_version=bert_version)  # train-mixed/base-BERT
-        save_dict_as_json(BERT_PREDICTIONS, f"{bert_version}_predictions.json")
+        save_dict_as_json(BERT_PREDICTIONS, f"_tmp/{bert_version}_predictions.json")
     df = pd.DataFrame(BERT_PERFORMANCE).T
     df.index.name = "BERT-Model"
     # add a mean-robust and a mean-sensitive column
@@ -140,7 +143,7 @@ def main():
     print(df.to_markdown())
     calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
 
-    STATS_BASE_PATH = os.path.join(local_finder_addition, "TOKENIZER/tokenizer/")
+    STATS_BASE_PATH = os.path.join(local_base_path, "TOKENIZER/tokenizer/")
     LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
@@ -154,12 +157,14 @@ def main():
     print(f"Correlation between BERT and LR (no size difference): {c_no_size}")
     calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
 
-    log_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in LOG_REGRESSION.items()}
+    log_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
+                  LOG_REGRESSION.items()}
     c = calculate_correlation(BERT_PERFORMANCE, log_robust)
     print(f"Correlation between BERT and LR (robust tasks): {c}")
     c = calculate_correlation(BERT_PERFORMANCE, log_robust, no_size_difference=True)
     print(f"Correlation between BERT and LR (robust tasks, no size difference): {c}")
-    log_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in LOG_REGRESSION.items()}
+    log_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+                     LOG_REGRESSION.items()}
     c = calculate_correlation(BERT_PERFORMANCE, log_varieties)
     print(f"Correlation between BERT and LR (sensitive tasks): {c}")
     c = calculate_correlation(BERT_PERFORMANCE, log_varieties, no_size_difference=True)
@@ -174,10 +179,12 @@ def main():
     # calculate the correlation between the BERT performance and the intrinsic measures
     c = calculate_correlation(BERT_PERFORMANCE, seq_len, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
-    seqlen_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in seq_len.items()}
+    seqlen_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
+                     seq_len.items()}
     c = calculate_correlation(BERT_PERFORMANCE, seqlen_robust, no_size_difference=True)
     print(f"Correlation between BERT and seq len (robust tasks): {c}")
-    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in seq_len.items()}
+    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+                        seq_len.items()}
     c = calculate_correlation(BERT_PERFORMANCE, seqlen_varieties, no_size_difference=True)
     print(f"Correlation between BERT and seq len (sensitive tasks): {c}")
 
@@ -190,10 +197,12 @@ def main():
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
     # correlation Renyi and BERT on robust tasks
 
-    renyi_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in renyi.items()}
+    renyi_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
+                    renyi.items()}
     c = calculate_correlation(BERT_PERFORMANCE, renyi_robust, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5 (robust tasks): {c}")
-    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in renyi.items()}
+    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+                       renyi.items()}
     c = calculate_correlation(BERT_PERFORMANCE, renyi_varieties, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5 (sensitive tasks): {c}")
 
@@ -204,15 +213,16 @@ def main():
     print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True)
     print(f"Correlation between BERT and vocab size: {c}")
-    c = calculate_correlation(renyi, vocab_size, no_size_difference=True,  no_corpus_difference=True)
+    c = calculate_correlation(renyi, vocab_size, no_size_difference=True, no_corpus_difference=True)
     print(f"Correlation between renyi and vocab size (only on pre-tokenizer): {c}")
-    size_robsut = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in vocab_size.items()}
+    size_robsut = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
+                   vocab_size.items()}
     c = calculate_correlation(BERT_PERFORMANCE, size_robsut, no_size_difference=True)
     print(f"Correlation between BERT and vocab size (robust tasks): {c}")
-    size_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in vocab_size.items()}
+    size_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+                      vocab_size.items()}
     c = calculate_correlation(BERT_PERFORMANCE, size_varieties, no_size_difference=True)
     print(f"Correlation between BERT and vocab size (sensitive tasks): {c}")
-
 
     # for all types of tasks: GLUE tasks, VARIETIES
 
@@ -242,7 +252,6 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
 
             # calculate mean performance robust task
             mean_performance_per_tok[tokenizer] = np.mean(list(performance_per_tok[tokenizer].values()))
-
 
         display_translations = {
             "twitter": "X",
@@ -304,7 +313,7 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
 
         addition = ""
         if bonferroni:
-            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names, fixed_nbr_correction=26*2)
+            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names, fixed_nbr_correction=26 * 2)
             addition = "Bonferroni-corrected"
 
         if do_wilcoxon:
@@ -348,15 +357,16 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
         plt.tight_layout()
         plt.show()
 
+
 from matplotlib.colors import LinearSegmentedColormap, FuncNorm
+
 
 def forward(x):
     return np.where(x <= 0.05, (x / 0.05) * 0.5, 0.5 + ((x - 0.05) / (1 - 0.05)) * 0.5)
 
+
 def inverse(x):
     return np.where(x <= 0.5, (x * 0.05) / 0.5, 0.05 + (x - 0.5) * (1 - 0.05) / 0.5)
-
-
 
 
 def mixed_effect_model(performance_per_tok, tasks=GLUE_TASKS):
@@ -423,7 +433,6 @@ def bonferroni_correction(pval_matrix, sorted_models, fixed_nbr_correction=None)
             all_pvals.append(pval_matrix.iloc[x, y])
 
     # Apply Bonferroni
-    from math import ceil
     if not fixed_nbr_correction:
         adjusted = [min(p * len(all_pvals), 1.0) for p in all_pvals]
     else:
@@ -538,7 +547,7 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
         elif task in VARIETIES_TASKS:
             task_finder_addition = f"VAR/{bert_version}/"
             results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-            if task == "sadiri":
+            if task == AV_TASK:
                 result_file = "test_accuracy.txt"
         else:
             raise NotImplementedError("Only textflint tasks are implemented")
@@ -558,17 +567,18 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
                 print(f"Path {result_path} does not exist")
                 continue
 
-            if not task == "sadiri":
+            if not task == AV_TASK:
                 # read in json file
                 with open(result_path, "r") as f:
                     data_dict = json.load(f)
             else:
-                data_dict = parse_sadiri_metrics(result_path)
+                data_dict = parse_av_metrics(result_path)
             if (type(performance_keys[task_key]) == str and performance_keys[task_key] in data_dict) or \
                     (performance_keys[task_key][0] in data_dict and performance_keys[task_key][1] in data_dict):
                 # get the performance from the performance keys
                 if task_key == "mnli":
-                    BERT_PERFORMANCE[tokenizer_name][task] = (data_dict[performance_keys[task_key][0]] + data_dict[performance_keys[task_key][1]]) / 2
+                    BERT_PERFORMANCE[tokenizer_name][task] = (data_dict[performance_keys[task_key][0]] + data_dict[
+                        performance_keys[task_key][1]]) / 2
                 else:
                     BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
             else:
@@ -765,7 +775,7 @@ def parse_classification_report(file_path):
     return parsed_report
 
 
-def parse_sadiri_metrics(filepath):
+def parse_av_metrics(filepath):
     """
     Reads a text file with lines in the form:
         <key>: <value>
@@ -860,32 +870,6 @@ def compute_mcnemar_statsmodels(y_true, y_pred1, y_pred2, exact=False, correctio
     return result.statistic, result.pvalue, table
 
 
-
-class HalfBelowPointNorm(mcolors.Normalize):
-    """
-    Map [vmin, cutoff] -> [0, 0.5]
-        [cutoff, vmax] -> [0.5, 1.0]
-    """
-    def __init__(self, vmin=None, vmax=None, cutoff=0.05, clip=False):
-        super().__init__(vmin, vmax, clip)
-        self.cutoff = cutoff
-
-    def __call__(self, value, clip=None):
-        # First normalize data to 0..1 range based on vmin..vmax
-        res = (value - self.vmin) / (self.vmax - self.vmin)
-
-        # Create a masked array so we don’t blow up on invalid values
-        res = np.ma.array(res, mask=np.isnan(res))
-
-        # Below or equal to cutoff => map linearly to [0, 0.5]
-        below = (res <= self.cutoff)
-        res[below] = 0.5 * (res[below] / self.cutoff)
-
-        # Above cutoff => map linearly to [0.5, 1]
-        above = (res > self.cutoff)
-        res[above] = 0.5 + 0.5 * ( (res[above] - self.cutoff) / (1 - self.cutoff) )
-
-        return res
-
 if __name__ == "__main__":
     main()
+INDENTIFIABLE_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"

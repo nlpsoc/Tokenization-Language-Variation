@@ -1,22 +1,26 @@
+"""
+    run intrinsic evaluation on tokenizers, i.e., get things like corpus token count, renyi, etc.
+"""
 import argparse
 import itertools
 import os
 
 from datasets import concatenate_datasets
 
-from styletokenizer.glue import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
+from styletokenizer.robust_tasks import GLUE_TASKS, GLUE_TEXTFLINT_TASKS, GLUE_TEXTFLINT, GLUE_MVALUE_TASKS, GLUE_MVALUE
 from styletokenizer.utility.custom_logger import log_and_flush
 from eval_tokenizer import calc_renyi_efficency_from_generator, calc_seq_len_from_generator, tok_generator, \
     _get_vocabsize_and_dist, calc_sim_renyi_efficiency_from_generator
-from run_glue import task_to_keys as glue_task_to_keys
+from run_glue_org import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
-from styletokenizer.tokenizer import TOKENIZER_PATHS
-from styletokenizer.utility.datasets_helper import (load_data, VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS)
+from utility.tokenizer_vars import TOKENIZER_PATHS
+from styletokenizer.utility.datasets_helper import (load_data)
+from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS
 
 set_cache()
 
 from styletokenizer.fitting_corpora import CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED
-from styletokenizer.utility.preptraining_corpora import CORPORA_WEBBOOK
+from utility.webbook import CORPORA_WEBBOOK
 
 FITTING_CORPORA = [CORPORA_TWITTER, CORPORA_WIKIPEDIA, CORPORA_MIXED, CORPORA_WEBBOOK]
 

@@ -1,6 +1,10 @@
+"""
+    used to sample from YouTubeCommons
+        see https://huggingface.co/datasets/PleIAs/YouTube-Commons
+"""
 import dask.dataframe as dd
 from styletokenizer.utility.custom_logger import log_and_flush
-from styletokenizer.utility.env_variables import make_text_fit_word_max
+from utility.datasets_helper import make_text_fit_word_max
 from styletokenizer.utility.mixed import DOMAIN_WORDCOUNT_DICT
 
 WORD_COUNT = DOMAIN_WORDCOUNT_DICT["YouTubeCommons"]  # 100_000_000
