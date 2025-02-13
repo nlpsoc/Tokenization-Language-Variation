@@ -14,7 +14,7 @@ import re
 
 TEST_ROWS = 1048 * 2
 
-UMICHTRAINDATASETPATH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
+UMICH = "/shared/3/projects/hiatus/TOKENIZER_wegmann/data/train-corpora/webbook"
 UU_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/train-corpora/webbook"
 COUNT_PER_ROW = 512
 
@@ -22,7 +22,7 @@ UU_MIXED_TRAIN_DATASET_PATH = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/trai
 LOCAL_MIXED_TRAIN_DATASET_PATH = "/Users/anna/Documents/git projects.nosync/StyleTokenizer/data/train-corpora/mixed"
 
 
-def load_train_dataset(word_count=750_000_000, data_path=UMICHTRAINDATASETPATH, test=False):
+def load_train_dataset(word_count=750_000_000, data_path=UMICH, test=False):
     assert "webbook" in data_path or "mixed" in data_path, "Only webbook and mixed datasets are supported."
     assert at_local() or at_uu(), "Only local and UU paths are supported."
     # loading dataset, following https://huggingface.co/blog/pretraining-bert#4-pre-train-bert-on-habana-gaudi

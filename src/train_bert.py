@@ -5,7 +5,7 @@ import argparse
 import os
 
 
-from styletokenizer.train_data import UMICHTRAINDATASETPATH, UU_TRAIN_DATASET_PATH, load_train_dataset
+from styletokenizer.train_data import UMICH, UU_TRAIN_DATASET_PATH, load_train_dataset
 
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
 import wandb
@@ -20,7 +20,7 @@ from datasets import load_from_disk
 from styletokenizer.utility import seed
 from styletokenizer.train_data import COUNT_PER_ROW
 
-def load_dev_dataset(data_path=UMICHTRAINDATASETPATH, test=False):
+def load_dev_dataset(data_path=UMICH, test=False):
     dev_data = load_from_disk(data_path)["dev"]
     if test:
         dev_data = dev_data.select(range(256))
