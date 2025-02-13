@@ -13,5 +13,6 @@ Eventual release will be a slimmed down and refactored version of the code, such
 
 ## Requirements
 
-- Python 3.11.9
-see `requirements.txt`
+- Python 3.11.9  
+
+`requirements.txt`
