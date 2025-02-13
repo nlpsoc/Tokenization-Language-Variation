@@ -4,7 +4,7 @@ This repository contains the code for the paper "Tokenization Is Sensitive To La
 Most scripts are sweat and tears relating to dataset creation.   
 The `run_varieties.py`, `run_glue.py` are the fine-tuning of BERT models  
 `train_bert.py` is training BERT  
-`fit_tokenizer.py` is training the tokenization models  
+`fit_tokenizer.py` is fitting the tokenizers
 `run_logreg.py` is the logistic regression model  
 `intrinsic_eval.py` is the intrinsic evaluation of the tokenization models  
 
