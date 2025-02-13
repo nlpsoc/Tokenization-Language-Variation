@@ -287,12 +287,6 @@ if __name__ == '__main__':
     # learning rate, 1e-4 from original BERT pretraining
     parser.add_argument("--lr", type=float, default=1e-4, help="learning rate for training")
 
-
-    # Login to WandB account (this might prompt for an API key if not logged in already)
-    wandb.login(key="c042d6be624a66d40b7f2a82a76e343896608cf0")
-    # Initialize a new run with a project name
-    wandb.init(project="bert-tiny-pretraining", entity="annawegmann")
-
     args = parser.parse_args()
 
     if args.webbook:
