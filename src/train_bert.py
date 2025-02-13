@@ -4,14 +4,8 @@
 import argparse
 import os
 
-
-from styletokenizer.train_data import UMICH, UU_TRAIN_DATASET_PATH, load_train_dataset
-
-os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
-import wandb
+from styletokenizer.train_data import UMICH_TRAIN_DATASET_PATH, UU_TRAIN_DATASET_PATH, load_train_dataset
 import datetime
-# wegmann
-
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UU_CACHE_DIR
 from styletokenizer.fitting_corpora import CORPORA_MIXED
@@ -21,7 +15,8 @@ from datasets import load_from_disk
 from styletokenizer.utility import seed
 from styletokenizer.train_data import COUNT_PER_ROW
 
-def load_dev_dataset(data_path=UMICH, test=False):
+
+def load_dev_dataset(data_path=UMICH_TRAIN_DATASET_PATH, test=False):
     dev_data = load_from_disk(data_path)["dev"]
     if test:
         dev_data = dev_data.select(range(256))
@@ -127,7 +122,6 @@ def main(tokenizer_path, word_count, steps, random_seed, output_base_folder, dat
     # calculate the number of steps for one epoch
     epoch_steps = len(dataset) // batch_size
     log_and_flush(f"Number of steps for one epoch: {epoch_steps}")
-
 
     warm_up_steps = int(steps * 0.01)  # original BERT: 10k warm up steps over 1M steps, so 1% of steps
     if test:
@@ -271,7 +265,7 @@ if __name__ == '__main__':
     # add epoch argument
     parser.add_argument("--steps", type=int, default=80000, help="number of steps to train")
     parser.add_argument("--model_size", type=int, default=4, help="in million, "
-                                                                 "the number of parameters of the org tiny bert architecture")
+                                                                  "the number of parameters of the org tiny bert architecture")
 
     # add seed argument
     parser.add_argument("--seed", type=int, default=42, help="seed for random number generator")
@@ -307,8 +301,6 @@ if __name__ == '__main__':
         raise NotImplementedError("UMich not implemented")
     else:
         raise ValueError("Please specify a cluster to use")
-
-
 
     log_and_flush(f"Dataset path: {data_path}")
     log_and_flush(f"Tokenizer: {args.tokenizer}")

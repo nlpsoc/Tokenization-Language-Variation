@@ -13,9 +13,6 @@ from transformers import get_cosine_schedule_with_warmup, AutoModel
 from transformers.models.bert.modeling_bert import BertLMPredictionHead
 
 sys.path.append('../..')
-
-# from src.hiatus_training.losses import InfoNCE_loss_full
-# from src.hiatus_training.evaluation import compute_ranking_metrics
 from src.custom_training.contrastive_style.trainer_utils import load_model, load_all_dataloaders, alternate_loaders
 
 
