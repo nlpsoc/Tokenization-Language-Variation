@@ -10,6 +10,7 @@ from styletokenizer.train_data import UMICH, UU_TRAIN_DATASET_PATH, load_train_d
 os.environ['WANDB_CACHE_DIR'] = '/hpc/uu_cs_nlpsoc/02-awegmann/wandb_cache'
 import wandb
 import datetime
+# wegmann
 
 from styletokenizer.utility.custom_logger import log_and_flush
 from styletokenizer.utility.env_variables import UU_CACHE_DIR
@@ -265,8 +266,6 @@ if __name__ == '__main__':
     parser.add_argument("--word_count", type=int, default=3_300_000_000,
                         help="number of words to train on")
 
-    # load the tokenizer, either by downloading it from huggingface hub, or calling it from the local path
-    #   /shared/3/project/hiatus/TOKENIZER_wegmann/tokenizer
     parser.add_argument("--tokenizer", type=str, default="bert-base-uncased", help="tokenizer to use")
 
     # add epoch argument
@@ -326,4 +325,3 @@ if __name__ == '__main__':
     # CUDA_VISIBLE_DEVICES=2 python train_bert.py --tokenizer bert-base-cased &> 24-06-09_BERT.txt
     # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer meta-llama/Meta-Llama-3-8B &> 24-06-09_llama3.txt
     # CUDA_VISIBLE_DEVICES=0 python train_bert.py --tokenizer roberta-base &> 24-06-09_roberta.txt
-    # CUDA_VISIBLE_DEVICES=6 python train_bert.py --tokenizer /shared/3/projects/hiatus/TOKENIZER_wegmann/tokenizer/wikipedia-gpt2-32000 --seed 42 &> 24-08-06_wiki-gpt2-32k_250000.txt
