@@ -4,3 +4,4 @@ models/
 .idea/
 ._.DS_Store
 ._*
+coefs.npy

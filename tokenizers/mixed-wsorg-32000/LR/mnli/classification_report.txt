@@ -1,0 +1,20 @@
+Classification Report for mnli with tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000/tokenizer.json - validation_matched
+              precision    recall  f1-score   support
+
+           0       0.58      0.58      0.58      3479
+           1       0.51      0.51      0.51      3123
+           2       0.60      0.60      0.60      3213
+
+    accuracy                           0.56      9815
+   macro avg       0.56      0.56      0.56      9815
+weighted avg       0.56      0.56      0.56      9815
+Classification Report for mnli with tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000/tokenizer.json - validation_mismatched
+              precision    recall  f1-score   support
+
+           0       0.56      0.56      0.56      3463
+           1       0.49      0.49      0.49      3129
+           2       0.60      0.59      0.59      3240
+
+    accuracy                           0.55      9832
+   macro avg       0.55      0.55      0.55      9832
+weighted avg       0.55      0.55      0.55      9832
