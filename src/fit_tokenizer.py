@@ -2,7 +2,7 @@
     script to fit tokenizer
 """
 import argparse
-from tokenizers import Tokenizer, Regex
+from tokenizers import Tokenizer, Regex, pre_tokenizers, decoders, processors
 from tokenizers.models import BPE
 from tokenizers.trainers import BpeTrainer
 from tokenizers.pre_tokenizers import ByteLevel, Sequence, Split, Whitespace, WhitespaceSplit
@@ -37,7 +37,12 @@ def fit_tokenizer(fit_path: str, vocab_size: int, pre_tokenizer: str, dir_name: 
     print(f"Will save tokenizer to: {save_dir}")
 
     # Initialize the BPE trainer with VOCAB_SIZE
-    trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size)
+    trainer = BpeTrainer(special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"], vocab_size=vocab_size,
+                         initial_alphabet=pre_tokenizers.ByteLevel.alphabet())
+    # Note: initial alphabet was not set for majority of experiments -> this can lead to not all 255 bytes being in the vocab ...
+    #   https://github.com/huggingface/tokenizers/blob/main/bindings/python/py_src/tokenizers/implementations/byte_level_bpe.py
+    # BUT since they were (except for PubMed) all in the downstream tasks this should be fine
+
     # Get the text generator for the FITTING CORPUS
     text_generator = datasets_helper.train_text_generator(fit_path)
 
@@ -99,6 +104,9 @@ def init_tokenizer_with_regex(pre_tokenizer):
     else:
         raise ValueError(f"Invalid pre-tokenizer: {pre_tokenizer}")
     tokenizer.pre_tokenizer = pre_tokenizer
+    # https://github.com/huggingface/tokenizers/blob/main/bindings/python/py_src/tokenizers/implementations/byte_level_bpe.py
+    tokenizer.decoder = decoders.ByteLevel()  # originally did not include this, but: only about decoding anyway
+    tokenizer.post_processor = processors.ByteLevel()  # originally did not include this, but: only about decoding anyway
     return tokenizer
 
 
