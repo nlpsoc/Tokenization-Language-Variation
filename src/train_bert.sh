@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ### Job name
-#SBATCH --job-name=44-PT_500-64k
+#SBATCH --job-name=44-PT_4k-64k
 
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_mixed_500-64k_750M-45k-44_batch-32_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_mixed_4k-64k_750M-45k-44_batch-32_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -151,14 +151,14 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 # base BERT on mixed dataset, seed 44
 #   SIZE
-python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
---tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-500 --mixed
-python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
---tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000 --mixed
 #python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
-#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-4000 --mixed
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-500 --mixed
 #python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
-#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --mixed
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000 --mixed
+python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-4000 --mixed
+python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --mixed
 #   FITTING CORPUS
 #python train_bert.py --uu --seed 44 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
 #--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000 --mixed
