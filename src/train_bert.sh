@@ -6,12 +6,11 @@
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_mixed-4k-128k_750M-45k-42_batch-32_%j.txt
-### SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_TINY_3.3-75k-42_mixed-no-32k_batch-256_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/PRETRAIN_BASE_mixed-500-128k_750M-45k-43_batch-32_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
-#SBATCH -t 48:00:00
+#SBATCH -t 40:00:00
 
 ### Request a specific GPU
 ### see https://hpcusers.op.umcutrecht.nl/xwiki/bin/view/Main/Setup/Cluster/GPU-nodes/
@@ -95,7 +94,7 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 # python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/pubmed-gpt2-32000
 # python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 --tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000 --webbook
 
-# base BERT on mixed dataset
+# base BERT on mixed dataset, seed 42
 #python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
 #--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/wikipedia-gpt2-32000 --mixed
 #python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
@@ -118,5 +117,35 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 #--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --mixed
 #python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
 #--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000 --mixed
-python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
---tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-no-32000 --mixed
+#python train_bert.py --uu --seed 42 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-no-32000 --mixed
+
+# base BERT on mixed dataset, seed 43
+#   SIZE
+python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-500 --mixed
+python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-128000 --mixed
+
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-4000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-64000 --mixed
+#   FITTING CORPUS
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-gpt2-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/wikipedia-gpt2-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/twitter-gpt2-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/pubmed-gpt2-32000 --mixed
+#   PRE-TOKENIZER
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-ws-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-llama3-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-wsorg-32000 --mixed
+#python train_bert.py --uu --seed 43 --word_count 750_000_000 --model_size 110 --batch_size 32 --steps 45_000 \
+#--tokenizer /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/tokenizer/mixed-no-32000 --mixed
