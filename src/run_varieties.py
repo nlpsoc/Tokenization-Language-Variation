@@ -6,7 +6,7 @@ import os
 import argparse
 import subprocess
 from styletokenizer.utility.custom_logger import log_and_flush
-from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT, VARIETIES_to_keys, \
+from styletokenizer.sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT, VARIETIES_to_keys, \
     VARIETIES_to_labels
 
 tasks = ["sadiri", "stel", "age", "mrpc", "sst2", "qqp", "mnli", "qnli", "rte", "CORE", "CGLU", "GYAFC", "DIALECT",
