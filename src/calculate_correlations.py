@@ -20,7 +20,9 @@ import pandas as pd
 
 from styletokenizer.robust_tasks import GLUE_TEXTFLINT_TASKS, GLUE_MVALUE_TASKS, GLUE_TASKS
 from utility.tokenizer_vars import TOKENIZER_PATHS
-from sensitive_tasks import VARIETIES_TASKS
+from sensitive_tasks import SENSITIVE_TASKS
+
+INDENTIFIABLE_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
 
 AV_TASK = "sadiri"
 performance_keys = {
@@ -28,6 +30,7 @@ performance_keys = {
     "qqp": "eval_f1",
     "mnli": ["eval_accuracy", "eval_accuracy_mm"],
     "qnli": "eval_accuracy",
+    "ANLI": "eval_accuracy",
     "NUCLE": "eval_f1",
     "PAN": "eval_accuracy",
     "CORE": "eval_accuracy",
@@ -103,8 +106,9 @@ def load_json_as_dict(file_path):
 
 
 def main():
+    SEEDS = [42, 43]
     # do this only for the textflint tasks for now
-    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + VARIETIES_TASKS
+    tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + SENSITIVE_TASKS
     tokenizer_paths = TOKENIZER_PATHS
 
     unique_tokenizer_paths = set()
@@ -129,16 +133,50 @@ def main():
     BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_base_path,
                                              bert_version=bert_version)
     if os.path.exists(f"_tmp/{bert_version}_predictions.json"):
-        BERT_PREDICTIONS = load_json_as_dict(f"{bert_version}_predictions.json")
+        BERT_PREDICTIONS = load_json_as_dict(f"_tmp/{bert_version}_predictions.json")
     else:
         BERT_PREDICTIONS = get_BERT_predictions(tasks, unique_tokenizer_paths, local_base_path,
                                                 bert_version=bert_version)  # train-mixed/base-BERT
         save_dict_as_json(BERT_PREDICTIONS, f"_tmp/{bert_version}_predictions.json")
-    df = pd.DataFrame(BERT_PERFORMANCE).T
-    df.index.name = "BERT-Model"
+    # df = pd.DataFrame(BERT_PERFORMANCE).T
+
     # add a mean-robust and a mean-sensitive column
-    df["mean-robust"] = df[ROBUST_TASKS].mean(axis=1)
-    df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
+    df = pd.DataFrame({
+        model: {
+            # Mean and std of means across robust tasks per seed
+            "mean-robust": np.mean(seed_means := [
+                np.mean([seed_dict[task] for task in ROBUST_TASKS if task in seed_dict])
+                for seed, seed_dict in model_dict.items() if seed in SEEDS
+            ]),
+            "std-robust": np.std(seed_means),
+            # Individual task means across seeds
+            "mean-sensitive": np.mean(sensitive_means := [
+                np.mean([seed_dict[task] for task in SENSITIVE_TASKS if task in seed_dict])
+                for seed, seed_dict in model_dict.items() if seed in SEEDS
+            ]),
+            "std-sensitive": np.std(sensitive_means),
+            **{
+                f"{task}-mean": np.mean([
+                    seed_dict[task] for seed, seed_dict in model_dict.items()
+                    if seed in SEEDS and task in seed_dict
+                ])
+                for task in ROBUST_TASKS
+            },
+            **{
+                f"{task}-std": np.std([
+                    seed_dict[task] for seed, seed_dict in model_dict.items()
+                    if seed in SEEDS and task in seed_dict
+                ])
+                for task in ROBUST_TASKS
+            }
+        }
+        for model, model_dict in BERT_PERFORMANCE.items()
+    }).T
+    df.index.name = "BERT-Model"
+
+    # df["mean-robust"] = df[SEEDS, ROBUST_TASKS].mean(axis=1)
+    # df["mean-sensitive"] =  df[VARIETIES_TASKS].mean(axis=1)
+
     # reorder df in the order "twitter-gpt2-32000", "mixed-
     print(df.to_markdown())
     calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
@@ -148,7 +186,7 @@ def main():
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
     df["mean-robust"] = df[ROBUST_TASKS].mean(axis=1)
-    df["mean-sensitive"] = df[VARIETIES_TASKS].mean(axis=1)
+    df["mean-sensitive"] = df[SENSITIVE_TASKS].mean(axis=1)
     print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
@@ -163,7 +201,7 @@ def main():
     print(f"Correlation between BERT and LR (robust tasks): {c}")
     c = calculate_correlation(BERT_PERFORMANCE, log_robust, no_size_difference=True)
     print(f"Correlation between BERT and LR (robust tasks, no size difference): {c}")
-    log_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+    log_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
                      LOG_REGRESSION.items()}
     c = calculate_correlation(BERT_PERFORMANCE, log_varieties)
     print(f"Correlation between BERT and LR (sensitive tasks): {c}")
@@ -183,7 +221,7 @@ def main():
                      seq_len.items()}
     c = calculate_correlation(BERT_PERFORMANCE, seqlen_robust, no_size_difference=True)
     print(f"Correlation between BERT and seq len (robust tasks): {c}")
-    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
                         seq_len.items()}
     c = calculate_correlation(BERT_PERFORMANCE, seqlen_varieties, no_size_difference=True)
     print(f"Correlation between BERT and seq len (sensitive tasks): {c}")
@@ -201,7 +239,7 @@ def main():
                     renyi.items()}
     c = calculate_correlation(BERT_PERFORMANCE, renyi_robust, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5 (robust tasks): {c}")
-    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
                        renyi.items()}
     c = calculate_correlation(BERT_PERFORMANCE, renyi_varieties, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5 (sensitive tasks): {c}")
@@ -219,7 +257,7 @@ def main():
                    vocab_size.items()}
     c = calculate_correlation(BERT_PERFORMANCE, size_robsut, no_size_difference=True)
     print(f"Correlation between BERT and vocab size (robust tasks): {c}")
-    size_varieties = {key: {k: v for k, v in value_dict.items() if k in VARIETIES_TASKS} for key, value_dict in
+    size_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
                       vocab_size.items()}
     c = calculate_correlation(BERT_PERFORMANCE, size_varieties, no_size_difference=True)
     print(f"Correlation between BERT and vocab size (sensitive tasks): {c}")
@@ -227,13 +265,13 @@ def main():
     # for all types of tasks: GLUE tasks, VARIETIES
 
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="robust")
-    significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
+    significance_test(SENSITIVE_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
     mixed_effect_model(BERT_PERFORMANCE, ROBUST_TASKS)
-    mixed_effect_model(BERT_PERFORMANCE, VARIETIES_TASKS)
+    mixed_effect_model(BERT_PERFORMANCE, SENSITIVE_TASKS)
 
     # Wilcoxon test for the BERT predictions
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="robust")
-    significance_test(VARIETIES_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="sensitive")
+    significance_test(SENSITIVE_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="sensitive")
 
 
 def significance_test(considered_tasks, performance_values, predictions_for_mcnemar=None, do_wilcoxon=False,
@@ -531,117 +569,133 @@ def get_logreg_performances(tasks, unique_tokenizer_paths, stats_base_path):
 def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, bert_version="base-BERT"):
     BERT_PERFORMANCE = {}
     base_out_base_path = os.path.join(local_finder_addition, "TOKENIZER/output/")
-    BERT_PATH = "749M/steps-45000/seed-42/42/"
+    seeds = [42, 43, 44]
 
-    for task in tasks:
-        result_file = "all_results.json"
-        if task in GLUE_TEXTFLINT_TASKS:
-            task_finder_addition = f"GLUE/textflint/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in GLUE_MVALUE_TASKS:
-            task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in GLUE_TASKS:
-            task_finder_addition = f"GLUE/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in VARIETIES_TASKS:
-            task_finder_addition = f"VAR/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-            if task == AV_TASK:
-                result_file = "test_accuracy.txt"
-        else:
-            raise NotImplementedError("Only textflint tasks are implemented")
-        task_key = task
-        if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
-            task_key = task.split('-')[0]
+    for seed in seeds:
+        BERT_PATH = f"749M/steps-45000/seed-{seed}/42/"
 
-        for tokenizer_path in unique_tokenizer_paths:
-            # get tokenizer name
-            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
-            if tokenizer_name not in BERT_PERFORMANCE:
-                BERT_PERFORMANCE[tokenizer_name] = {}
-            # get the BERT output for the task
-            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key, result_file)
-            # check that path exists
-            if not os.path.exists(result_path):
-                print(f"Path {result_path} does not exist")
-                continue
-
-            if not task == AV_TASK:
-                # read in json file
-                with open(result_path, "r") as f:
-                    data_dict = json.load(f)
+        for task in tasks:
+            result_file = "all_results.json"
+            if task in GLUE_TEXTFLINT_TASKS:
+                task_finder_addition = f"GLUE/textflint/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in GLUE_MVALUE_TASKS:
+                task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in GLUE_TASKS:
+                task_finder_addition = f"GLUE/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in SENSITIVE_TASKS:
+                task_finder_addition = f"VAR/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+                if task == AV_TASK:
+                    result_file = "test_accuracy.txt"
             else:
-                data_dict = parse_av_metrics(result_path)
-            if (type(performance_keys[task_key]) == str and performance_keys[task_key] in data_dict) or \
-                    (performance_keys[task_key][0] in data_dict and performance_keys[task_key][1] in data_dict):
-                # get the performance from the performance keys
-                if task_key == "mnli":
-                    BERT_PERFORMANCE[tokenizer_name][task] = (data_dict[performance_keys[task_key][0]] + data_dict[
-                        performance_keys[task_key][1]]) / 2
+                raise NotImplementedError("Only textflint tasks are implemented")
+            task_key = task
+            if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
+                task_key = task.split('-')[0]
+
+            for tokenizer_path in unique_tokenizer_paths:
+                # get tokenizer name
+                tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+                if tokenizer_name not in BERT_PERFORMANCE:
+                    BERT_PERFORMANCE[tokenizer_name] = {}
+                if seed not in BERT_PERFORMANCE[tokenizer_name]:
+                    BERT_PERFORMANCE[tokenizer_name][seed] = {}
+                # get the BERT output for the task
+                result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key, result_file)
+                # check that path exists
+                if not os.path.exists(result_path):
+                    print(f"Path {result_path} does not exist")
+                    continue
+
+                if not task == AV_TASK:
+                    # read in json file
+                    with open(result_path, "r") as f:
+                        data_dict = json.load(f)
                 else:
-                    BERT_PERFORMANCE[tokenizer_name][task] = data_dict[performance_keys[task_key]]
-            else:
-                print(f"Performance key {performance_keys[task_key]} not found in {result_path}")
-                continue
+                    data_dict = parse_av_metrics(result_path)
+                if (type(performance_keys[task_key]) == str and performance_keys[task_key] in data_dict) or \
+                        (performance_keys[task_key][0] in data_dict and performance_keys[task_key][1] in data_dict):
+                    # get the performance from the performance keys
+                    if task_key == "mnli":
+                        BERT_PERFORMANCE[tokenizer_name][seed][task] = (data_dict[performance_keys[task_key][0]] + data_dict[
+                            performance_keys[task_key][1]]) / 2
+                    else:
+                        BERT_PERFORMANCE[tokenizer_name][seed][task] = data_dict[performance_keys[task_key]]
+                else:
+                    print(f"Performance key {performance_keys[task_key]} not found in {result_path}")
+                    continue
     return BERT_PERFORMANCE
 
 
 def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, bert_version="base-BERT"):
     BERT_PREDICTIONS = {}
     base_out_base_path = os.path.join(local_finder_addition, "TOKENIZER/output/")
-    BERT_PATH = "749M/steps-45000/seed-42/42/"
-    for task in tasks:
+    seeds = [42, 43, 44]
 
-        if task in GLUE_TEXTFLINT_TASKS:
-            task_finder_addition = f"GLUE/textflint/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in GLUE_MVALUE_TASKS:
-            task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in GLUE_TASKS:
-            task_finder_addition = f"GLUE/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        elif task in VARIETIES_TASKS:
-            task_finder_addition = f"VAR/{bert_version}/"
-            results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
-        else:
-            raise NotImplementedError(f"task {task} not found")
+    for seed in seeds:
+        BERT_PATH = f"749M/steps-45000/seed-42/{seed}/"
+        for task in tasks:
 
-        task_key = task
-        if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
-            task_key = task.split('-')[0]
+            if task in GLUE_TEXTFLINT_TASKS:
+                task_finder_addition = f"GLUE/textflint/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in GLUE_MVALUE_TASKS:
+                task_finder_addition = f"GLUE/mVALUE/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in GLUE_TASKS:
+                task_finder_addition = f"GLUE/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            elif task in SENSITIVE_TASKS:
+                task_finder_addition = f"VAR/{bert_version}/"
+                results_out_base_path = os.path.join(base_out_base_path, task_finder_addition)
+            else:
+                raise NotImplementedError(f"task {task} not found")
 
-        for tokenizer_path in unique_tokenizer_paths:
-            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
-            result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key)
-            # check if there exists a tsv file including "eval_dataset" in the name
-            tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+            task_key = task
+            if task in GLUE_TEXTFLINT_TASKS or task in GLUE_MVALUE_TASKS:
+                task_key = task.split('-')[0]
 
-            # get the BERT output for the task
-            if not os.path.exists(result_path):
-                print(f"Path {result_path} does not exist")
-                continue
-            files = os.listdir(result_path)
-            for file in files:
-                if ((task_key in GLUE_TASKS and f"eval_dataset_{task_key}.tsv" in file) or
-                        (task_key not in GLUE_TASKS and "eval_dataset.tsv" in file)):
-                    result_path = os.path.join(result_path, file)
-                    # read in .tsv file
-                    df = pd.read_csv(result_path, sep='\t')
-                    # save the predictions from the "predictions" column
-                    if tokenizer_name not in BERT_PREDICTIONS:
-                        BERT_PREDICTIONS[tokenizer_name] = {}
-                    if "gt" not in BERT_PREDICTIONS:
-                        BERT_PREDICTIONS["gt"] = {}
-                    if task not in BERT_PREDICTIONS["gt"]:
-                        BERT_PREDICTIONS["gt"][task] = df["label"].values
-                    BERT_PREDICTIONS[tokenizer_name][task] = df["predictions"].values
-                    break
+            for tokenizer_path in unique_tokenizer_paths:
+                tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
+                result_path = os.path.join(results_out_base_path, tokenizer_name, BERT_PATH, task_key)
+                # check if there exists a tsv file including "eval_dataset" in the name
+                tokenizer_name = os.path.basename(os.path.dirname(tokenizer_path))
 
-            if (tokenizer_name not in BERT_PREDICTIONS) or (task not in BERT_PREDICTIONS[tokenizer_name]):
-                print(f"No predictions found for {tokenizer_name} on {task} ...")
-                continue
+                # get the BERT output for the task
+                if not os.path.exists(result_path):
+                    print(f"Path {result_path} does not exist")
+                    continue
+                files = os.listdir(result_path)
+                for file in files:
+                    if ((task_key in GLUE_TASKS and f"eval_dataset_{task_key}.tsv" in file) or
+                            (((task_key not in GLUE_TASKS) or (task_key == "ANLI")) and "eval_dataset.tsv" in file)):
+                        result_path = os.path.join(result_path, file)
+                        # read in .tsv file
+                        try:
+                            df = pd.read_csv(result_path, sep='\t')
+                        except:
+                            print(f"Error reading {result_path}")
+                            continue
+                        # save the predictions from the "predictions" column
+                        if tokenizer_name not in BERT_PREDICTIONS:
+                            BERT_PREDICTIONS[tokenizer_name] = {}
+                        if seed not in BERT_PREDICTIONS[tokenizer_name]:
+                            BERT_PREDICTIONS[tokenizer_name][seed] = {}
+                        if "gt" not in BERT_PREDICTIONS:
+                            BERT_PREDICTIONS["gt"] = {}
+                        if task not in BERT_PREDICTIONS["gt"]:
+                            BERT_PREDICTIONS["gt"][task] = df["label"].values
+                        BERT_PREDICTIONS[tokenizer_name][seed][task] = df["predictions"].values
+                        break
+
+                if ((tokenizer_name not in BERT_PREDICTIONS) or
+                        (task not in BERT_PREDICTIONS[tokenizer_name]) or
+                        (seed not in BERT_PREDICTIONS[tokenizer_name][task])):
+                    print(f"No predictions found for {tokenizer_name} on {task} ...")
+                    continue
 
     return BERT_PREDICTIONS
 
@@ -872,4 +926,3 @@ def compute_mcnemar_statsmodels(y_true, y_pred1, y_pred2, exact=False, correctio
 
 if __name__ == "__main__":
     main()
-INDENTIFIABLE_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"

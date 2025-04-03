@@ -15,7 +15,7 @@ from run_glue_org import task_to_keys as glue_task_to_keys
 from styletokenizer.utility.env_variables import set_cache
 from utility.tokenizer_vars import TOKENIZER_PATHS
 from styletokenizer.utility.datasets_helper import (load_data)
-from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_to_keys, VARIETIES_TASKS
+from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_to_keys, SENSITIVE_TASKS
 
 set_cache()
 
@@ -39,7 +39,7 @@ def main(output_path=None, tasks="all", tokenizer_paths="all"):
         "vocab_size": []
     }
     if tasks == "all":
-        task_list = (GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TASKS)
+        task_list = (GLUE_TEXTFLINT_TASKS + SENSITIVE_TASKS + GLUE_MVALUE_TASKS + FITTING_CORPORA + GLUE_TASKS)
     else:
         task_list = tasks
     if tokenizer_paths == "all":

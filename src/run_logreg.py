@@ -22,7 +22,7 @@ from styletokenizer.utility.datasets_helper import (
     load_data
 )
 from sensitive_tasks import VARIETIES_DEV_DICT, VARIETIES_TRAIN_DICT, VARIETIES_TEST_DICT, \
-    VARIETIES_to_keys, VARIETIES_to_labels, VARIETIES_TASKS
+    VARIETIES_to_keys, VARIETIES_to_labels, SENSITIVE_TASKS
 from styletokenizer.utility.tokenizer_vars import get_tokenizer_from_path
 
 from sklearn.linear_model import LogisticRegression
@@ -138,7 +138,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
     }
 
     if tasks == "all":
-        tasks = GLUE_MVALUE_TASKS + GLUE_TEXTFLINT_TASKS + VARIETIES_TASKS + GLUE_TASKS
+        tasks = GLUE_MVALUE_TASKS + GLUE_TEXTFLINT_TASKS + SENSITIVE_TASKS + GLUE_TASKS
     if tokenizer_paths == 'all':
         tokenizer_paths = [tok_path for tok_list in TOKENIZER_PATHS for tok_path in tok_list]
 
@@ -150,7 +150,7 @@ def main(tasks="all", tokenizer_paths='all', on_test_set=False):
     for task_name_or_hfpath in tasks:
         task = task_name_or_hfpath
 
-        if task in VARIETIES_TASKS:
+        if task in SENSITIVE_TASKS:
             if task == "stel":  # not a training task
                 continue
             if task_name_or_hfpath not in testing_dict.keys():

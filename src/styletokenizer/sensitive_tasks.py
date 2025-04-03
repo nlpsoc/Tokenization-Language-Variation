@@ -35,5 +35,5 @@ VARIETIES_to_labels = {
     "NUCLE": "label",  # "Error Overlap",
     "PAN": "Author Change",
 }
-VARIETIES_TASKS = list(VARIETIES_DEV_DICT.keys())
+SENSITIVE_TASKS = list(VARIETIES_DEV_DICT.keys())
 
