@@ -1,12 +1,12 @@
 #!/bin/sh
 
 ### Job name
-#SBATCH --job-name=S_44_128k
+#SBATCH --job-name=S_44_64k
 
 ### File / path where STDOUT & STDERR will be written
 ###    %J is the job ID, %I is the array ID
 # ------------------ SENTENCE BERTS -----------------------------------
-#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/SENSITIVE_44_128k_%j.txt
+#SBATCH -o /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/SENSITIVE_44_64k_%j.txt
 
 ### Request the time you need for execution in minutes
 ### The format for the parameter is: [hour:]minute:second,
@@ -69,10 +69,10 @@ MODEL_PATHS=(
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-43"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-43"
 ###
-  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-44"
+#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-44"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-44"
+  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-44"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-44"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-44"
 #  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-44"
@@ -95,14 +95,6 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
   for SEED in "${SEEDS[@]}"; do
     echo "SEED: $SEED"
 
-    TASK_NAME=NUCLE
-    python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-    --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-    TASK_NAME=CORE
-    python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-    --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
     TASK_NAME=sadiri
     python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
     --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
@@ -114,6 +106,15 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
     TASK_NAME=multi-DIALECT
     python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
     --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+
+    TASK_NAME=NUCLE
+    python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+    --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+
+    TASK_NAME=CORE
+    python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
+    --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
+
 
   done
 
