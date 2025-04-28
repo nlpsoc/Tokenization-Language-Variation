@@ -636,7 +636,7 @@ def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, b
     seeds = [42, 43, 44]
 
     for seed in seeds:
-        BERT_PATH = f"749M/steps-45000/seed-42/{seed}/"
+        BERT_PATH = f"749M/steps-45000/seed-{seed}/42/"
         for task in tasks:
 
             if task in GLUE_TEXTFLINT_TASKS:
@@ -669,6 +669,8 @@ def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, b
                     print(f"Path {result_path} does not exist")
                     continue
                 files = os.listdir(result_path)
+                # remove hidden files
+                files = [file for file in files if not os.path.basename(file).startswith(".")]
                 for file in files:
                     if ((task_key in GLUE_TASKS and f"eval_dataset_{task_key}.tsv" in file) or
                             (((task_key not in GLUE_TASKS) or (task_key == "ANLI")) and "eval_dataset.tsv" in file)):
@@ -692,9 +694,9 @@ def get_BERT_predictions(tasks, unique_tokenizer_paths, local_finder_addition, b
                         break
 
                 if ((tokenizer_name not in BERT_PREDICTIONS) or
-                        (task not in BERT_PREDICTIONS[tokenizer_name]) or
-                        (seed not in BERT_PREDICTIONS[tokenizer_name][task])):
-                    print(f"No predictions found for {tokenizer_name} on {task} ...")
+                        (seed not in BERT_PREDICTIONS[tokenizer_name]) or
+                        (task not in BERT_PREDICTIONS[tokenizer_name][seed])):
+                    print(f"No predictions found for {tokenizer_name} on {task} for seed {seed} ...")
                     continue
 
     return BERT_PREDICTIONS
