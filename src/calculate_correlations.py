@@ -22,6 +22,9 @@ from styletokenizer.robust_tasks import GLUE_TEXTFLINT_TASKS, GLUE_MVALUE_TASKS,
 from utility.tokenizer_vars import TOKENIZER_PATHS
 from sensitive_tasks import SENSITIVE_TASKS
 
+SEEDS = [42, 43, 44]
+ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
+
 INDENTIFIABLE_PATH = "/Users/anna/sftp_mount/hpc_disk/02-awegmann/"
 
 AV_TASK = "sadiri"
@@ -106,7 +109,6 @@ def load_json_as_dict(file_path):
 
 
 def main():
-    SEEDS = [42, 43]
     # do this only for the textflint tasks for now
     tasks = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS + SENSITIVE_TASKS
     tokenizer_paths = TOKENIZER_PATHS
@@ -120,8 +122,6 @@ def main():
 
     local_base_path = INDENTIFIABLE_PATH
 
-    ROBUST_TASKS = GLUE_TEXTFLINT_TASKS + GLUE_TASKS + GLUE_MVALUE_TASKS
-
     # check if local finder addition exists
     if not os.path.exists(local_base_path):
         raise FileNotFoundError(f"Local finder addition {local_base_path} does not exist")
@@ -130,8 +130,12 @@ def main():
     if "train" in bert_version:
         # remove "mixed" from first tokenizer group
         TOKENIZER_PATHS[0] = [path for path in TOKENIZER_PATHS[0] if "mixed" not in path]
-    BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_base_path,
-                                             bert_version=bert_version)
+    if os.path.exists(f"_tmp/{bert_version}_performances.json"):
+        BERT_PERFORMANCE = load_json_as_dict(f"_tmp/{bert_version}_performances.json")
+    else:
+        BERT_PERFORMANCE = get_BERT_performances(tasks, unique_tokenizer_paths, local_base_path,
+                                                 bert_version=bert_version)
+        save_dict_as_json(BERT_PERFORMANCE, f"_tmp/{bert_version}_performances.json")
     if os.path.exists(f"_tmp/{bert_version}_predictions.json"):
         BERT_PREDICTIONS = load_json_as_dict(f"_tmp/{bert_version}_predictions.json")
     else:
@@ -141,53 +145,71 @@ def main():
     # df = pd.DataFrame(BERT_PERFORMANCE).T
 
     # add a mean-robust and a mean-sensitive column
-    df = pd.DataFrame({
+    BERT_performance_df = pd.DataFrame({
         model: {
             # Mean and std of means across robust tasks per seed
             "mean-robust": np.mean(seed_means := [
                 np.mean([seed_dict[task] for task in ROBUST_TASKS if task in seed_dict])
-                for seed, seed_dict in model_dict.items() if seed in SEEDS
+                for seed, seed_dict in model_dict.items() if int(seed) in SEEDS
             ]),
             "std-robust": np.std(seed_means),
             # Individual task means across seeds
             "mean-sensitive": np.mean(sensitive_means := [
                 np.mean([seed_dict[task] for task in SENSITIVE_TASKS if task in seed_dict])
-                for seed, seed_dict in model_dict.items() if seed in SEEDS
+                for seed, seed_dict in model_dict.items() if int(seed) in SEEDS
             ]),
             "std-sensitive": np.std(sensitive_means),
             **{
                 f"{task}-mean": np.mean([
                     seed_dict[task] for seed, seed_dict in model_dict.items()
-                    if seed in SEEDS and task in seed_dict
+                    if int(seed) in SEEDS and task in seed_dict
                 ])
                 for task in ROBUST_TASKS
             },
             **{
                 f"{task}-std": np.std([
                     seed_dict[task] for seed, seed_dict in model_dict.items()
-                    if seed in SEEDS and task in seed_dict
+                    if int(seed) in SEEDS and task in seed_dict
                 ])
                 for task in ROBUST_TASKS
-            }
+            },
+            **{
+                f"{task}-mean": np.mean([
+                    seed_dict[task] for seed, seed_dict in model_dict.items()
+                    if int(seed) in SEEDS and task in seed_dict
+                ])
+                for task in SENSITIVE_TASKS
+            },
+            **{
+                f"{task}-std": np.std([
+                    seed_dict[task] for seed, seed_dict in model_dict.items()
+                    if int(seed) in SEEDS and task in seed_dict
+                ])
+                for task in SENSITIVE_TASKS
+            },
         }
         for model, model_dict in BERT_PERFORMANCE.items()
     }).T
-    df.index.name = "BERT-Model"
+    BERT_performance_df.index.name = "BERT-Model"
 
     # df["mean-robust"] = df[SEEDS, ROBUST_TASKS].mean(axis=1)
     # df["mean-sensitive"] =  df[VARIETIES_TASKS].mean(axis=1)
 
     # reorder df in the order "twitter-gpt2-32000", "mixed-
-    print(df.to_markdown())
+    print(BERT_performance_df.to_markdown())
     calculate_robustness_scores(BERT_PERFORMANCE, model_name="BERT-Model")
 
     STATS_BASE_PATH = os.path.join(local_base_path, "TOKENIZER/tokenizer/")
-    LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
+    if os.path.exists(f"_tmp/LR/{bert_version}_performances.json"):
+        LOG_REGRESSION = load_json_as_dict(f"_tmp/LR/{bert_version}_performances.json")
+    else:
+        LOG_REGRESSION = get_logreg_performances(tasks, unique_tokenizer_paths, STATS_BASE_PATH)
+        save_dict_as_json(LOG_REGRESSION, f"_tmp/LR/{bert_version}_performances.json")
     df = pd.DataFrame(LOG_REGRESSION).T
     df.index.name = "LR-Model"
     df["mean-robust"] = df[ROBUST_TASKS].mean(axis=1)
     df["mean-sensitive"] = df[SENSITIVE_TASKS].mean(axis=1)
-    print(df.to_markdown())
+    # print(df.to_markdown())
     # calculate the correlation between the BERT performance and the logistic regression
     c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION)
     print(f"Correlation between BERT and LR: {c}")
@@ -195,17 +217,13 @@ def main():
     print(f"Correlation between BERT and LR (no size difference): {c_no_size}")
     calculate_robustness_scores(LOG_REGRESSION, model_name="LR")
 
-    log_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
-                  LOG_REGRESSION.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, log_robust)
+    c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, only_robust=True)
     print(f"Correlation between BERT and LR (robust tasks): {c}")
-    c = calculate_correlation(BERT_PERFORMANCE, log_robust, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=True, only_robust=True)
     print(f"Correlation between BERT and LR (robust tasks, no size difference): {c}")
-    log_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
-                     LOG_REGRESSION.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, log_varieties)
+    c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, only_sensitive=True)
     print(f"Correlation between BERT and LR (sensitive tasks): {c}")
-    c = calculate_correlation(BERT_PERFORMANCE, log_varieties, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, LOG_REGRESSION, no_size_difference=True, only_sensitive=True)
     print(f"Correlation between BERT and LR (sensitive tasks, no size difference): {c}")
 
     # get intrinisic measures
@@ -213,185 +231,176 @@ def main():
     seq_len = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     df = pd.DataFrame(seq_len).T
     df.index.name = "Seq Len"
-    print(df.to_markdown())
+    # print(df.to_markdown())
     # calculate the correlation between the BERT performance and the intrinsic measures
     c = calculate_correlation(BERT_PERFORMANCE, seq_len, no_size_difference=True)
     print(f"Correlation between BERT and seq len: {c}")
-    seqlen_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
-                     seq_len.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, seqlen_robust, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, seq_len, no_size_difference=True, only_robust=True)
     print(f"Correlation between BERT and seq len (robust tasks): {c}")
-    seqlen_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
-                        seq_len.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, seqlen_varieties, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, seq_len, no_size_difference=True, only_sensitive=True)
     print(f"Correlation between BERT and seq len (sensitive tasks): {c}")
 
     intrinsic_key = "renyi_eff_2.5"
     renyi = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     df = pd.DataFrame(renyi).T
     df.index.name = "Renyi Eff 2.5"
-    print(df.to_markdown())
+    # print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, renyi, no_size_difference=True)
     print(f"Correlation between BERT and renyi eff 2.5: {c}")
     # correlation Renyi and BERT on robust tasks
-
-    renyi_robust = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
-                    renyi.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, renyi_robust, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, renyi, no_size_difference=True, only_robust=True)
     print(f"Correlation between BERT and renyi eff 2.5 (robust tasks): {c}")
-    renyi_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
-                       renyi.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, renyi_varieties, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, renyi, no_size_difference=True, only_sensitive=True)
     print(f"Correlation between BERT and renyi eff 2.5 (sensitive tasks): {c}")
 
     intrinsic_key = "vocab_size"
     vocab_size = get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STATS_BASE_PATH)
     df = pd.DataFrame(vocab_size).T
     df.index.name = "Vocab Size"
-    print(df.to_markdown())
+    # print(df.to_markdown())
     c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True)
     print(f"Correlation between BERT and vocab size: {c}")
     c = calculate_correlation(renyi, vocab_size, no_size_difference=True, no_corpus_difference=True)
     print(f"Correlation between renyi and vocab size (only on pre-tokenizer): {c}")
-    size_robsut = {key: {k: v for k, v in value_dict.items() if k in ROBUST_TASKS} for key, value_dict in
-                   vocab_size.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, size_robsut, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True, only_robust=True)
     print(f"Correlation between BERT and vocab size (robust tasks): {c}")
-    size_varieties = {key: {k: v for k, v in value_dict.items() if k in SENSITIVE_TASKS} for key, value_dict in
-                      vocab_size.items()}
-    c = calculate_correlation(BERT_PERFORMANCE, size_varieties, no_size_difference=True)
+    c = calculate_correlation(BERT_PERFORMANCE, vocab_size, no_size_difference=True, only_sensitive=True)
     print(f"Correlation between BERT and vocab size (sensitive tasks): {c}")
 
     # for all types of tasks: GLUE tasks, VARIETIES
 
     significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="robust")
     significance_test(SENSITIVE_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, tasks_name="sensitive")
-    mixed_effect_model(BERT_PERFORMANCE, ROBUST_TASKS)
-    mixed_effect_model(BERT_PERFORMANCE, SENSITIVE_TASKS)
+    # mixed_effect_model(BERT_PERFORMANCE, ROBUST_TASKS)
+    # mixed_effect_model(BERT_PERFORMANCE, SENSITIVE_TASKS)
 
     # Wilcoxon test for the BERT predictions
-    significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="robust")
-    significance_test(SENSITIVE_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="sensitive")
+    # significance_test(ROBUST_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="robust")
+    # significance_test(SENSITIVE_TASKS, BERT_PERFORMANCE, BERT_PREDICTIONS, do_wilcoxon=True, tasks_name="sensitive")
 
 
 def significance_test(considered_tasks, performance_values, predictions_for_mcnemar=None, do_wilcoxon=False,
                       bonferroni=True, tasks_name="robust"):
-    # for grouped models (consider tokenizer paths groups)
+    def is_seed_nested(d):
+        return isinstance(d, dict) and all(str(k).isdigit() for k in d)
+
+    def get_mean_performance(perf, task):
+        """Average performance across seeds or return directly."""
+        if is_seed_nested(perf):
+            vals = [perf[seed][task] for seed in perf if task in perf[seed] and not np.isnan(perf[seed][task])]
+            return np.mean(vals) if vals else None
+        return perf.get(task) if task in perf and not np.isnan(perf[task]) else None
+
+    def get_concat_predictions(preds, task):
+        """Concatenate predictions across seeds or return directly."""
+        if is_seed_nested(preds):
+            return [p for seed in preds if task in preds[seed] for p in preds[seed][task]]
+        return list(preds[task]) if task in preds else None
+
     for g_nbr, tok_group in enumerate(TOKENIZER_PATHS):
         show_legend = g_nbr == len(TOKENIZER_PATHS) - 1
         performance_per_tok = {}
         mean_performance_per_tok = {}
+
+        # Step 1: Collect and average performance per tokenizer
         for tokenizer_path in tok_group:
             tokenizer = os.path.basename(os.path.dirname(tokenizer_path))
-            performance_per_tok[tokenizer] = {}
-            for task in considered_tasks:
-                if task in performance_values[tokenizer]:
-                    performance_per_tok[tokenizer][task] = performance_values[tokenizer][task]
+            tok_perf = performance_values[tokenizer]
+            task_scores = {
+                task: get_mean_performance(tok_perf, task)
+                for task in considered_tasks
+            }
+            task_scores = {task: val for task, val in task_scores.items() if val is not None}
+            performance_per_tok[tokenizer] = task_scores
+            mean_performance_per_tok[tokenizer] = np.mean(list(task_scores.values()))
 
-            # calculate mean performance robust task
-            mean_performance_per_tok[tokenizer] = np.mean(list(performance_per_tok[tokenizer].values()))
-
+        # Step 2: Sort tokenizers and prepare display names
+        sorted_models = sorted(mean_performance_per_tok, key=mean_performance_per_tok.get, reverse=True)
         display_translations = {
-            "twitter": "X",
-            "mixed": "Mixed",
-            "wikipedia": "Wiki",
-            "pubmed": "PMed",
-            "gpt2": "gpt",
-            "32000": "32",
-            "64000": "64",
-            "128000": "128",
-            "4000": "4",
-            "500": "0.5",
-            "llama3": "llama",
-            "ws": "_ws",
-            "wsorg": "ws",
-            "no": "no",
+            "twitter": "X", "mixed": "Mixed", "wikipedia": "Wiki", "pubmed": "PMed",
+            "gpt2": "gpt", "32000": "32", "64000": "64", "128000": "128", "4000": "4",
+            "500": "0.5", "llama3": "llama", "ws": "_ws", "wsorg": "ws", "no": "no",
         }
 
-        # get models sorted by mean performance
-        sorted_models_names = sorted(mean_performance_per_tok, key=mean_performance_per_tok.get, reverse=True)
+        def display_name(tok):
+            return display_translations.get(tok.split("-")[g_nbr], tok.split("-")[g_nbr])
+
         pval_matrix = pd.DataFrame(
-            data=np.ones((len(sorted_models_names), len(sorted_models_names))),  # fill with 1.0 initially
-            index=[display_translations[m_name.split("-")[g_nbr]] for m_name in sorted_models_names],
-            columns=[display_translations[m_name.split("-")[g_nbr]] for m_name in sorted_models_names],
+            np.ones((len(sorted_models), len(sorted_models))),
+            index=[display_name(m) for m in sorted_models],
+            columns=[display_name(m) for m in sorted_models],
         )
 
-        for i in range(len(sorted_models_names)):
-            for j in range(i + 1, len(sorted_models_names)):
-                data1 = []
-                data2 = []
-                tok1 = sorted_models_names[i]
-                tok2 = sorted_models_names[j]
-                correct = []
+        # Step 3: Pairwise statistical tests
+        for i, tok1 in enumerate(sorted_models):
+            for j, tok2 in enumerate(sorted_models[i + 1:], start=i + 1):
+                data1, data2, correct = [], [], []
+
                 for task in considered_tasks:
-                    if task in performance_per_tok[tok1] and task in performance_per_tok[tok2]:
-                        if do_wilcoxon:
-                            data1.append(performance_per_tok[tok1][task])
-                            data2.append(performance_per_tok[tok2][task])
+                    if task not in performance_per_tok[tok1] or task not in performance_per_tok[tok2]:
+                        continue
+
+                    if do_wilcoxon:
+                        data1.append(performance_per_tok[tok1][task])
+                        data2.append(performance_per_tok[tok2][task])
+                    else:
+                        # McNemar: Gather predictions
+                        preds1 = predictions_for_mcnemar.get(tok1, {})
+                        preds2 = predictions_for_mcnemar.get(tok2, {})
+                        gt_task = predictions_for_mcnemar["gt"].get(task)
+
+                        flat_preds1 = get_concat_predictions(preds1, task)
+                        flat_preds2 = get_concat_predictions(preds2, task)
+                        if flat_preds1 and flat_preds2:
+                            data1 += flat_preds1
+                            data2 += flat_preds2
+                            if len(flat_preds1) == len(flat_preds2):
+                                repeats = len(flat_preds1) // len(gt_task)
+                                correct += list(gt_task) * repeats
+                            else:
+                                raise ValueError(
+                                    f"ERROR: Prediction length mismatch for task {task} in {tok1} vs {tok2}")
                         else:
-                            if task not in predictions_for_mcnemar[tok1] or task not in predictions_for_mcnemar[tok2]:
-                                print(f"ERROR: Predictions {task} not found for {tok1} or {tok2}")
-                                continue
-                            data1 += list(predictions_for_mcnemar[tok1][task])
-                            data2 += list(predictions_for_mcnemar[tok2][task])
-                            correct += list(predictions_for_mcnemar["gt"][task])
-                if len(data1) > 0:
+                            print(f"ERROR: Missing predictions for task {task} in {tok1} or {tok2}")
+                            continue
+
+                if data1:
                     if do_wilcoxon:
                         stat, pval = wilcoxon(data1, data2, alternative="greater")
-                        pval_matrix.iloc[i, j] = pval
-                        pval_matrix.iloc[j, i] = pval
                     else:
-                        # flatten arrays
-                        stat, pval, table = compute_mcnemar_statsmodels(correct, data1, data2)
-                        pval_matrix.iloc[i, j] = pval
-                        pval_matrix.iloc[j, i] = pval
+                        stat, pval, _ = compute_mcnemar_statsmodels(correct, data1, data2)
+                    pval_matrix.iloc[i, j] = pval
+                    pval_matrix.iloc[j, i] = pval
                 else:
-                    pval_matrix.iloc[i, j] = None
-                    pval_matrix.iloc[j, i] = None
+                    pval_matrix.iloc[i, j] = pval_matrix.iloc[j, i] = None
 
+        # Step 4: Bonferroni correction (optional)
         addition = ""
         if bonferroni:
-            pval_matrix = bonferroni_correction(pval_matrix, sorted_models_names, fixed_nbr_correction=26 * 2)
+            pval_matrix = bonferroni_correction(pval_matrix, sorted_models, fixed_nbr_correction=26 * 2)
             addition = "Bonferroni-corrected"
 
-        if do_wilcoxon:
-            print(f"Pairwise Wilcoxon p-value matrix {addition}:")
-        else:
-            print(f"Pairwise McNemar p-value matrix {addition}:")
+        test_type = "Wilcoxon" if do_wilcoxon else "McNemar"
+        print(f"Pairwise {test_type} p-value matrix {addition}:")
         print(pval_matrix)
 
-        norm = FuncNorm((forward, inverse), vmin=0, vmax=1)
-
-        mask = np.triu(np.ones_like(pval_matrix, dtype=bool))  # hides upper triangle + diagonal
-
-        # Define colormap with two segments split at midpoint (0.5)
-        colors = [(0, 'darkblue'), (0.05, 'lightblue'), (0.05, 'lightcoral'), (1, 'darkred')]
-        custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', colors)
-
+        # Step 5: Visualization
+        mask = np.triu(np.ones_like(pval_matrix, dtype=bool))
+        custom_cmap = LinearSegmentedColormap.from_list('custom_cmap', [
+            (0, 'darkblue'), (0.05, 'lightblue'), (0.05, 'lightcoral'), (1, 'darkred')
+        ])
         sns.set_context("paper", font_scale=2.9)
-
-        # plot size
         plt.figure(figsize=(6, 6))
-
-        ax = sns.heatmap(pval_matrix,
-                         mask=mask,
-                         annot=False,
-                         cmap=custom_cmap,
-                         fmt=".3f",
-                         vmin=0,
-                         vmax=1,
-                         # norm=norm,  # Apply custom normalization
-                         cbar=show_legend)
-
-        plt.setp(ax.get_xticklabels(), fontweight="bold")  # Bold x-axis tick labels
-        plt.setp(ax.get_yticklabels(), fontweight="bold")  # Bold y-axis tick labels
-
+        ax = sns.heatmap(
+            pval_matrix, mask=mask, annot=False, cmap=custom_cmap,
+            fmt=".3f", vmin=0, vmax=1, cbar=show_legend
+        )
+        plt.setp(ax.get_xticklabels(), fontweight="bold")
+        plt.setp(ax.get_yticklabels(), fontweight="bold")
         if show_legend:
-            colorbar = ax.collections[0].colorbar
-            # Set ticks at data values that correspond to colorbar's start, middle, and end
-            colorbar.set_ticks([0.05, 1])
-            colorbar.set_ticklabels(['0.05', '1'])
-
+            cbar = ax.collections[0].colorbar
+            cbar.set_ticks([0.05, 1])
+            cbar.set_ticklabels(['0.05', '1'])
         plt.tight_layout()
         plt.show()
 
@@ -440,28 +449,111 @@ def mixed_effect_model(performance_per_tok, tasks=GLUE_TASKS):
 
 
 def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
-    # calculate Mean and STD for LR, for ROBUSTNESS
+    def compute_stats_across_seeds(results, task_group):
+        seeds = results.keys()
+        means = [
+            np.mean([results[seed][task] for task in task_group])
+            for seed in seeds
+            if all(task in results[seed] for task in task_group)
+        ]
+        if means:
+            return {"mean": np.mean(means), "std": np.std(means)}
+        else:
+            raise ValueError(f"Not all tasks in {task_group} are present in results across seeds.")
+
+    def compute_single_stats(results, task_group):
+        if all(task in results for task in task_group):
+            return {"mean": np.mean([results[task] for task in task_group])}
+        else:
+            raise ValueError(f"Not all tasks in {task_group} are present in results.")
+
     mean_std_dict = {}
-    for tokenizer_name in model_result_dict.keys():
+    for tokenizer_name, results in model_result_dict.items():
         mean_std_dict[tokenizer_name] = {}
-        if all([key in model_result_dict[tokenizer_name] for key in GLUE_TASKS]):
-            mean_glue = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TASKS])
-            # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TASKS])
-            mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean_glue}  # , "std": std
-            if all([key in model_result_dict[tokenizer_name] for key in GLUE_TEXTFLINT_TASKS]):
-                mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-                # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
-                mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean,
-                                                                   "reduction": mean - mean_glue}  # , "std": std
-            # check if the tokenizer has all mVALUE tasks
-            if all([key in model_result_dict[tokenizer_name] for key in GLUE_MVALUE_TASKS]):
-                mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-                # std = np.std([LOG_REGRESSION[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
-                mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean,
-                                                                "reduction": mean - mean_glue}  # , "std": std
+        is_nested_by_seed = '42' in results
+
+        task_groups = {
+            "GLUE": GLUE_TASKS,
+            "GLUE_TEXTFLINT": GLUE_TEXTFLINT_TASKS,
+            "GLUE_MVALUE": GLUE_MVALUE_TASKS,
+        }
+
+        for group_name, task_list in task_groups.items():
+            if is_nested_by_seed:
+                stats = compute_stats_across_seeds(results, task_list)
+            else:
+                stats = compute_single_stats(results, task_list)
+
+            if stats:
+                mean_std_dict[tokenizer_name][group_name] = stats
+
     df = pd.DataFrame(mean_std_dict).T
     df.index.name = model_name
     print(df.to_markdown())
+
+
+# def calculate_robustness_scores(model_result_dict, model_name="LR-Model"):
+#     # calculate Mean and STD for LR, for ROBUSTNESS
+#     mean_std_dict = {}
+#     for tokenizer_name, results in model_result_dict.items():
+#         mean_std_dict[tokenizer_name] = {}
+#
+#         # Case: Nested by seed (e.g., '42', '43', '44')
+#         if '42' in results:  # includes seeds
+#             # for GLUE, GLUE_TEXTFLINT, GLUE_MVALUE calculate the mean of means and std of means
+#             seeds = results.keys()
+#             assert len(seeds) == 3, f"Expected 3 seeds, but got {len(seeds)}"
+#
+#             # Compute for GLUE
+#             glue_means = []
+#             for seed in seeds:
+#                 if all(task in results[seed] for task in GLUE_TASKS):
+#                     seed_mean = np.mean([results[seed][task] for task in GLUE_TASKS])
+#                     glue_means.append(seed_mean)
+#             if glue_means:
+#                 mean_std_dict[tokenizer_name]["GLUE"] = {
+#                     "mean": np.mean(glue_means),
+#                     "std": np.std(glue_means),
+#                 }
+#
+#             # Compute for GLUE_TEXTFLINT
+#             glue_tf_means = []
+#             for seed in seeds:
+#                 if all(task in results[seed] for task in GLUE_TEXTFLINT_TASKS):
+#                     seed_mean = np.mean([results[seed][task] for task in GLUE_TEXTFLINT_TASKS])
+#                     glue_tf_means.append(seed_mean)
+#             if glue_tf_means:
+#                 mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {
+#                     "mean": np.mean(glue_tf_means),
+#                     "std": np.std(glue_tf_means),
+#                 }
+#
+#             # Compute for GLUE_MVALUE
+#             glue_mv_means = []
+#             for seed in seeds:
+#                 if all(task in results[seed] for task in GLUE_MVALUE_TASKS):
+#                     seed_mean = np.mean([results[seed][task] for task in GLUE_MVALUE_TASKS])
+#                     glue_mv_means.append(seed_mean)
+#             if glue_mv_means:
+#                 mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {
+#                     "mean": np.mean(glue_mv_means),
+#                     "std": np.std(glue_mv_means),
+#                 }
+#
+#         else:  # only one seed
+#             if all([key in model_result_dict[tokenizer_name] for key in GLUE_TASKS]):
+#                 mean_glue = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TASKS])
+#                 mean_std_dict[tokenizer_name]["GLUE"] = {"mean": mean_glue}
+#             if all([key in model_result_dict[tokenizer_name] for key in GLUE_TEXTFLINT_TASKS]):
+#                 mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_TEXTFLINT_TASKS])
+#                 mean_std_dict[tokenizer_name]["GLUE_TEXTFLINT"] = {"mean": mean}
+#             if all([key in model_result_dict[tokenizer_name] for key in GLUE_MVALUE_TASKS]):
+#                 mean = np.mean([model_result_dict[tokenizer_name][key] for key in GLUE_MVALUE_TASKS])
+#                 mean_std_dict[tokenizer_name]["GLUE_MVALUE"] = {"mean": mean}
+#
+#     df = pd.DataFrame(mean_std_dict).T
+#     df.index.name = model_name
+#     print(df.to_markdown())
 
 
 def bonferroni_correction(pval_matrix, sorted_models, fixed_nbr_correction=None):
@@ -507,23 +599,87 @@ def get_intrinsic_performances(tasks, unique_tokenizer_paths, intrinsic_key, STA
     return INTRINSIC_MEASURE
 
 
-def calculate_correlation(performance_1, performance_2, no_size_difference=False, no_corpus_difference=False):
-    x = []
-    y = []
+def calculate_correlation(performance_1, performance_2, no_size_difference=False, no_corpus_difference=False,
+                          only_robust=False, only_sensitive=False):
+    def get_mean_performance(perf_dict, tokenizer_name, task):
+        """
+        Get the mean performance for a task, handling both flat and seed-nested dicts.
+        Returns None if the task is missing or any value is NaN.
+        """
+        entry = perf_dict[tokenizer_name]
+        if isinstance(entry, dict) and all(isinstance(k, str) and k.isdigit() for k in entry):  # seed-nested
+            task_values = [
+                seed_scores[task]
+                for seed_scores in entry.values()
+                if task in seed_scores and not math.isnan(seed_scores[task])
+            ]
+            return np.mean(task_values) if task_values else None
+        else:  # flat dict
+            val = entry.get(task)
+            return val if val is not None and not math.isnan(val) else None
+
+    # assert not both sensitive and robust
+    assert not (only_robust and only_sensitive), "Cannot filter for both robust and sensitive tasks"
+
+    x, y = [], []
+
     for tokenizer_name in performance_1:
+        if tokenizer_name not in performance_2:
+            continue
+
+        # Optional filtering by tokenizer size
         size = int(tokenizer_name.split("-")[-1])
         if no_size_difference and size != 32000:
             continue
+
+        # Optional filtering by tokenizer corpus type
         corpus = tokenizer_name.split("-")[0]
-        if no_corpus_difference and "mixed" != corpus:
+        if no_corpus_difference and corpus != "mixed":
             continue
-        for task in performance_1[tokenizer_name]:
-            if task in performance_2[tokenizer_name]:
-                if math.isnan(performance_1[tokenizer_name][task]) or math.isnan(performance_2[tokenizer_name][task]):
-                    print(f"Performance for {task} is NaN")
-                    continue
-                x.append(performance_1[tokenizer_name][task])
-                y.append(performance_2[tokenizer_name][task])
+
+        tasks_1 = performance_1[tokenizer_name]
+        tasks_2 = performance_2[tokenizer_name]
+
+        # Determine which task names to compare
+        task_names = set()
+
+        # If performance_1 is seed-nested, gather all task names from all seeds
+        if isinstance(tasks_1, dict):
+            if all(isinstance(k, str) and k.isdigit() for k in tasks_1):
+                # It's seed-nested, so look at all seed-level task dicts
+                for seed_dict in tasks_1.values():
+                    task_names.update(seed_dict.keys())
+            else:
+                # It's flat, just use the keys
+                task_names.update(tasks_1.keys())
+
+        # Do the same for performance_2 to ensure we get the union of task names
+        if isinstance(tasks_2, dict):
+            if all(isinstance(k, str) and k.isdigit() for k in tasks_2):
+                for seed_dict in tasks_2.values():
+                    task_names.update(seed_dict.keys())
+            else:
+                task_names.update(tasks_2.keys())
+
+        if only_robust:
+            task_names = set(task_names).intersection(ROBUST_TASKS)
+        elif only_sensitive:
+            task_names = set(task_names).intersection(SENSITIVE_TASKS)
+
+        # Compare values across the two performance dicts
+        for task in task_names:
+            val1 = get_mean_performance(performance_1, tokenizer_name, task)
+            val2 = get_mean_performance(performance_2, tokenizer_name, task)
+
+            if val1 is not None and val2 is not None:
+                x.append(val1)
+                y.append(val2)
+            else:
+                print(f"Performance for {task} is NaN or missing in one of the dicts")
+
+    if len(x) < 2:
+        raise ValueError("Not enough data to compute correlation")
+
     return statistics.correlation(x, y)
 
 
@@ -620,8 +776,9 @@ def get_BERT_performances(tasks, unique_tokenizer_paths, local_finder_addition, 
                         (performance_keys[task_key][0] in data_dict and performance_keys[task_key][1] in data_dict):
                     # get the performance from the performance keys
                     if task_key == "mnli":
-                        BERT_PERFORMANCE[tokenizer_name][seed][task] = (data_dict[performance_keys[task_key][0]] + data_dict[
-                            performance_keys[task_key][1]]) / 2
+                        BERT_PERFORMANCE[tokenizer_name][seed][task] = (data_dict[performance_keys[task_key][0]] +
+                                                                        data_dict[
+                                                                            performance_keys[task_key][1]]) / 2
                     else:
                         BERT_PERFORMANCE[tokenizer_name][seed][task] = data_dict[performance_keys[task_key]]
                 else:
