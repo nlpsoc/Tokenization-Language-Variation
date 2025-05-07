@@ -402,6 +402,11 @@ def significance_test(considered_tasks, performance_values, predictions_for_mcne
             cbar.set_ticks([0.05, 1])
             cbar.set_ticklabels(['0.05', '1'])
         plt.tight_layout()
+        # save
+        #   mkdir if not exists
+        if not os.path.exists(f"_tmp/figures"):
+            os.makedirs(f"_tmp/figures")
+        plt.savefig(f"_tmp/figures/{tasks_name}_{tokenizer}_pval_matrix.png", dpi=300)
         plt.show()
 
 
