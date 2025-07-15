@@ -1,5 +1,5 @@
 """
-    contrastive learning approach to authorship verification
+    contrastive learning approach to authorship verification; taken from UMich project
 """
 from styletokenizer.utility.env_variables import set_cache
 set_cache()
