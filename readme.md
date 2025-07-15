@@ -20,12 +20,12 @@ Most scripts are sweat and tears relating to dataset creation (see `create_XXX` 
 Find the datasets ready to use on huggingface (except for those where we lack licenses to share):
 
 **Fitting Datasets**
-- Wikipedia: 
+- Wikipedia: https://huggingface.co/datasets/AnnaWegmann/Fitting-Wikipedia
 - PubMed: https://huggingface.co/datasets/AnnaWegmann/Fitting-PubMed
 - Twitter: cannot be shared due to licensing constraints
 
 **Training Datasets**
-- Miscellaneous: 
+- Miscellaneous: https://huggingface.co/datasets/AnnaWegmann/Training-Misc
 
 **Tasks**  
 
@@ -38,8 +38,8 @@ Find the datasets ready to use on huggingface (except for those where we lack li
 
 *Variation-Robust*
 - GLUE: 
-- GLUE+typo: 
-- GLUE+dialect: 
+- GLUE+typo: https://huggingface.co/datasets/AnnaWegmann/GLUE-typo
+- GLUE+dialect: https://huggingface.co/datasets/AnnaWegmann/GLUE-dialect
 
 ## Requirements
 
