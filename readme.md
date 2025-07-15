@@ -21,7 +21,7 @@ Find the datasets ready to use on huggingface (except for those where we lack li
 
 **Fitting Datasets**
 - Wikipedia: 
-- PubMed: 
+- PubMed: https://huggingface.co/datasets/AnnaWegmann/Fitting-PubMed
 - Twitter: cannot be shared due to licensing constraints
 
 **Training Datasets**
