@@ -2,6 +2,8 @@
 
 This repository contains code, artifacts and links to datasets for the paper ["Tokenization Is Sensitive To Language Variation."](https://arxiv.org/pdf/2502.15343) 
 
+Video: https://youtu.be/GnEpTTj4fc8
+
 ### Code
 
 `fit_tokenizer.py` is fitting the tokenizers
