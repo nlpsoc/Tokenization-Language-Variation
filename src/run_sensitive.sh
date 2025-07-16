@@ -28,59 +28,8 @@ conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_tokenizer
 
 
 MODEL_PATHS=(
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-wsorg-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/base-BERT/webbook-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-no-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-wsorg-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-42"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-42"
-###
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-43"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-43"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-43"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-wsorg-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-no-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-43"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-43"
-###
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-128000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-500/749M/steps-45000/seed-44"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-64000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-4000/749M/steps-45000/seed-44"
+#  paths to models to evaluate
 "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/wikipedia-gpt2-32000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-gpt2-32000/749M/steps-45000/seed-44"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/pubmed-gpt2-32000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/twitter-gpt2-32000/749M/steps-45000/seed-44"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-wsorg-32000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-no-32000/749M/steps-45000/seed-44"
-# "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-llama3-32000/749M/steps-45000/seed-44"
-#  "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/models/train-mixed/base-BERT/mixed-ws-32000/749M/steps-45000/seed-44"
 )
 
 SEEDS=(42
@@ -120,54 +69,4 @@ for MODEL_PATH in "${MODEL_PATHS[@]}"; do
 
 done
 
-
-
-#  TASK_NAME=convo-style
-#  SEED=42
-#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-#  TASK_NAME=age
-#  SEED=42
-#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-
-
-
-#  TASK_NAME=GYAFC
-#  SEED=42
-#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-#  #
-#  TASK_NAME=DIALECT
-#  SEED=42
-#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$MODEL_NAME/$SEED/$TASK_NAME
-
-#  TASK_NAME=CGLU
-#  SEED=42
-#  python run_varieties.py --model_path $MODEL_PATH --task $TASK_NAME --seed $SEED \
-#  --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VAR/$TASK_NAME/$MODEL_NAME/$SEED
-
-# CREATING the VALUE files
-#MAPPING_FILE='/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value/resources/sae_aave_mapping_dict.pkl'
-#conda deactivate
-#conda activate /hpc/local/Rocky8/uu_cs_nlpsoc/miniconda3/envs/aw_value_old
-#cd /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/code/value
-#export VALUE_TASK_NAME=sst2
-#python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
-#--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
-#export VALUE_TASK_NAME=qqp
-#python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
-#--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
-#export VALUE_TASK_NAME=mnli
-#python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
-#--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
-#export VALUE_TASK_NAME=qnli
-#python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
-#--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
-#export VALUE_TASK_NAME=rte
-#python run_transform_glue.py --task_name $VALUE_TASK_NAME --dialect "aave" --lexical_mapping $MAPPING_FILE  \
-#--morphosyntax --model_name_or_path "prajjwal1/bert-tiny" --output_dir /hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/output/VALUE/$TASK_NAME
 

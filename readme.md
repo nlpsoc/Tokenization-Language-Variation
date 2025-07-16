@@ -30,14 +30,14 @@ Find the datasets ready to use on huggingface (except for those where we lack li
 **Tasks**  
 
 *Variation-Sensitive*
-- Authorship Verification:
-- PAN:
-- CORE:
-- NUCLE: cannot be shared due to licensing constraints 
-- Dialect: 
+- Authorship Verification: https://huggingface.co/datasets/AnnaWegmann/AV
+- PAN: https://huggingface.co/datasets/AnnaWegmann/PAN
+- CORE: https://huggingface.co/datasets/AnnaWegmann/CORE
+- NUCLE: cannot be shared due to licensing constraints; you can request access via https://www.comp.nus.edu.sg/~nlp/corpora.html
+- Dialect: https://huggingface.co/datasets/AnnaWegmann/Dialect
 
 *Variation-Robust*
-- GLUE: 
+- GLUE: see https://huggingface.co/datasets/nyu-mll/glue
 - GLUE+typo: https://huggingface.co/datasets/AnnaWegmann/GLUE-typo
 - GLUE+dialect: https://huggingface.co/datasets/AnnaWegmann/GLUE-dialect
 

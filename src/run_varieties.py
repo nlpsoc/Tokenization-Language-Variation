@@ -106,40 +106,7 @@ def main(task, model_path, seed, output_dir, overwrite=False):
         # save predictions
         test_df["predictions"] = y_pred
         test_df.to_csv(os.path.join(output_dir, "eval_dataset.tsv"), index=False, sep="\t")
-        # print accuracy on test set
-        # train_csv_path = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train/train.csv"
-        # from styletokenizer.utility.umich_av import create_singplesplit_sadiri_classification_dataset
-        # train_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/train"
-        # train_dataset = create_singplesplit_sadiri_classification_dataset(train_file)
-        # train_dataset.to_csv(train_csv_path, index=False)
-        # validation_file = "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/down_1_shuffle/validation"
-        # validation_dataset = create_singplesplit_sadiri_classification_dataset(validation_file)
-        # validation_dataset.to_csv(validation_csv_path, index=False)
-        #
-        # command = [
-        #     "python", "run_classification.py",
-        #     "--model_name_or_path", model_path,
-        #     "--train_file", train_csv_path,
-        #     "--validation_file", validation_csv_path,
-        #     "--shuffle_train_dataset",
-        #     "--text_column_name", "query_text,candidate_text",
-        #     "--text_column_delimiter", "[SEP]",
-        #     "--label_column_name", "label",
-        #     "--do_train",
-        #     "--do_eval",
-        #     "--max_seq_length", "512",
-        #     "--per_device_train_batch_size", "32",
-        #     "--learning_rate", "2e-5",
-        #     "--num_train_epochs", "3",
-        #     # "--max_train_samples", "200000",
-        #     "--output_dir", output_dir,
-        #     "--seed", str(seed),
-        #     "--overwrite_cache",
-        #     # "--metric_name", "f1",
-        #     "--save_strategy", "epoch",
-        # ]
-        # if overwrite:
-        #     command.append("--overwrite_output_dir")
+
     elif task == "PAN":
         command = [
             "python", "run_classification.py",
@@ -172,9 +139,6 @@ def main(task, model_path, seed, output_dir, overwrite=False):
             "--model_name_or_path", model_path,
             "--train_file", VARIETIES_TRAIN_DICT[task],
             "--validation_file", VARIETIES_DEV_DICT[task],
-            # "--test_file", "/hpc/uu_cs_nlpsoc/02-awegmann/TOKENIZER/data/eval-corpora/CORE/prepped_test.tsv",
-            # "--shuffle_train_dataset",
-            # "--max_train_samples", "100000",  # using longer seq length, so reduce samples --> only > 30k instances anyway
             "--text_column_name", "text",
             "--label_column_name", "genre",  # "label"
             "--do_train",
