@@ -4,15 +4,18 @@ This repository contains code, artifacts and links to datasets for the paper ["T
 
 ### Code
 
-The `run_varieties.py`, `run_glue.py` are the fine-tuning of BERT models  
-`train_bert.py` is training BERT  
+`fit_tokenizer.py` is fitting the tokenizers
+
+`train_bert.py` is training BERT
 `run_sensitive.sh` is a shell script demonstrating the evaluation of trained BERT on variation-sensitive tasks  
 `run_robust.sh` is a shell script demonstrating the evaluation of trained BERT on variation-robust tasks 
-`fit_tokenizer.py` is fitting the tokenizers  
+
 `run_logreg.py` is the logistic regression model  
 `intrinsic_eval.py` is the "intrinsic" evaluation of the tokenization models  
 
-Planning to eventually release a slimmed down and refactored version of the code, such that it can be used to easily evaluate your own tokenizers. This could take some time, unfortunately.
+Currently this repository mainly fulfills documentation purposes. 
+I'm planning to eventually release a slimmed down version of the code, such that it can be used to easily evaluate your own tokenizers. 
+This could take some time, unfortunately.
 
 ### Datasets
 
